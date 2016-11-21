@@ -1,0 +1,33 @@
+section( id='source' class='container content-section text-center' )
+  div( class='row' )
+    div( class='col-lg-8 col-lg-offset-2' )
+      h2 Code
+      
+      h3 Javascript (main.js)
+      
+      p Instantiate a state machine with an array of states in parameter.
+      pre. 
+        var fsm = TAIPAN.create([
+          { name: 'play',  from: 'paused',  to: 'running' },
+          { name: 'pause', from: 'running', to: 'paused' }
+        ]);
+      
+      p Change the state of the machine and do your actions
+      pre.
+        function play(){
+          if( fsm.play() ){
+            //your code for playing the sequence
+          }else{
+            //invalid request. The current state does not allow to go to the "running" state
+          }
+          return fsm.getStatus();
+        }
+        
+        function pause(){
+          if( fsm.pause() ){
+            //your code for pausing the sequence
+          }else{
+            //invalid request. The current state does not allow to go to the "pause" state
+          }
+          return fsm.getStatus();
+        }

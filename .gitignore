@@ -1,0 +1,12 @@
+
+node_modules/
+doc/
+dist/
+zip/
+website/static/
+website/public/fonts/
+website/public/css/
+website/public/js/
+website/sass/build/
+.sass-cache/
+npm-debug.log
