@@ -1,11 +1,11 @@
 {
-    "name" : "FrameRatjs",
+    "name" : "Bumpjs",
     "version" : "0.2.1",
     "description":"javascript library",
     "keywords":["animation frame"],
     "homepage":"http://frameratjs.lcluber.com",
     "bugs": {
-      "url" : "https://github.com/LCluber/FrameRat.js/issues"
+      "url" : "https://github.com/LCluber/Bump.js/issues"
     },
     "license": {
       "type": "MIT",

@@ -1,6 +1,6 @@
-## Taipan.js project installation guide
+## Bump.js project installation guide
 
-You just cloned Taipan.js : git clone https://github.com/LCluber/Taipan.js.git
+You just cloned Bump.js : git clone https://github.com/LCluber/Bump.js.git
 
 ### Install nodejs 4 on your server :
   - Windows and OSX : **https://nodejs.org/en/**
@@ -37,4 +37,4 @@ You just cloned Taipan.js : git clone https://github.com/LCluber/Taipan.js.git
     - **grunt static** builds the static version of the website,
     - **grunt zip** builds the downloadable zip.
   - Run **DEBUG=myapp:* npm start** in a new window to start Express server.
-  - Go to **http://localhost:3004/** to test the app.
+  - Go to **http://localhost:3006/** to test the app.

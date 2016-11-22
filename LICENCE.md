@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2015 Ludovic CLUBER
+Copyright (c) 2011 Ludovic CLUBER
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -6,7 +6,7 @@
 
 ## Code Example
 
- [See a basic example on the dedicated website](http://taipanjs.lcluber.com/#source).
+ [See a basic example on the dedicated website](http://bumpjs.lcluber.com/#source).
 
 ## Motivation
 
@@ -14,11 +14,11 @@ The main purpose of this library is to provide a simple way to handle sequential
 
 ## Installation
 
-To use **Taipan.js** download it **[here](http://taipanjs.lcluber.com/#download)** and learn how to use it **[there](http://taipanjs.lcluber.com/#example)**.
+To use **Taipan.js** download it **[here](http://bumpjs.lcluber.com/#download)** and learn how to use it **[there](http://bumpjs.lcluber.com/#example)**.
 
 ## API Reference
 
-[See the documentation on the dedicated website](http://taipanjs.lcluber.com/doc/).
+[See the documentation on the dedicated website](http://bumpjs.lcluber.com/doc/).
 
 ## Tests
 
@@ -27,13 +27,13 @@ No tests to run yet
 ## Contributors
 
 There is still a lot of work to do on this project and I would be glad to get all the help you can provide.
-To contribute you can clone the project on **[GitHub](https://github.com/LCluber/Taipan.js)** and see  **INSTALL.md** for detailed installation walkthrough of the project.
+To contribute you can clone the project on **[GitHub](https://github.com/LCluber/Bump.js)** and see  **INSTALL.md** for detailed installation walkthrough of the project.
 
 ## License
 
 MIT License
 
-Copyright (c) 2015 Ludovic CLUBER
+Copyright (c) 2011 Ludovic CLUBER
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

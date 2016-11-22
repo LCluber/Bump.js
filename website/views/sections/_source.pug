@@ -1,0 +1,38 @@
+section( id='source' class='container content-section text-center' )
+  div( class='row' )
+    div( class='col-lg-8 col-lg-offset-2' )
+      h2 Code
+      
+      h3 Javascript (main.js)
+      
+      p Instantiate an animation with an onAnimate callback .
+      pre. 
+        var animation = FRAMERAT.create(render);
+      
+      p Render function
+      pre.
+        function render(){
+          clearFrame();
+          drawStuff();
+          writeStuff('Elapsed time : '     + animation.getTotalTime(0) + ' seconds');
+          writeStuff('Frame number : '     + animation.getFrameNumber());
+          writeStuff('Frame Per Second : ' + animation.getFramePerSecond(30, 0));
+          writeStuff('Frame duration : '   + animation.getDelta().getSecond();
+          writeStuff('Rounded Frame duration : ' + animation.getRoundedDelta(30, 0).getMillisecond() + ' ms');
+          animation.newFrame();
+        }
+      
+      p Play, Pause, Stop functions
+      pre.
+        function playAnimation(){ //bind a button to this function
+          animation.play();
+        }
+
+        function pauseAnimation () { //bind a button to this function
+          animation.pause();
+        }
+
+        function stopAnimation () { //bind a button to this function
+          animation.stop();
+          clearFrame();
+        }

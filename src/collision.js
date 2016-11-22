@@ -1,18 +1,18 @@
 PHYSICS.Collision = {
 
-  delta=new ROOSTR.Vector3();
-	penetration=new ROOSTR.Vector3();
-	vertex=new ROOSTR.Vector3();
-	relativeVelocity=new ROOSTR.Vector3();
-	separatingVelocity=0;
-	newSeparatingVelocity=0;
+  delta : TYPE6JS.Vector2D.create(),
+	penetration : TYPE6JS.Vector2D.create(),
+	vertex : TYPE6JS.Vector2D.create(),
+	relativeVelocity : TYPE6JS.Vector2D.create(),
+	separatingVelocity : 0,
+	newSeparatingVelocity : 0,
 
-	deltaVelocity=0;
-	totalInverseMass=0;
-	impulse=0;
-	impulsePerInverseMass=new ROOSTR.Vector3();
+	deltaVelocity : 0,
+	totalInverseMass : 0,
+	impulse : 0,
+	impulsePerInverseMass : TYPE6JS.Vector2D.create(),
 
-	hit=0;
+	hit : 0,
 
   /**
   * Create a new physics class.
@@ -46,27 +46,27 @@ PHYSICS.Collision = {
 		pen=r-len;
 		if(pen>0){//penetration detected
 			this.hit=1;
-			this.penetration.copy(this.delta);
+			this.penetration.copyTo(this.delta);
 			//distance vector is normalized and scaled by penetration depth
-			this.penetration.scale(pen/len);
+			this.penetration.scaleBy(pen/len);
 		}
 	},
 
 	circleVSaabb:function(apos,ahs,bpos,bhs){
 		//determine grid/voronoi region of circle center
-		var oH=0,oV=0,dx=this.delta.x,dy=this.delta.y;
-		if(dx<-bhs.X)
+		var oH=0,oV=0,dx=this.delta.getX(),dy=this.delta.getY();
+		if(dx<-bhs.getX())
       oH=-1;//circle is on left side of tile
-		else if(bhs.X<dx)
+		else if(bhs.getX()<dx)
       oH=1;//circle is on right side of tile
-		if(dy<-bhs.Y)
+		if(dy<-bhs.getY())
       oV=-1;//circle is on bottom side of tile
-		else if(bhs.Y<dy)
+		else if(bhs.getY()<dy)
       oV=1;//circle is on top side of tile
 
-		if(oH==0){
+		if(oH===0){
 			this.hit=1;
-			if(oV==0){//circle is in the aabb
+			if(oV===0){//circle is in the aabb
 				if(this.penetration.x<this.penetration.y){ //penetration in x is smaller; project on x
 					this.penetration.y=0;
 					if(dx<0)
@@ -83,7 +83,7 @@ PHYSICS.Collision = {
           this.penetration.y=-this.penetration.y; //project up
 			}
 
-		}else if(oV==0){ //project on x axis
+		}else if(oV===0){ //project on x axis
 			this.hit=1;
 			this.penetration.y=0;
 			if(dx<0)
@@ -100,7 +100,7 @@ PHYSICS.Collision = {
 			pen=ahs.x-len;
 			if(pen>0){//vertex is in the circle; project outward
 				this.hit=1;
-				if(len==0){
+				if(len===0){
 					//project out by 45deg (1/square root of 2)
 					this.penetration.init(oH,oV);
 					this.penetration.scale(pen/1.41,0);

@@ -54,12 +54,12 @@ var PHYSICS = {
   elasticity : -1,//-e
   shape : 1,
 
-  size=TYPE6JS.Vector3D.create(),
-  halfSize=TYPE6JS.Vector3D.create(),
-  cells=[0,0,0,0];
+  size : TYPE6JS.Vector3D.create(),
+  halfSize : TYPE6JS.Vector3D.create(),
+  cells : [0,0,0,0],
 //margin=[-halfSize.y,ROOSTR.Screen.size.x+halfSize.x,ROOSTR.Screen.size.y+halfSize.y,-halfSize.x];
 
-  impulsePerInverseMass=TYPE6JS.Vector3D.create(),
+  impulsePerInverseMass : TYPE6JS.Vector3D.create(),
 
   /**
   * Create a new physics class.

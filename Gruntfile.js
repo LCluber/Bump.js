@@ -2,7 +2,7 @@ module.exports = function(grunt){
 
   require('time-grunt')(grunt);
 
-  var projectName = 'FrameRat';
+  var projectName = 'Bump';
 
   var srcDir    = 'src/';
   var distDir   = 'dist/';
@@ -48,10 +48,10 @@ module.exports = function(grunt){
     clean: {
       dist     : distDir,
       doc      : 'doc/',
-      static   : webDir + 'static/',
+      static   : webDir    + 'static/',
       js       : publicDir + 'js/',
       css      : publicDir + 'css/',
-      sass     : webDir + 'sass/build/',
+      sass     : webDir    + 'sass/build/',
       fonts    : publicDir + 'fonts/',
       zip      : 'zip/',
     },
@@ -240,7 +240,7 @@ module.exports = function(grunt){
           stripBanners: false,
           banner: banner
         },
-        src: [distDir + projectName.toLowerCase() + '.js','libs/taipanjs/taipan.js'],
+        src: [distDir + projectName.toLowerCase() + '.js','libs/type6js/type6.js'],
         dest: distDir + projectName.toLowerCase() + '.js'
       },
       libmin: {
@@ -249,7 +249,7 @@ module.exports = function(grunt){
           stripBanners: true,
           banner: banner
         },
-        src:[distDir + projectName.toLowerCase() + '.min.js','libs/taipanjs/taipan.min.js'],
+        src: [distDir + projectName.toLowerCase() + '.min.js','libs/type6js/type6.min.js'],
         dest: distDir + projectName.toLowerCase() + '.min.js'
       },
       webjs: {
