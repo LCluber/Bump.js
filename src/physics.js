@@ -86,7 +86,14 @@ var PHYSICS = {
     return _this;
   },
 
-  computePosition : function( direction, time ){
+  /**
+  * setPosition a new physics class.
+  * @since 0.2.0
+  * @method
+  * @param {array} config An array of actions describing the state machine. [{ name: 'action',    from: 'status1',    to: 'status2' }]
+  * @returns {fsm}  The new finite state machine
+  */
+  setPosition : function( direction, time ){
     //var p=0;
     //add new force
     if(direction.isNotNull()){

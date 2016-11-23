@@ -1,3 +1,4 @@
+
 PHYSICS.Collision = {
 
   delta : TYPE6JS.Vector2D.create(),
@@ -14,13 +15,6 @@ PHYSICS.Collision = {
 
 	hit : 0,
 
-  /**
-  * Create a new physics class.
-  * @since 0.2.0
-  * @method
-  * @param {array} config An array of actions describing the state machine. [{ name: 'action',    from: 'status1',    to: 'status2' }]
-  * @returns {fsm}  The new finite state machine
-  */
   create : function( config ){
     var _this = Object.create(this);
     _this.config = config;
