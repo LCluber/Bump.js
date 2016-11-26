@@ -4,21 +4,25 @@ window.onload = function() {
   var width     = canvas.width = window.innerWidth;
   var height    = canvas.height = window.innerHeight;
   var particles = [];
+  var collision = BUMP.Collision.create();
 
   var particle = {
     position: {},
     velocity: {},
     create : function( positionX, positionY, velocityX, velocityY ){
       var obj = Object.create(this);
-      obj.init();
-      obj.position.setXY( positionX, positionY );
-      obj.velocity.setXY( velocityX, velocityY );
+      obj.physics = BUMP.create(  TYPE6JS.Vector2D.create(positionX, positionY),
+                                  TYPE6JS.Vector2D.create(velocityX, velocityY)
+                                  TYPE6JS.Vector2D.create(),
+                                  1.0,
+                                  5.0,
+                                  0.5,
+                                  0.8,
+                                  'circle'
+                                );
       return obj;
     },
-    init: function(){
-      this.position = TYPE6JS.Vector2D.create();
-      this.velocity = TYPE6JS.Vector2D.create();
-    },
+
     update: function(){
       this.position.addTo(this.velocity);
     }

@@ -1,7 +1,7 @@
 /**
 * @namespace
 */
-var PHYSICS = {
+var BUMP = {
 
   /**
   * @author Ludovic Cluber <http://www.lcluber.com/contact>
@@ -57,9 +57,16 @@ var PHYSICS = {
   size : TYPE6JS.Vector3D.create(),
   halfSize : TYPE6JS.Vector3D.create(),
   cells : [0,0,0,0],
+  frame : [ TYPE6JS.Vector3D.create(),
+            TYPE6JS.Vector3D.create(),
+            TYPE6JS.Vector3D.create(),
+            TYPE6JS.Vector3D.create()
+          ];
 //margin=[-halfSize.y,ROOSTR.Screen.size.x+halfSize.x,ROOSTR.Screen.size.y+halfSize.y,-halfSize.x];
 
-  impulsePerInverseMass : TYPE6JS.Vector3D.create(),
+  //impulsePerInverseMass : TYPE6JS.Vector3D.create(),
+
+  //collision : BUMP.Collision.create(),
 
   /**
   * Create a new physics class.
@@ -68,14 +75,16 @@ var PHYSICS = {
   * @param {array} config An array of actions describing the state machine. [{ name: 'action',    from: 'status1',    to: 'status2' }]
   * @returns {fsm}  The new finite state machine
   */
-  create : function( velocity,
+  create : function( position
+                     velocity,
                      throttle,
                      size,
                      mass,
                      damping,
                      elasticity,
                      shape ){
-    var _this = Object.create(this);
+    var _this = Object.create( this );
+    _this.position    = position;
     _this.velocity    = velocity;
     _this.throttle    = throttle;
     _this.size        = size;
@@ -83,6 +92,7 @@ var PHYSICS = {
     _this.inverseMass = !mass?0:1/mass;
     _this.elasticity  = -elasticity;
     _this.shape       = shape;
+    _this.setFrame();
     return _this;
   },
 
@@ -129,6 +139,31 @@ var PHYSICS = {
 		//if(p)
 			//this.newCells();
 	},
+  
+  applyImpulse:function( impulsePerInverseMass ){
+    if( this.life && this.inverseMass )
+      this.velocity.addScaledVectorTo( impulsePerInverseMass, this.inverseMass);//add impulse vector to velocity
+  },
+  
+  newCells:function(){
+    for(var i=0;i<4;i++)// can be in for cells maximum
+      this.cells[i]=Math.floor((this.fram[i].X-SCREEN.margin[3])/SCREEN.cellSize.X) +Math.floor((this.fram[i].Y-SCREEN.margin[0])/SCREEN.cellSize.Y)*SCREEN.nbCell.X;
+  },
+    
+  setFrame: function(){
+    var pxmh = this.position.getX() - this.halfSize.getX();
+    var pxph = this.position.getX() + this.halfSize.getX();
+    var pymh = this.position.getY() - this.halfSize.getY();
+    var pyph = this.position.getY() + this.halfSize.getY();
+    this.fram[0].setXY( pxmh, pymh );
+    this.fram[1].setXY( pxph, pymh );
+    this.fram[2].setXY( pxph, pyph );
+    this.fram[3].setXY( pxmh, pyph );
+  },
+  
+  // hitTest : function(candidate){
+  //   
+  // }
 
 };
 
