@@ -95,7 +95,7 @@ BUMP.Collision = {
     this.penetration.scale(-1);
     this.penetration.add(ahs);
     this.penetration.add(bhs);//penetration depth on each axis
-    if(this.penetration.x > 0 && this.penetration.y > 0 && this.penetration.z > 0 )
+    if(this.penetration.getX() > 0 && this.penetration.getY() > 0 )
       return 1; //objects may be colliding
   },
 
@@ -190,7 +190,7 @@ BUMP.Collision = {
     }
   },
   
-  computeImpulseVectors(a,b){
+  computeImpulseVectors : function(a,b){
     this.separatingVel( a.velocity, b.velocity );
     if( this.separatingVelocity < 0 ){//apply collision response forces only if objects are travelling in each other
       //vel+=1/m*impulse
@@ -207,9 +207,12 @@ BUMP.Collision = {
       this.impulsePerInverseMass.copyScaledVectorTo( this.penetration, this.impulse );
       // Apply impulses: they are applied in the direction of the contact,
       // and are proportional to the inverse mass.
-      a.applyImpulse(this.impulsePerInverseMass);
-      this.impulsePerInverseMass.scaleBy(-1);
-      b.applyImpulse(this.impulsePerInverseMass);
+      if( a.inverseMass )
+        a.impulse.addTo( this.impulsePerInverseMass );
+      if( b.inverseMass ){
+        this.impulsePerInverseMass.scaleBy( -1 );
+        b.impulse.addTo( this.impulsePerInverseMass );
+      }
     }
   },
   

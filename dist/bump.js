@@ -20,6 +20,30 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
+* http://bump.lcluber.com
+*/
+/** MIT License
+* 
+* Copyright (c) 2011 Ludovic CLUBER 
+* 
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*
 * http://type6.lcluber.com
 */
 var TYPE6JS = {
@@ -302,13 +326,21 @@ TYPE6JS.Vector2D = {
         this.x += scalar;
         this.y += scalar;
     },
-    addScaledVectorTo: function(vector2D, value) {
-        this.x += vector2D.x * value;
-        this.y += vector2D.y * value;
+    addScaledVectorTo: function(vector2D, scalar) {
+        this.x += vector2D.x * scalar;
+        this.y += vector2D.y * scalar;
+    },
+    copyScaledVectorTo: function(vector2D, scalar) {
+        this.x = vector2D.x * scalar;
+        this.y = vector2D.y * scalar;
     },
     subtractFrom: function(vector2D) {
         this.x -= vector2D.getX();
         this.y -= vector2D.getY();
+    },
+    copySubtractFromTo: function(vector2DA, vector2DB) {
+        this.x = vector2DA.getX() - vector2DB.getX();
+        this.y = vector2DA.getY() - vector2DB.getY();
     },
     subtractScalarFrom: function(scalar) {
         this.x -= scalar;
@@ -675,3 +707,201 @@ TYPE6JS.Trigonometry = {
 };
 
 TYPE6JS.Trigonometry.createFactorialArray();
+var BUMP = {
+    revision: "0.2.0",
+    options: {
+        space: "2D"
+    },
+    translate: TYPE6JS.Vector2D.create(),
+    velocity: TYPE6JS.Vector2D.create(),
+    gravity: TYPE6JS.Vector2D.create(0, 400),
+    force: TYPE6JS.Vector2D.create(),
+    impulse: TYPE6JS.Vector2D.create(),
+    resultingAcc: TYPE6JS.Vector2D.create(),
+    damping: .9,
+    mass: 1,
+    inverseMass: 1,
+    elasticity: -1,
+    shape: 1,
+    size: TYPE6JS.Vector2D.create(),
+    halfSize: TYPE6JS.Vector2D.create(),
+    cells: [ 0, 0, 0, 0 ],
+    frame: [ TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create() ],
+    create: function(velocity, size, mass, damping, elasticity, shape) {
+        var _this = Object.create(this);
+        _this.velocity = velocity;
+        _this.size = size;
+        _this.mass = mass;
+        _this.inverseMass = !mass ? 0 : 1 / mass;
+        _this.elasticity = -elasticity;
+        _this.shape = shape;
+        return _this;
+    },
+    setPosition: function(second) {
+        var moved = false;
+        this.translate.setToOrigin();
+        this.resultingAcc.copyTo(this.gravity);
+        if (this.impulse.isNotOrigin()) {
+            this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
+            this.impulse.setToOrigin();
+        }
+        if (this.inverseMass && this.force.isNotOrigin()) {
+            this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
+            this.force.setToOrigin();
+        }
+        if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
+        if (this.velocity.isNotOrigin()) {
+            this.velocity.scaleBy(Math.pow(this.damping, second));
+            this.translate.copyScaledVectorTo(this.velocity, second);
+            moved = true;
+        }
+        return this.translate;
+    },
+    applyImpulse: function(impulsePerInverseMass) {
+        this.velocity.addScaledVectorTo(impulsePerInverseMass, this.inverseMass);
+    },
+    newCells: function() {
+        for (var i = 0; i < 4; i++) this.cells[i] = Math.floor((this.fram[i].X - SCREEN.margin[3]) / SCREEN.cellSize.X) + Math.floor((this.fram[i].Y - SCREEN.margin[0]) / SCREEN.cellSize.Y) * SCREEN.nbCell.X;
+    },
+    setFrame: function() {
+        var pxmh = this.position.getX() - this.halfSize.getX();
+        var pxph = this.position.getX() + this.halfSize.getX();
+        var pymh = this.position.getY() - this.halfSize.getY();
+        var pyph = this.position.getY() + this.halfSize.getY();
+        this.frame[0].setXY(pxmh, pymh);
+        this.frame[1].setXY(pxph, pymh);
+        this.frame[2].setXY(pxph, pyph);
+        this.frame[3].setXY(pxmh, pyph);
+    }
+};
+
+BUMP.Collision = {
+    delta: TYPE6JS.Vector2D.create(),
+    penetration: TYPE6JS.Vector2D.create(),
+    vertex: TYPE6JS.Vector2D.create(),
+    relativeVelocity: TYPE6JS.Vector2D.create(),
+    voronoi: TYPE6JS.Vector2D.create(),
+    separatingVelocity: 0,
+    newSeparatingVelocity: 0,
+    deltaVelocity: 0,
+    totalInverseMass: 0,
+    impulse: 0,
+    impulsePerInverseMass: TYPE6JS.Vector2D.create(),
+    hit: 0,
+    create: function() {
+        var _this = Object.create(this);
+        return _this;
+    },
+    test: function() {
+        if (this.cellTest(a.cells, b.cells)) {
+            if (this.aabbVSaabbHit(a.position, a.halfSize, b.position, b.halfSize)) {
+                this.hit = 0;
+                if (a.shape === "aabb") {
+                    if (b.shape === "aabb") this.aabbVSaabb(); else if (b.shape === "aabb") this.circleVSaabb(b.position, b.halfSize, a.position, a.halfSize);
+                } else if (a.shape === "circle") {
+                    if (b.shape === "circle") this.circleVScircle(a.halfSize.x + b.halfSize.x); else if (b.shape === "aabb") this.circleVSaabb(a.position, a.halfSize, b.position, b.halfSize);
+                }
+                if (this.hit) a.position.add(this.penetration);
+                return this.hit;
+            }
+        }
+    },
+    cellTest: function(a, b) {
+        for (var i = 0, k = -1; i < 4; i++) {
+            if (k != a[i]) {
+                for (var j = 0; j < 4; j++) {
+                    if (a[i] === b[j]) return true;
+                }
+                k = a[i];
+            }
+        }
+        return false;
+    },
+    aabbVSaabbHit: function(apos, ahs, bpos, bhs) {
+        this.delta.copySubtractFromTo(apos, bpos);
+        this.penetration.copy(this.delta);
+        this.penetration.absolute();
+        this.penetration.scale(-1);
+        this.penetration.add(ahs);
+        this.penetration.add(bhs);
+        if (this.penetration.x > 0 && this.penetration.y > 0 && this.penetration.z > 0) return 1;
+    },
+    aabbVSaabbProjection: function() {
+        this.hit = 1;
+        if (this.penetration.x < this.penetration.y) {
+            this.penetration.y = 0;
+            if (this.delta.x < 0) this.penetration.x = -this.penetration.x;
+        } else {
+            this.penetration.x = 0;
+            if (this.delta.y < 0) this.penetration.y = -this.penetration.y;
+        }
+    },
+    circleVScircle: function(radius) {
+        var len = this.delta.magnitude(), pen = radius - len;
+        if (pen > 0) {
+            this.hit = 1;
+            this.penetration.copyScaledVectorTo(this.delta, pen / len);
+        }
+    },
+    circleVSaabb: function(apos, ahs, bpos, bhs) {
+        this.voronoi.setToOrigin();
+        var dx = this.delta.getX();
+        var dy = this.delta.getY();
+        var bhsX = bhs.getX();
+        var bhsY = bhs.getY();
+        if (dx < -bhsX) this.voronoi.setX(-1); else if (bhsX < dx) this.voronoi.setX(1);
+        if (dy < -bhsY) this.voronoi.setY(-1); else if (bhsY < dy) this.voronoi.setY(1);
+        var oH = this.delta.getX();
+        var oV = this.delta.getY();
+        if (oH === 0) {
+            this.hit = 1;
+            if (oV === 0) {
+                if (this.penetration.getX() < this.penetration.getY()) {
+                    this.penetration.setY(0);
+                    if (dx < 0) this.penetration.oppositeXTo();
+                } else {
+                    this.penetration.setX(0);
+                    if (dy < 0) this.penetration.oppositeYTo();
+                }
+            } else {
+                this.penetration.setX(0);
+                if (dy < 0) this.penetration.oppositeYTo();
+            }
+        } else if (oV === 0) {
+            this.hit = 1;
+            this.penetration.setY(0);
+            if (dx < 0) this.penetration.oppositeXTo();
+        } else {
+            this.vertex.copyTo(this.voronoi);
+            this.vertex.componentProduct(bhs);
+            this.vertex.add(bpos);
+            this.copySubtractFromTo(apos, this.vertex);
+            var len = this.delta.magnitude();
+            pen = ahs.x - len;
+            if (pen > 0) {
+                this.hit = 1;
+                if (len === 0) this.penetration.copyScaledVectorTo(this.voronoi, pen / 1.41); else this.penetration.copyScaledVectorTo(this.delta, pen / len);
+            }
+        }
+    },
+    computeImpulseVectors: function(a, b) {
+        this.separatingVel(a.velocity, b.velocity);
+        if (this.separatingVelocity < 0) {
+            this.newSeparatingVelocity = this.separatingVelocity * a.elasticity;
+            this.deltaVelocity = this.newSeparatingVelocity - this.separatingVelocity;
+            this.totalInverseMass = a.inverseMass + b.inverseMass;
+            this.impulse = this.deltaVelocity / this.totalInverseMass;
+            this.impulsePerInverseMass.copyScaledVectorTo(this.penetration, this.impulse);
+            if (a.inverseMass) a.impulse.addTo(this.impulsePerInverseMass);
+            if (b.inverseMass) {
+                this.impulsePerInverseMass.scaleBy(-1);
+                b.impulse.addTo(this.impulsePerInverseMass);
+            }
+        }
+    },
+    separatingVel: function(av, bv) {
+        this.penetration.normalizeTo();
+        this.relativeVelocity.copySubtractFromTo(av, bv);
+        this.separatingVelocity = this.relativeVelocity.dot(this.penetration);
+    }
+};

@@ -34,17 +34,19 @@ var BUMP = {
 
   revision : '0.2.0',
   options :{
-    space : '3D'
+    space : '2D'
   },
 
 
-  position     : TYPE6JS.Vector3D.create(),
-  gravity      : TYPE6JS.Vector3D.create(),
-  force        : TYPE6JS.Vector3D.create(),
-  resultingAcc : TYPE6JS.Vector3D.create(),
-  velocity     : TYPE6JS.Vector3D.create(),
-  thrust       : TYPE6JS.Vector3D.create(),
-  direction    : TYPE6JS.Vector3D.create(),
+  translate    : TYPE6JS.Vector2D.create(),
+  velocity     : TYPE6JS.Vector2D.create(),
+  gravity      : TYPE6JS.Vector2D.create( 0, 400 ),
+  force        : TYPE6JS.Vector2D.create(),
+  impulse      : TYPE6JS.Vector2D.create(),
+  resultingAcc : TYPE6JS.Vector2D.create(),
+  
+  //thrust       : TYPE6JS.Vector2D.create(),
+  //direction    : TYPE6JS.Vector2D.create(),
 
 //fram=[new Vect(.0,.0),new Vect(.0,.0),new Vect(.0,.0),new Vect(.0,.0)];
 
@@ -54,17 +56,17 @@ var BUMP = {
   elasticity : -1,//-e
   shape : 1,
 
-  size : TYPE6JS.Vector3D.create(),
-  halfSize : TYPE6JS.Vector3D.create(),
+  size : TYPE6JS.Vector2D.create(),
+  halfSize : TYPE6JS.Vector2D.create(),
   cells : [0,0,0,0],
-  frame : [ TYPE6JS.Vector3D.create(),
-            TYPE6JS.Vector3D.create(),
-            TYPE6JS.Vector3D.create(),
-            TYPE6JS.Vector3D.create()
-          ];
+  frame : [ TYPE6JS.Vector2D.create(),
+            TYPE6JS.Vector2D.create(),
+            TYPE6JS.Vector2D.create(),
+            TYPE6JS.Vector2D.create()
+          ],
 //margin=[-halfSize.y,ROOSTR.Screen.size.x+halfSize.x,ROOSTR.Screen.size.y+halfSize.y,-halfSize.x];
 
-  //impulsePerInverseMass : TYPE6JS.Vector3D.create(),
+  //impulsePerInverseMass : TYPE6JS.Vector2D.create(),
 
   //collision : BUMP.Collision.create(),
 
@@ -75,24 +77,20 @@ var BUMP = {
   * @param {array} config An array of actions describing the state machine. [{ name: 'action',    from: 'status1',    to: 'status2' }]
   * @returns {fsm}  The new finite state machine
   */
-  create : function( position
-                     velocity,
-                     throttle,
+  create : function( velocity,
                      size,
                      mass,
                      damping,
                      elasticity,
                      shape ){
     var _this = Object.create( this );
-    _this.position    = position;
     _this.velocity    = velocity;
-    _this.throttle    = throttle;
     _this.size        = size;
     _this.mass        = mass;
     _this.inverseMass = !mass?0:1/mass;
     _this.elasticity  = -elasticity;
     _this.shape       = shape;
-    _this.setFrame();
+    //_this.setFrame();
     return _this;
   },
 
@@ -103,46 +101,54 @@ var BUMP = {
   * @param {array} config An array of actions describing the state machine. [{ name: 'action',    from: 'status1',    to: 'status2' }]
   * @returns {fsm}  The new finite state machine
   */
-  setPosition : function( direction, time ){
-    //var p=0;
+  setPosition : function( second ){
+    var moved = false;
     //add new force
-    if(direction.isNotNull()){
-      this.direction.copy(direction);
-      this.direction.normalize();
-      this.direction.multiply(this.thrust);
-      this.force.add(this.direction);
-    }
+    // if(direction.isNotOrigin()){
+    //   this.direction.copyTo( direction );
+    //   this.direction.normalizeTo();
+    //   this.direction.multiplyBy( this.thrust );
+    //   this.force.add( this.direction );
+    // }
     //init
-    this.position.zero();
-    this.resultingAcc.copy(this.gravity);
+    this.translate.setToOrigin();
+    this.resultingAcc.copyTo( this.gravity );
 
-    if(this.force.isNotNull()){
-      this.resultingAcc.addScaledVector(this.force,this.inverseMass);
-      this.force.zero();
+    //apply impulse from collision directly to velocity
+    if( this.impulse.isNotOrigin() ){
+      //if( this.inverseMass )
+        this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );
+      this.impulse.setToOrigin();
     }
-    if(this.resultingAcc.isNotNull())
-      this.velocity.addScaledVector(this.resultingAcc,time);
 
-    if(this.velocity.isNotNull()){
-      this.velocity.scale(Math.pow(this.damping,time),0);
+    if( this.inverseMass && this.force.isNotOrigin() ){
+      this.resultingAcc.addScaledVectorTo( this.force, this.inverseMass );
+      this.force.setToOrigin();
+    }
+    
+    if(this.resultingAcc.isNotOrigin())
+      this.velocity.addScaledVectorTo( this.resultingAcc, second );
+
+    if(this.velocity.isNotOrigin()){
+      this.velocity.scaleBy( Math.pow( this.damping, second ) );
       //this.velocity.scale(this.damping,0);// use if damping just solves numerical problems and other drag forces are applied
-      this.position.addScaledVector(this.velocity,time);
-      //p=1;
+      this.translate.copyScaledVectorTo( this.velocity, second );
+      moved = true;
     }
 
-    return this.position;
+    //if(moved)//if moved
+    //  this.newCells();//need to find new cells
+
 		/*if(LEVEL.scaledVel.c0()){
 			this.position.add(LEVEL.scaledVel);
 			for(var i=0;i<4;i++)this.fram[i].add(LEVEL.scaledVel);
 			p=1;
 		}*/
-		//if(p)
-			//this.newCells();
+    return this.translate;
 	},
   
   applyImpulse:function( impulsePerInverseMass ){
-    if( this.life && this.inverseMass )
-      this.velocity.addScaledVectorTo( impulsePerInverseMass, this.inverseMass);//add impulse vector to velocity
+      this.velocity.addScaledVectorTo( impulsePerInverseMass, this.inverseMass );//add impulse vector to velocity
   },
   
   newCells:function(){
@@ -155,11 +161,11 @@ var BUMP = {
     var pxph = this.position.getX() + this.halfSize.getX();
     var pymh = this.position.getY() - this.halfSize.getY();
     var pyph = this.position.getY() + this.halfSize.getY();
-    this.fram[0].setXY( pxmh, pymh );
-    this.fram[1].setXY( pxph, pymh );
-    this.fram[2].setXY( pxph, pyph );
-    this.fram[3].setXY( pxmh, pyph );
-  },
+    this.frame[0].setXY( pxmh, pymh );
+    this.frame[1].setXY( pxph, pymh );
+    this.frame[2].setXY( pxph, pyph );
+    this.frame[3].setXY( pxmh, pyph );
+  }
   
   // hitTest : function(candidate){
   //   

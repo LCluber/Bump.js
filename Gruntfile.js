@@ -9,12 +9,11 @@ module.exports = function(grunt){
   var webDir    = 'website/';
   var publicDir = webDir + 'public/';
   var nodeDir   = 'node_modules/';
+  var docDir    = 'doc/';
+  var zipDir    = 'zip/';
 
   var src       = [ srcDir + projectName.toLowerCase() + '.js',
-                    srcDir + 'time.js',
-                    srcDir + 'clock.js',
-                    srcDir + 'polyfills/performanceNow.js',
-                    srcDir + 'polyfills/requestAnimationFrame.js'
+                    srcDir + 'collision.js'
                   ];
   
   var banner    = '/** MIT License\n' +
@@ -47,13 +46,13 @@ module.exports = function(grunt){
     pkg: grunt.file.readJSON('package.json'),
     clean: {
       dist     : distDir,
-      doc      : 'doc/',
+      doc      : docDir,
       static   : webDir    + 'static/',
       js       : publicDir + 'js/',
       css      : publicDir + 'css/',
       sass     : webDir    + 'sass/build/',
       fonts    : publicDir + 'fonts/',
-      zip      : 'zip/',
+      zip      : zipDir
     },
     copy: {
       main: {
@@ -227,7 +226,7 @@ module.exports = function(grunt){
         files: [{
           src  : [
             nodeDir + 'jquery-easing/jquery.easing.1.3.js',
-            webDir + 'js/**/*.js'
+            webDir  + 'js/**/*.js'
           ],
           dest : publicDir + 'js/main.min.js'
         }]
@@ -240,7 +239,7 @@ module.exports = function(grunt){
           stripBanners: false,
           banner: banner
         },
-        src: [distDir + projectName.toLowerCase() + '.js','libs/type6js/type6.js'],
+        src: [nodeDir + 'Type6js/dist/type6.js', distDir + projectName.toLowerCase() + '.js'],
         dest: distDir + projectName.toLowerCase() + '.js'
       },
       libmin: {
@@ -249,7 +248,7 @@ module.exports = function(grunt){
           stripBanners: true,
           banner: banner
         },
-        src: [distDir + projectName.toLowerCase() + '.min.js','libs/type6js/type6.min.js'],
+        src: [nodeDir + 'Type6js/dist/type6.min.js', distDir + projectName.toLowerCase() + '.min.js'],
         dest: distDir + projectName.toLowerCase() + '.min.js'
       },
       webjs: {
@@ -258,11 +257,11 @@ module.exports = function(grunt){
           stripBanners: true,
           banner: ''
         },
-        src: [nodeDir + 'jquery/dist/jquery.min.js',
-              nodeDir + 'bootstrap/dist/js/bootstrap.min.js',
-              webDir + 'libs/*.js',
-              // distDir + 'framerat.js',
-              distDir + projectName.toLowerCase() + '.min.js',
+        src: [nodeDir   + 'jquery/dist/jquery.min.js',
+              nodeDir   + 'bootstrap/dist/js/bootstrap.min.js',
+              nodeDir   + 'FrameRatjs/dist/framerat.js',
+              // distDir + projectName.toLowerCase() + '.js',
+              distDir   + projectName.toLowerCase() + '.min.js',
               publicDir + 'js/main.min.js'
             ],
         dest: publicDir + 'js/main.min.js'
@@ -293,54 +292,54 @@ module.exports = function(grunt){
       },
       doc: {
         expand: true,
-        cwd: 'doc/',
+        cwd: docDir,
         src: ['**/*'],
-        dest: webDir + 'static/doc/'
+        dest: webDir + 'static/' + docDir
       }
     },
     compress: {
       main: {
         options: {
-          archive: 'zip/' + projectName.toLowerCase() + 'js.zip'
+          archive: zipDir + projectName.toLowerCase() + 'js.zip'
         },
         files: [
-          {src: [distDir + '*'], dest: '/', filter: 'isFile'},
-          {src: ['doc/**'], dest: '/', filter: 'isFile'},
-          {expand: true, cwd: webDir + 'static/', src: '**', dest: '/'},
-          {expand: true, cwd: publicDir, src: '**', dest: '/public'},
-          {src: ['LICENCE.txt'], dest: '/'},
-          {src: ['README.md'], dest: '/'},
-          {src: ['RELEASE_NOTES.md'], dest: '/'},
+          { src: [distDir + '*'], dest: '/', filter: 'isFile'},
+          { src: [docDir + '**'], dest: '/', filter: 'isFile'},
+          { expand: true, cwd: webDir + 'static/', src: '**', dest: '/'},
+          { expand: true, cwd: publicDir, src: '**', dest: '/public'},
+          { src: ['LICENCE.txt'], dest: '/'},
+          { src: ['README.md'], dest: '/'},
+          { src: ['RELEASE_NOTES.md'], dest: '/'},
         ]
       }
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-csslint');
-  grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-pug');
-  grunt.loadNpmTasks('grunt-contrib-sass');
-  grunt.loadNpmTasks('grunt-contrib-htmlmin');
-  grunt.loadNpmTasks('grunt-contrib-symlink');
-  grunt.loadNpmTasks('grunt-contrib-compress');
-  grunt.loadNpmTasks('grunt-jsdoc');
+  grunt.loadNpmTasks( 'grunt-contrib-clean' );
+  grunt.loadNpmTasks( 'grunt-contrib-copy' );
+  grunt.loadNpmTasks( 'grunt-contrib-jshint' );
+  grunt.loadNpmTasks( 'grunt-contrib-uglify' );
+  grunt.loadNpmTasks( 'grunt-contrib-csslint' );
+  grunt.loadNpmTasks( 'grunt-contrib-cssmin' );
+  grunt.loadNpmTasks( 'grunt-contrib-concat' );
+  grunt.loadNpmTasks( 'grunt-contrib-pug' );
+  grunt.loadNpmTasks( 'grunt-contrib-sass' );
+  grunt.loadNpmTasks( 'grunt-contrib-htmlmin' );
+  grunt.loadNpmTasks( 'grunt-contrib-symlink' );
+  grunt.loadNpmTasks( 'grunt-contrib-compress' );
+  grunt.loadNpmTasks( 'grunt-jsdoc' );
 
   grunt.registerTask('default', [ 'jshint', 'clean', 'copy', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'concat', 'symlink', 'compress' ]); //build all
 
-  grunt.registerTask('prod', [ 'clean', 'copy', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'concat', 'htmlmin', 'compress' ]); //build all
+  grunt.registerTask('prod', [ 'clean', 'copy', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'concat', 'htmlmin', 'compress' ]); //build prod
 
   grunt.registerTask('doc', [ 'jsdoc' ]); //build jsdoc into /doc
-  grunt.registerTask('src', [ 'jshint:lib', 'uglify:lib', 'uglify:libmin' ]); //build orbis into /dist
+  grunt.registerTask('src', [ 'jshint:lib', 'uglify:lib', 'uglify:libmin' ]); //build library into /dist
   //website
   grunt.registerTask('js', [ 'jshint:web', 'uglify:web', 'concat:webjs' ]); //build js into /website/public/js
   grunt.registerTask('css', [ 'sass', 'csslint', 'cssmin', 'concat:webcss' ]); //build sass into /website/public/css
   grunt.registerTask('static', [ 'pug', 'htmlmin', 'symlink' ]); //build static site into /website/static
 
-  grunt.registerTask('zip', ['compress']); //compress the project in a downloadable static package
+  grunt.registerTask('zip', [ 'compress' ]); //compress the project in a downloadable static package
 
 };

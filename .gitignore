@@ -1,7 +1,6 @@
 
 node_modules/
 doc/
-dist/
 zip/
 website/static/
 website/public/fonts/
