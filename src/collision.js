@@ -23,7 +23,7 @@ BUMP.Collision = {
     return _this;
   },
 
-  test : function() {
+  test : function( a, b ) {
     //if( a.onScreen() ){
       if( this.cellTest( a.cells, b.cells ) ){
         if( this.aabbVSaabbHit( a.position, a.halfSize, b.position, b.halfSize ) ){

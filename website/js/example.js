@@ -13,7 +13,7 @@
   var particle = {
     create : function( positionX, positionY, velocityX, velocityY ){
       var obj = Object.create(this);
-      obj.circle = TYPE6JS.Geometry.Circle.create( positionX, positionY, 3 );
+      obj.circle = TYPE6JS.Geometry.Circle.create( positionX, positionY, 6 );
       obj.physics = BUMP.create(  TYPE6JS.Vector2D.create(velocityX, velocityY),
                                   TYPE6JS.Vector2D.create(),
                                   1.0,
@@ -46,16 +46,20 @@
               500, 400
             );
 
-	for (var i = 0; i < particleQty; i += 1) {
-    var radius    = TYPE6JS.Random.float(0, 400);
-    var angle     = TYPE6JS.Random.float(0, TYPE6JS.Trigonometry.TWOPI);
-    particles[i]  = particle.create(
-                      width * 0.5,
-                      height * 0.5,
-                      TYPE6JS.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
-                      TYPE6JS.Trigonometry.sineEquation( radius, angle, 0, 0 )
-                    );
+  function initParticles(){
+    for (var i = 0; i < particleQty; i += 1) {
+      var radius    = TYPE6JS.Random.float(0, 400);
+      var angle     = TYPE6JS.Random.float(0, TYPE6JS.Trigonometry.TWOPI);
+      particles[i]  = particle.create(
+                        width * 0.5,
+                        height * 0.5,
+                        TYPE6JS.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
+                        TYPE6JS.Trigonometry.sineEquation( radius, angle, 0, 0 )
+                      );
+    }
   }
+  
+  initParticles();
 
   function draw() {
     
@@ -81,6 +85,13 @@
   }
 
   function render(){
+    for( var i = 0 ; i < particleQty ; i++ ){
+      for( var j = 0 ; j < particleQty ; j++ ){
+        if (i != j && collision.test( particles[i].physics, particles[j].physics ))
+          collision.computeImpulseVectors( particles[i].physics, particles[j].physics );
+      }
+    }
+      
     clearFrame();
     draw();
     //writeConsole();
@@ -98,5 +109,6 @@
   function stopAnimation () {
     animation.stop();
     clearFrame();
+    initParticles();
     //writeConsole(); //draw the console one time to show the reset
   }

@@ -792,7 +792,7 @@ BUMP.Collision = {
         var _this = Object.create(this);
         return _this;
     },
-    test: function() {
+    test: function(a, b) {
         if (this.cellTest(a.cells, b.cells)) {
             if (this.aabbVSaabbHit(a.position, a.halfSize, b.position, b.halfSize)) {
                 this.hit = 0;
@@ -824,7 +824,7 @@ BUMP.Collision = {
         this.penetration.scale(-1);
         this.penetration.add(ahs);
         this.penetration.add(bhs);
-        if (this.penetration.x > 0 && this.penetration.y > 0 && this.penetration.z > 0) return 1;
+        if (this.penetration.getX() > 0 && this.penetration.getY() > 0) return 1;
     },
     aabbVSaabbProjection: function() {
         this.hit = 1;
