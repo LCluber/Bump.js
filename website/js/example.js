@@ -41,10 +41,32 @@
     }
   };
   
-  var rectangle = TYPE6JS.Geometry.Rectangle.create(
-              (width - 500) * 0.5, (height - 400) * 0.5,
-              500, 400
-            );
+  var rectangle = {
+    create : function( positionX, positionY ){
+      var obj = Object.create(this);
+      obj.aabb = TYPE6JS.Geometry.Rectangle.create( positionX, positionY, 500, 200 );
+      obj.physics = BUMP.create(  TYPE6JS.Vector2D.create(),
+                                  TYPE6JS.Vector2D.create(),
+                                  0.0,
+                                  0.0,
+                                  0.8,
+                                  'aabb'
+                                );
+      return obj;
+    },
+    
+    drawRectangle : function(){
+      context.fillStyle = '#cccccc';
+      context.fillRect( this.aabb.topLeftCorner.getX(),
+                        this.aabb.topLeftCorner.getY(),
+                        this.aabb.size.getX(),
+                        this.aabb.size.getY()
+                      );
+    }
+    
+  };
+
+  var floor = rectangle.create( width * 0.5, height * 0.8 );
 
   function initParticles(){
     for (var i = 0; i < particleQty; i += 1) {
@@ -69,7 +91,6 @@
     for( var i = 0; i < particleQty; i += 1 ) {
       var p = particles[i];
       p.update();
-      p.circle.clampTo(rectangle);
       p.draw();
     }
     
@@ -79,15 +100,14 @@
     context.clearRect( 0, 0, width, height );
   }
   
-  function drawRectangle(rectangle, color){
-    context.fillStyle = color;
-    context.fillRect(rectangle.topLeftCorner.getX(), rectangle.topLeftCorner.getY(), rectangle.size.getX(), rectangle.size.getY());
-  }
 
   function render(){
     for( var i = 0 ; i < particleQty ; i++ ){
+      
+      if ( collision.test( particles[i].circle.position, particles[i].physics, rectangle.circle.position, particles[j].physics ))
+      
       for( var j = 0 ; j < particleQty ; j++ ){
-        if (i != j && collision.test( particles[i].physics, particles[j].physics ))
+        if (i != j && collision.test( particles[i].circle.position, particles[i].physics, particles[i].circle.position, particles[j].physics ))
           collision.computeImpulseVectors( particles[i].physics, particles[j].physics );
       }
     }

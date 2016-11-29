@@ -23,29 +23,29 @@ BUMP.Collision = {
     return _this;
   },
 
-  test : function( a, b ) {
+  test : function( positionA, physicsA, positionB, physicsB ) {
     //if( a.onScreen() ){
-      if( this.cellTest( a.cells, b.cells ) ){
-        if( this.aabbVSaabbHit( a.position, a.halfSize, b.position, b.halfSize ) ){
+      if( this.cellTest( physicsA.cells, physicsB.cells ) ){
+        if( this.aabbVSaabbHit( positionA, physicsA.halfSize, positionB, physicsB.halfSize ) ){
           this.hit = 0;
           if( a.shape === 'aabb' ){//aabb
             
             if( b.shape === 'aabb' ) 
               this.aabbVSaabb();
             else if( b.shape === 'aabb' )
-              this.circleVSaabb( b.position, b.halfSize, a.position, a.halfSize );//vs aabb
+              this.circleVSaabb( positionB, physicsB.halfSize, positionA, physicsA.halfSize );//vs aabb
           
           }else if( a.shape === 'circle' ){//circle
             
             if( b.shape === 'circle' )
-              this.circleVScircle( a.halfSize.x + b.halfSize.x );// vs circle
+              this.circleVScircle( physicsA.halfSize.getX() + physicsB.halfSize.getX() );// vs circle
             else if( b.shape === 'aabb' )
-              this.circleVSaabb( a.position, a.halfSize, b.position, b.halfSize );//vs aabb
+              this.circleVSaabb( positionA, physicsA.halfSize, positionB, physicsB.halfSize );//vs aabb
           
           }
           
           if(this.hit)
-            a.position.add( this.penetration );
+            positionA.add( this.penetration );
             
           return this.hit;
   							//if(a.grab)

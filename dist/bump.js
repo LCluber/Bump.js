@@ -792,16 +792,16 @@ BUMP.Collision = {
         var _this = Object.create(this);
         return _this;
     },
-    test: function(a, b) {
-        if (this.cellTest(a.cells, b.cells)) {
-            if (this.aabbVSaabbHit(a.position, a.halfSize, b.position, b.halfSize)) {
+    test: function(positionA, physicsA, positionB, physicsB) {
+        if (this.cellTest(physicsA.cells, physicsB.cells)) {
+            if (this.aabbVSaabbHit(positionA, physicsA.halfSize, positionB, physicsB.halfSize)) {
                 this.hit = 0;
                 if (a.shape === "aabb") {
-                    if (b.shape === "aabb") this.aabbVSaabb(); else if (b.shape === "aabb") this.circleVSaabb(b.position, b.halfSize, a.position, a.halfSize);
+                    if (b.shape === "aabb") this.aabbVSaabb(); else if (b.shape === "aabb") this.circleVSaabb(positionB, physicsB.halfSize, positionA, physicsA.halfSize);
                 } else if (a.shape === "circle") {
-                    if (b.shape === "circle") this.circleVScircle(a.halfSize.x + b.halfSize.x); else if (b.shape === "aabb") this.circleVSaabb(a.position, a.halfSize, b.position, b.halfSize);
+                    if (b.shape === "circle") this.circleVScircle(physicsA.halfSize.getX() + physicsB.halfSize.getX()); else if (b.shape === "aabb") this.circleVSaabb(positionA, physicsA.halfSize, positionB, physicsB.halfSize);
                 }
-                if (this.hit) a.position.add(this.penetration);
+                if (this.hit) positionA.add(this.penetration);
                 return this.hit;
             }
         }
