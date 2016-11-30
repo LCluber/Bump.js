@@ -5,6 +5,7 @@
   var height    = canvas.height = window.innerHeight;
   var particles = [];
   var collision = BUMP.Collision.create();
+  console.log(collision);
   //create animation frame
   var animation = FRAMERAT.create(render);
   
@@ -55,7 +56,7 @@
       return obj;
     },
     
-    drawRectangle : function(){
+    draw : function(){
       context.fillStyle = '#cccccc';
       context.fillRect( this.aabb.topLeftCorner.getX(),
                         this.aabb.topLeftCorner.getY(),
@@ -85,7 +86,7 @@
 
   function draw() {
     
-    drawRectangle(rectangle, "#cccccc");
+    floor.draw();
     
     context.fillStyle = "#000000";
     for( var i = 0; i < particleQty; i += 1 ) {
@@ -103,11 +104,11 @@
 
   function render(){
     for( var i = 0 ; i < particleQty ; i++ ){
-      
-      if ( collision.test( particles[i].circle.position, particles[i].physics, rectangle.circle.position, particles[j].physics ))
+      if ( collision.test( particles[i].circle.getPosition(), particles[i].physics, floor.aabb.getPosition(), floor.physics ))
+        collision.computeImpulseVectors( particles[i].physics, floor.physics );
       
       for( var j = 0 ; j < particleQty ; j++ ){
-        if (i != j && collision.test( particles[i].circle.position, particles[i].physics, particles[i].circle.position, particles[j].physics ))
+        if (i != j && collision.test( particles[i].circle.getPosition(), particles[i].physics, particles[i].circle.getPosition(), particles[j].physics ))
           collision.computeImpulseVectors( particles[i].physics, particles[j].physics );
       }
     }

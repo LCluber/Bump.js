@@ -44,7 +44,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* http://type6.lcluber.com
+* http://type6js.lcluber.com
 */
 var TYPE6JS = {
     Revision: "0.2.0"
@@ -493,25 +493,32 @@ TYPE6JS.Geometry = {
         }
     },
     Rectangle: {
+        position: {},
         topLeftCorner: {},
         size: {},
-        create: function(topLeftCornerX, topLeftCornerY, sizeX, sizeY) {
+        create: function(positionX, positionY, sizeX, sizeY) {
             var obj = Object.create(this);
-            obj.init();
-            obj.setSizeXY(sizeX, sizeY);
-            obj.setTopLeftCornerXY(topLeftCornerX, topLeftCornerY);
+            obj.position = TYPE6JS.Vector2D.create(positionX, positionY);
+            obj.size = TYPE6JS.Vector2D.create(sizeX, sizeY);
+            obj.topLeftCorner = TYPE6JS.Vector2D.create(positionX - sizeX * .5, positionY - sizeY * .5);
             return obj;
         },
-        init: function() {
-            this.size = TYPE6JS.Vector2D.create();
-            this.topLeftCorner = TYPE6JS.Vector2D.create();
-        },
         copy: function(rectangle) {
-            return this.create(rectangle.getTopLeftCornerX(), rectangle.getTopLeftCornerY(), rectangle.getSizeX(), rectangle.getSizeY());
+            return this.create(rectangle.getPositionX(), rectangle.getPositionY(), rectangle.getSizeX(), rectangle.getSizeY());
         },
         copyTo: function(rectangle) {
-            this.setTopLeftCornerFromVector2D(rectangle.getTopLeftCorner());
+            this.setPositionFromVector2D(rectangle.getPosition());
             this.setSizeFromVector2D(rectangle.getSize());
+        },
+        setPositionXY: function(positionX, positionY) {
+            this.position.setXY(positionX, positionY);
+            this.setTopLeftCornerXY(positionX - this.getTopLeftCornerX() * .5, positionY - this.getTopLeftCornerY() * .5);
+            return this.position;
+        },
+        setPositionFromVector2D: function(position) {
+            this.position.copyTo(position);
+            this.setTopLeftCornerXY(position.getX() - this.getTopLeftCornerX() * .5, position.getY() - this.getTopLeftCornerY() * .5);
+            return this.position;
         },
         setTopLeftCornerXY: function(topLeftCornerX, topLeftCornerY) {
             this.topLeftCorner.setXY(topLeftCornerX, topLeftCornerY);
@@ -520,6 +527,15 @@ TYPE6JS.Geometry = {
         setTopLeftCornerFromVector2D: function(topLeftCorner) {
             this.topLeftCorner.copyTo(topLeftCorner);
             return this.topLeftCorner;
+        },
+        getPosition: function() {
+            return this.position;
+        },
+        getPositionX: function() {
+            return this.position.getX();
+        },
+        getPositionY: function() {
+            return this.position.getY();
         },
         getTopLeftCorner: function() {
             return this.topLeftCorner;
@@ -793,17 +809,15 @@ BUMP.Collision = {
         return _this;
     },
     test: function(positionA, physicsA, positionB, physicsB) {
-        if (this.cellTest(physicsA.cells, physicsB.cells)) {
-            if (this.aabbVSaabbHit(positionA, physicsA.halfSize, positionB, physicsB.halfSize)) {
-                this.hit = 0;
-                if (a.shape === "aabb") {
-                    if (b.shape === "aabb") this.aabbVSaabb(); else if (b.shape === "aabb") this.circleVSaabb(positionB, physicsB.halfSize, positionA, physicsA.halfSize);
-                } else if (a.shape === "circle") {
-                    if (b.shape === "circle") this.circleVScircle(physicsA.halfSize.getX() + physicsB.halfSize.getX()); else if (b.shape === "aabb") this.circleVSaabb(positionA, physicsA.halfSize, positionB, physicsB.halfSize);
-                }
-                if (this.hit) positionA.add(this.penetration);
-                return this.hit;
+        if (this.aabbVSaabbHit(positionA, physicsA.halfSize, positionB, physicsB.halfSize)) {
+            this.hit = 0;
+            if (a.shape === "aabb") {
+                if (b.shape === "aabb") this.aabbVSaabb(); else if (b.shape === "aabb") this.circleVSaabb(positionB, physicsB.halfSize, positionA, physicsA.halfSize);
+            } else if (a.shape === "circle") {
+                if (b.shape === "circle") this.circleVScircle(physicsA.halfSize.getX() + physicsB.halfSize.getX()); else if (b.shape === "aabb") this.circleVSaabb(positionA, physicsA.halfSize, positionB, physicsB.halfSize);
             }
+            if (this.hit) positionA.add(this.penetration);
+            return this.hit;
         }
     },
     cellTest: function(a, b) {
@@ -824,6 +838,7 @@ BUMP.Collision = {
         this.penetration.scale(-1);
         this.penetration.add(ahs);
         this.penetration.add(bhs);
+        console.log(this.penetration);
         if (this.penetration.getX() > 0 && this.penetration.getY() > 0) return 1;
     },
     aabbVSaabbProjection: function() {

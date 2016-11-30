@@ -25,7 +25,7 @@ BUMP.Collision = {
 
   test : function( positionA, physicsA, positionB, physicsB ) {
     //if( a.onScreen() ){
-      if( this.cellTest( physicsA.cells, physicsB.cells ) ){
+      //if( this.cellTest( physicsA.cells, physicsB.cells ) ){
         if( this.aabbVSaabbHit( positionA, physicsA.halfSize, positionB, physicsB.halfSize ) ){
           this.hit = 0;
           if( a.shape === 'aabb' ){//aabb
@@ -61,7 +61,7 @@ BUMP.Collision = {
               //this.computeImpulseVectors();
             //}
         }
-      }
+      //}
     //}
   },
   
@@ -78,7 +78,7 @@ BUMP.Collision = {
     return false;
   },
   
-  aabbVSaabbHit:function(apos,ahs,bpos,bhs){
+  aabbVSaabbHit:function( apos, ahs, bpos, bhs ){
     /*
     var dx=this.position.X-foe.position.X,//delta between a and b centers on x axis
     px=(this.halfSize.X+foe.halfSize.X)-Math.abs(dx);//penetration depth on x axis
@@ -95,6 +95,7 @@ BUMP.Collision = {
     this.penetration.scale(-1);
     this.penetration.add(ahs);
     this.penetration.add(bhs);//penetration depth on each axis
+    console.log(this.penetration);
     if(this.penetration.getX() > 0 && this.penetration.getY() > 0 )
       return 1; //objects may be colliding
   },
