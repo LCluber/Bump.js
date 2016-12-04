@@ -753,18 +753,25 @@ var BUMP = {
     frame: [ TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create() ],
     create: function(velocity, size, mass, damping, elasticity, shape) {
         var _this = Object.create(this);
-        _this.velocity = velocity;
-        _this.size = size;
+        _this.initVectors(velocity, size);
         _this.mass = mass;
         _this.inverseMass = !mass ? 0 : 1 / mass;
         _this.elasticity = -elasticity;
         _this.shape = shape;
-        _this.halfSize = TYPE6JS.Vector2D.create();
         _this.setHalfSize();
         return _this;
     },
+    initVectors: function(velocity, size) {
+        this.velocity = velocity;
+        this.size = size;
+        this.halfSize = TYPE6JS.Vector2D.create();
+        this.translate = TYPE6JS.Vector2D.create();
+        this.gravity = TYPE6JS.Vector2D.create(0, 400);
+        this.force = TYPE6JS.Vector2D.create();
+        this.impulse = TYPE6JS.Vector2D.create();
+        this.resultingAcc = TYPE6JS.Vector2D.create();
+    },
     setPosition: function(second) {
-        var moved = false;
         this.translate.setToOrigin();
         this.resultingAcc.copyTo(this.gravity);
         if (this.impulse.isNotOrigin()) {
@@ -779,7 +786,6 @@ var BUMP = {
         if (this.velocity.isNotOrigin()) {
             this.velocity.scaleBy(Math.pow(this.damping, second));
             this.translate.copyScaledVectorTo(this.velocity, second);
-            moved = true;
         }
         return this.translate;
     },
@@ -810,8 +816,6 @@ BUMP.Collision = {
     vertex: TYPE6JS.Vector2D.create(),
     relativeVelocity: TYPE6JS.Vector2D.create(),
     voronoi: TYPE6JS.Vector2D.create(),
-    separatingVelocity: 0,
-    newSeparatingVelocity: 0,
     deltaVelocity: 0,
     totalInverseMass: 0,
     impulse: 0,
@@ -919,23 +923,25 @@ BUMP.Collision = {
         return false;
     },
     computeImpulseVectors: function(a, b) {
-        this.separatingVel(a.velocity, b.velocity);
-        if (this.separatingVelocity < 0) {
-            this.newSeparatingVelocity = this.separatingVelocity * a.elasticity;
-            this.deltaVelocity = this.newSeparatingVelocity - this.separatingVelocity;
+        var separatingVelocity = this.separatingVel(a.velocity, b.velocity);
+        if (separatingVelocity < 0) {
+            var newSeparatingVelocity = separatingVelocity * a.elasticity;
+            this.deltaVelocity = newSeparatingVelocity - separatingVelocity;
             this.totalInverseMass = a.inverseMass + b.inverseMass;
             this.impulse = this.deltaVelocity / this.totalInverseMass;
             this.impulsePerInverseMass.copyScaledVectorTo(this.penetration, this.impulse);
-            if (a.inverseMass) a.impulse.addTo(this.impulsePerInverseMass);
+            if (a.inverseMass) {
+                a.impulse.copyTo(this.impulsePerInverseMass);
+            }
             if (b.inverseMass) {
-                this.impulsePerInverseMass.scaleBy(-1);
-                b.impulse.addTo(this.impulsePerInverseMass);
+                this.impulsePerInverseMass.oppositeTo();
+                b.impulse.copyTo(this.impulsePerInverseMass);
             }
         }
     },
     separatingVel: function(av, bv) {
         this.penetration.normalizeTo();
         this.relativeVelocity.copySubtractFromTo(av, bv);
-        this.separatingVelocity = this.relativeVelocity.dotProduct(this.penetration);
+        return this.relativeVelocity.dotProduct(this.penetration);
     }
 };

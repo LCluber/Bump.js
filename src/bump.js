@@ -84,16 +84,25 @@ var BUMP = {
                      elasticity,
                      shape ){
     var _this = Object.create( this );
-    _this.velocity    = velocity;
-    _this.size        = size;
-    _this.mass        = mass;
-    _this.inverseMass = !mass?0:1/mass;
-    _this.elasticity  = -elasticity;
-    _this.shape       = shape;
-    _this.halfSize     = TYPE6JS.Vector2D.create();
+    _this.initVectors( velocity, size );
+    _this.mass         = mass;
+    _this.inverseMass  = !mass ? 0 : 1/mass ;
+    _this.elasticity   = -elasticity;
+    _this.shape        = shape;
     _this.setHalfSize(); 
     //_this.setFrame();
     return _this;
+  },
+
+  initVectors : function( velocity, size ){
+    this.velocity     = velocity;
+    this.size         = size;
+    this.halfSize     = TYPE6JS.Vector2D.create();
+    this.translate    = TYPE6JS.Vector2D.create();
+    this.gravity      = TYPE6JS.Vector2D.create( 0, 400 );
+    this.force        = TYPE6JS.Vector2D.create();
+    this.impulse      = TYPE6JS.Vector2D.create();
+    this.resultingAcc = TYPE6JS.Vector2D.create();
   },
 
   /**
@@ -104,7 +113,7 @@ var BUMP = {
   * @returns {fsm}  The new finite state machine
   */
   setPosition : function( second ){
-    var moved = false;
+    //var moved = false;
     //add new force
     // if(direction.isNotOrigin()){
     //   this.direction.copyTo( direction );
@@ -115,11 +124,11 @@ var BUMP = {
     //init
     this.translate.setToOrigin();
     this.resultingAcc.copyTo( this.gravity );
-
     //apply impulse from collision directly to velocity
     if( this.impulse.isNotOrigin() ){
       //if( this.inverseMass )
-        this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );
+      //add impulse per inverse mass
+      this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );
       this.impulse.setToOrigin();
     }
 
@@ -133,9 +142,9 @@ var BUMP = {
 
     if(this.velocity.isNotOrigin()){
       this.velocity.scaleBy( Math.pow( this.damping, second ) );
-      //this.velocity.scale(this.damping,0);// use if damping just solves numerical problems and other drag forces are applied
+      //this.velocity.scaleBy(this.damping);// use if damping just solves numerical problems and other drag forces are applied
       this.translate.copyScaledVectorTo( this.velocity, second );
-      moved = true;
+      //moved = true;
     }
 
     //if(moved)//if moved

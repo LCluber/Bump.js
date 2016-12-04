@@ -1,24 +1,25 @@
 
-  var canvas       = document.getElementById("canvas");
-  var context      = canvas.getContext("2d");
-  var width        = canvas.width = window.innerWidth;
-  var height       = canvas.height = window.innerHeight;
-  var particles    = [];
-  var collision    = BUMP.Collision.create();
+  var canvas         = document.getElementById("canvas");
+  var context        = canvas.getContext("2d");
+  var width          = canvas.width = window.innerWidth;
+  var height         = canvas.height = window.innerHeight;
+  var particles      = [];
+  var collision      = BUMP.Collision.create();
   //create animation frame
-  var animation    = FRAMERAT.create(render);
-  var particleQty  = 1;
-  var particleSize = 6;
+  var animation      = FRAMERAT.create(render);
+  var particleQty    = 300;
+  var particleSize   = 6;
+  var particleWeight = 1.0;
 
   var particle = {
-    create : function( positionX, positionY, velocityX, velocityY, particleSize, color ){
+    create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
       var obj = Object.create(this);
-      obj.form    = TYPE6JS.Geometry.Circle.create( positionX, positionY, particleSize * 0.5 );
+      obj.form    = TYPE6JS.Geometry.Circle.create( positionX, positionY, size * 0.5 );
       obj.physics = BUMP.create(  TYPE6JS.Vector2D.create( velocityX, velocityY ),
-                                  TYPE6JS.Vector2D.create( particleSize, particleSize ),
-                                  1.0,
+                                  TYPE6JS.Vector2D.create( size, size ),
+                                  weight,
                                   0.99,
-                                  0.8,
+                                  0.7,
                                   'circle'
                                 );
       obj.color  = color ? color : '#000000';
@@ -51,7 +52,7 @@
                                   TYPE6JS.Vector2D.create( 500, 200 ),
                                   0.0,
                                   0.0,
-                                  0.8,
+                                  0.7,
                                   'aabb'
                                 );
       return obj;
@@ -68,26 +69,28 @@
     
   };
 
-  //var floor = rectangle.create( width * 0.5, height * 0.8 );
-  var floor = particle.create(
+  var floorAABB   = rectangle.create( width * 0.5, height );
+  var floorCircle = particle.create(
                       width * 0.5,
-                      height,
+                      height * 1.2,
                       0,
                       0,
-                      400,
+                      width * 0.6,
+                      0,
                       '#cccccc'
                     );
 
   function initParticles(){
     for( var i = 0; i < particleQty; i += 1 ){
-      var radius    = TYPE6JS.Random.float( 0, 40 );
+      var radius    = TYPE6JS.Random.float( 0, 100 );
       var angle     = TYPE6JS.Random.float( 0, TYPE6JS.Trigonometry.TWOPI );
       particles[i]  = particle.create(
                         width * 0.5,
-                        height * 0.5,
+                        height * 0.25,
                         TYPE6JS.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
                         TYPE6JS.Trigonometry.sineEquation( radius, angle, 0, 0 ),
                         particleSize,
+                        particleWeight,
                         null
                       );
     }
@@ -116,13 +119,12 @@
   function testCollisions(){
     for( var i = 0 ; i < particleQty ; i++ ){
       var p1 = particles[i];
-      collision.test( p1.form.getPosition(), p1.physics, floor.form.getPosition(), floor.physics );
-      
       for( var j = 0 ; j < particleQty ; j++ ){
         var p2 = particles[j];
         if (i != j )
           collision.test( p1.form.getPosition(), p1.physics, p2.form.getPosition(), p2.physics );
       }
+      collision.test( p1.form.getPosition(), p1.physics, floor.form.getPosition(), floor.physics );
     }
   }
 
