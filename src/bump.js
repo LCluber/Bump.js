@@ -50,20 +50,20 @@ var BUMP = {
 
 //fram=[new Vect(.0,.0),new Vect(.0,.0),new Vect(.0,.0),new Vect(.0,.0)];
 
-  damping : 0.9,
-  mass : 1.0,
+  damping     : 0.9,
+  mass        : 1.0,
   inverseMass : 1.0,
-  elasticity : -1,//-e
-  shape : 1,
+  elasticity  : -1,//-e
+  shape       : 1,
 
-  size : TYPE6JS.Vector2D.create(),
-  halfSize : TYPE6JS.Vector2D.create(),
-  cells : [0,0,0,0],
-  frame : [ TYPE6JS.Vector2D.create(),
-            TYPE6JS.Vector2D.create(),
-            TYPE6JS.Vector2D.create(),
-            TYPE6JS.Vector2D.create()
-          ],
+  size        : TYPE6JS.Vector2D.create(),
+  halfSize    : TYPE6JS.Vector2D.create(),
+  cells       : [ 0, 0, 0, 0 ],
+  frame       : [ TYPE6JS.Vector2D.create(),
+                  TYPE6JS.Vector2D.create(),
+                  TYPE6JS.Vector2D.create(),
+                  TYPE6JS.Vector2D.create()
+                ],
 //margin=[-halfSize.y,ROOSTR.Screen.size.x+halfSize.x,ROOSTR.Screen.size.y+halfSize.y,-halfSize.x];
 
   //impulsePerInverseMass : TYPE6JS.Vector2D.create(),
@@ -90,6 +90,8 @@ var BUMP = {
     _this.inverseMass = !mass?0:1/mass;
     _this.elasticity  = -elasticity;
     _this.shape       = shape;
+    _this.halfSize     = TYPE6JS.Vector2D.create();
+    _this.setHalfSize(); 
     //_this.setFrame();
     return _this;
   },
@@ -147,16 +149,20 @@ var BUMP = {
     return this.translate;
 	},
   
-  applyImpulse:function( impulsePerInverseMass ){
+  applyImpulse : function( impulsePerInverseMass ){
       this.velocity.addScaledVectorTo( impulsePerInverseMass, this.inverseMass );//add impulse vector to velocity
   },
   
-  newCells:function(){
+  newCells : function(){
     for(var i=0;i<4;i++)// can be in for cells maximum
       this.cells[i]=Math.floor((this.fram[i].X-SCREEN.margin[3])/SCREEN.cellSize.X) +Math.floor((this.fram[i].Y-SCREEN.margin[0])/SCREEN.cellSize.Y)*SCREEN.nbCell.X;
   },
-    
-  setFrame: function(){
+  
+  setHalfSize : function(){
+    this.halfSize.copyScaledVectorTo( this.size, 0.5 );
+  },
+  
+  setFrame : function(){
     var pxmh = this.position.getX() - this.halfSize.getX();
     var pxph = this.position.getX() + this.halfSize.getX();
     var pymh = this.position.getY() - this.halfSize.getY();

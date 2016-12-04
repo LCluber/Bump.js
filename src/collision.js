@@ -14,10 +14,10 @@ BUMP.Collision = {
   impulse                : 0,
   impulsePerInverseMass  : TYPE6JS.Vector2D.create(),
 
-  hit                    : 0,
+  //hit                    : false,
 
   create : function() {
-    var _this = Object.create(this);
+    var _this = Object.create( this );
     //_this.config = config;
 
     return _this;
@@ -26,28 +26,16 @@ BUMP.Collision = {
   test : function( positionA, physicsA, positionB, physicsB ) {
     //if( a.onScreen() ){
       //if( this.cellTest( physicsA.cells, physicsB.cells ) ){
-        if( this.aabbVSaabbHit( positionA, physicsA.halfSize, positionB, physicsB.halfSize ) ){
-          this.hit = 0;
-          if( a.shape === 'aabb' ){//aabb
-            
-            if( b.shape === 'aabb' ) 
-              this.aabbVSaabb();
-            else if( b.shape === 'aabb' )
-              this.circleVSaabb( positionB, physicsB.halfSize, positionA, physicsA.halfSize );//vs aabb
-          
-          }else if( a.shape === 'circle' ){//circle
-            
-            if( b.shape === 'circle' )
-              this.circleVScircle( physicsA.halfSize.getX() + physicsB.halfSize.getX() );// vs circle
-            else if( b.shape === 'aabb' )
-              this.circleVSaabb( positionA, physicsA.halfSize, positionB, physicsB.halfSize );//vs aabb
-          
+        if( this.aabbVSaabbHit( positionA, physicsA.halfSize,
+                                positionB, physicsB.halfSize )){
+          if( this.getPenetration( positionA, physicsA.halfSize, physicsA.shape,
+                                   positionB, physicsB.halfSize, physicsB.shape )){
+            this.separate( positionA, positionB );
+            this.computeImpulseVectors( physicsA, physicsB );
           }
-          
-          if(this.hit)
-            positionA.add( this.penetration );
-            
-          return this.hit;
+          // if(hit)
+          //   positionA.addTo( this.penetration );
+          //   
   							//if(a.grab)
   								//a.collision();
   							//else{
@@ -65,6 +53,31 @@ BUMP.Collision = {
     //}
   },
   
+  getPenetration : function( positionA, halfSizeA, shapeA,
+                             positionB, halfSizeB, shapeB ){
+    if( shapeA === 'aabb' ){//aabb
+      
+      if( shapeB === 'aabb' ) 
+        return this.aabbVSaabb();
+      else if( shapeB === 'circle' )
+        return this.circleVSaabb( positionB, halfSizeB,
+                                  positionA, halfSizeA );//vs aabb
+    
+    }else if( shapeA === 'circle' ){//circle
+      
+      if( shapeB === 'circle' )
+        return this.circleVScircle( halfSizeA.getX() + halfSizeB.getX() );// vs circle
+      else if( shapeB === 'aabb' )
+        return this.circleVSaabb( positionA, halfSizeA,
+                                  positionB, halfSizeB );//vs aabb
+    
+    }
+  },
+  
+  separate : function( positionA, positionB ){
+    positionA.addTo( this.penetration );
+  },
+  
   cellTest:function(a,b){
     for( var i = 0, k = -1 ; i < 4; i++ ){
       if( k != a[i] ){
@@ -78,7 +91,8 @@ BUMP.Collision = {
     return false;
   },
   
-  aabbVSaabbHit:function( apos, ahs, bpos, bhs ){
+  aabbVSaabbHit:function( apos, ahs,
+                          bpos, bhs ){
     /*
     var dx=this.position.X-foe.position.X,//delta between a and b centers on x axis
     px=(this.halfSize.X+foe.halfSize.X)-Math.abs(dx);//penetration depth on x axis
@@ -90,42 +104,45 @@ BUMP.Collision = {
     this.delta.copySubtractFromTo( apos, bpos );
     //this.delta.copyTo(apos);
     //this.delta.subtractFrom(bpos);//delta between a and b centers on each axis
-    this.penetration.copy(this.delta);
-    this.penetration.absolute();
-    this.penetration.scale(-1);
-    this.penetration.add(ahs);
-    this.penetration.add(bhs);//penetration depth on each axis
-    console.log(this.penetration);
-    if(this.penetration.getX() > 0 && this.penetration.getY() > 0 )
-      return 1; //objects may be colliding
+    //console.log( this.delta );
+    this.penetration.copyTo( this.delta );
+    this.penetration.absoluteTo();
+    this.penetration.oppositeTo( -1 );
+    this.penetration.addTo( ahs );
+    this.penetration.addTo( bhs );//penetration depth on each axis
+    //console.log( this.penetration );
+    return this.penetration.isPositive(); //objects may be colliding
   },
 
   aabbVSaabbProjection : function(){
-    this.hit = 1;
-    if( this.penetration.x < this.penetration.y ){ //project on x axis
-      this.penetration.y = 0;
-      if( this.delta.x < 0 )
-        this.penetration.x = -this.penetration.x; //project left
+    if( this.penetration.getX() < this.penetration.getY() ){ //project on x axis
+      this.penetration.setY( 0 );
+      if( this.delta.getX() < 0 )
+        this.penetration.oppositeXTo(); //project left
     }else{ //project on y axis
-      this.penetration.x = 0;
-      if( this.delta.y < 0 )
-        this.penetration.y =- this.penetration.y; //project up
+      this.penetration.setX( 0 );
+      if( this.delta.getY() < 0 )
+        this.penetration.oppositeYTo(); //project up
     }
+    return true; //collision detected
   },
 
   circleVScircle : function( radius ){
-    var len = this.delta.magnitude(),
+    var len = this.delta.getMagnitude(),
     pen = radius - len;
     if( pen > 0 ){//penetration detected
-      this.hit = 1;
       //distance vector is normalized and scaled by penetration depth
       this.penetration.copyScaledVectorTo( this.delta, pen/len );
       // this.penetration.copyTo( this.delta );
       // this.penetration.scaleBy( pen/len );
+      //console.log(this.penetration);
+      return true; //collision detected
     }
+    return false;
   },
 
-  circleVSaabb : function( apos, ahs, bpos, bhs ){
+  circleVSaabb : function( apos, ahs,
+                           bpos, bhs ){
     //determine grid/voronoi region of circle center
     this.voronoi.setToOrigin();
     
@@ -143,11 +160,10 @@ BUMP.Collision = {
     else if( bhsY < dy )
       this.voronoi.setY( 1 );//circle is on top side of tile
 
-    var oH = this.delta.getX();
-    var oV = this.delta.getY();
+    var oH = this.voronoi.getX();
+    var oV = this.voronoi.getY();
     
     if( oH === 0 ){
-      this.hit = 1;
       if( oV === 0 ){//circle is in the aabb
         if( this.penetration.getX() < this.penetration.getY() ){ //penetration in x is smaller; project on x
           this.penetration.setY(0);
@@ -164,31 +180,33 @@ BUMP.Collision = {
         if( dy < 0 )
           this.penetration.oppositeYTo(); //project up
       }
+      return true; //collision detected
 
     }else if( oV === 0 ){ //project on x axis
-      this.hit = 1;
       this.penetration.setY(0);
       if( dx < 0 )
         this.penetration.oppositeXTo(); //project left
+      return true; //collision detected
     }else{//possible diagonal collision
       //this.voronoi.init(oH,oV);
-      this.vertex.copyTo(this.voronoi);
-      this.vertex.componentProduct(bhs);
-      this.vertex.add(bpos);//get diag vertex position
+      this.vertex.copyTo( this.voronoi );
+      this.vertex.multiplyBy( bhs ); //component product in 3D
+      this.vertex.addTo( bpos );//get diag vertex position
       //calc vert->circle vector
-      this.copySubtractFromTo( apos, this.vertex );
+      this.delta.copySubtractFromTo( apos, this.vertex );
       //this.delta.copyTo(apos);
       //this.delta.subtractFrom(this.vertex);
-      var len = this.delta.magnitude();
+      var len = this.delta.getMagnitude();
       pen = ahs.x - len;
       if( pen > 0 ){//vertex is in the circle; project outward
-        this.hit = 1;
         if( len === 0 )
           this.penetration.copyScaledVectorTo( this.voronoi, pen/1.41 );//project out by 45deg (1/square root of 2)
         else
           this.penetration.copyScaledVectorTo( this.delta, pen/len );
+        return true; //collision detected
       }
     }
+    return false;
   },
   
   computeImpulseVectors : function(a,b){
@@ -222,7 +240,7 @@ BUMP.Collision = {
     this.relativeVelocity.copySubtractFromTo(av, bv);//relative velocity between one another
     //this.relativeVelocity.copyTo(av);
     //this.relativeVelocity.subtractFrom(bv);
-    this.separatingVelocity=this.relativeVelocity.dot(this.penetration);//component of velocity parallel to collision normal //the dot product of the relative velocity and the normal
+    this.separatingVelocity=this.relativeVelocity.dotProduct(this.penetration);//component of velocity parallel to collision normal //the dot product of the relative velocity and the normal
   }
 
 };
