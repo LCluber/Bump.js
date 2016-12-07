@@ -12,8 +12,6 @@ BUMP.Collision = {
   impulse                : 0,
   impulsePerInverseMass  : TYPE6JS.Vector2D.create(),
 
-  //hit                    : false,
-
   create : function() {
     var _this = Object.create( this );
     //_this.config = config;
@@ -63,12 +61,14 @@ BUMP.Collision = {
     
     }else if( shapeA === 'circle' ){//circle
       
-      if( shapeB === 'circle' )
-        return this.circleVScircle( halfSizeA.getX() + halfSizeB.getX() );// vs circle
-      else if( shapeB === 'aabb' )
-        return this.circleVSaabb( positionA, halfSizeA,
-                                  positionB, halfSizeB );//vs aabb
-    
+      if( shapeB === 'circle' ){
+        var radius = halfSizeA.getX() + halfSizeB.getX();
+        if( this.circleVScircleHit( radius )// vs circle
+          this.circleVScircleProjection( radius );
+      }else if( shapeB === 'aabb' )
+        if( this.circleVSaabbHit( positionA, halfSizeA,
+                                     positionB, halfSizeB ) )//vs aabb
+          this.circleVSaabbProjection();
     }
   },
   
@@ -89,8 +89,19 @@ BUMP.Collision = {
     return false;
   },
   
-  aabbVSaabbHit:function( apos, ahs,
-                          bpos, bhs ){
+  aabbVSaabbHit: function( aabbA, aabbB ){
+    // Exit with no intersection if found separated along an axis
+    if( aabbA.getTopLeftCornerX() < aabbB.getBottomRightX() || aabbA.getBottomRightX() > aabbB.getTopLeftCornerX() )
+      return false
+    if( aabbA.getTopLeftCornerY() < aabbB.getBottomRightY() || aabbA.getBottomRightY() > aabbB.getTopLeftCornerY() )
+      return false
+ 
+    // No separating axis found, therefor there is at least one overlapping axis
+    return true
+  },
+  
+  boxVSboxHit:function( apos, ahs,
+                        bpos, bhs ){
     /*
     var dx=this.position.X-foe.position.X,//delta between a and b centers on x axis
     px=(this.halfSize.X+foe.halfSize.X)-Math.abs(dx);//penetration depth on x axis
@@ -99,16 +110,14 @@ BUMP.Collision = {
     py=(this.halfSize.Y+foe.halfSize.Y)-Math.abs(dy);//penetration depth on y axis
     if(py>0){ //objects may be colliding
     */
-    this.delta.copySubtractFromTo( apos, bpos );
-    //this.delta.copyTo(apos);
-    //this.delta.subtractFrom(bpos);//delta between a and b centers on each axis
-    //console.log( this.delta );
+    this.delta.copySubtractFromTo( apos, bpos );//delta between a and b centers on each axis
+
     this.penetration.copyTo( this.delta );
     this.penetration.absoluteTo();
     this.penetration.oppositeTo( -1 );
     this.penetration.addTo( ahs );
     this.penetration.addTo( bhs );//penetration depth on each axis
-    //console.log( this.penetration );
+
     return this.penetration.isPositive(); //objects may be colliding
   },
 
@@ -125,18 +134,22 @@ BUMP.Collision = {
     return true; //collision detected
   },
 
-  circleVScircle : function( radius ){
-    var len = this.delta.getMagnitude(),
-    pen = radius - len;
-    if( pen > 0 ){//penetration detected
-      //distance vector is normalized and scaled by penetration depth
-      this.penetration.copyScaledVectorTo( this.delta, pen/len );
-      // this.penetration.copyTo( this.delta );
-      // this.penetration.scaleBy( pen/len );
-      //console.log(this.penetration);
+  circleVScircleHit : function( radius ){
+    
+    var suaredLen  = this.delta.getSquaredMagnitude();
+    var squaredRad = radius * radius;
+    if( squaredRad - squareLen > 0 ){
       return true; //collision detected
     }
     return false;
+  },
+
+  circleVScircleProjection : function( radius ){
+    var len = this.delta.getMagnitude(),
+    pen = radius - len;
+    //distance vector is normalized and scaled by penetration depth
+    this.penetration.copyScaledVectorTo( this.delta, pen/len );
+    
   },
 
   circleVSaabb : function( apos, ahs,
@@ -192,8 +205,6 @@ BUMP.Collision = {
       this.vertex.addTo( bpos );//get diag vertex position
       //calc vert->circle vector
       this.delta.copySubtractFromTo( apos, this.vertex );
-      //this.delta.copyTo(apos);
-      //this.delta.subtractFrom(this.vertex);
       var len = this.delta.getMagnitude();
       pen = ahs.x - len;
       if( pen > 0 ){//vertex is in the circle; project outward

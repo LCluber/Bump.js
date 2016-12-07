@@ -22,7 +22,7 @@
                                   0.7,
                                   'circle'
                                 );
-      obj.color  = color ? color : '#000000';
+      obj.color   = color ? color : '#000000';
       return obj;
     },
 
@@ -69,16 +69,16 @@
     
   };
 
-  var floorAABB   = rectangle.create( width * 0.5, height );
-  var floorCircle = particle.create(
-                      width * 0.5,
-                      height * 1.2,
-                      0,
-                      0,
-                      width * 0.6,
-                      0,
-                      '#cccccc'
-                    );
+  var floor = rectangle.create( width * 0.5, height );
+  // var floor = particle.create(
+  //                     width * 0.5,
+  //                     height * 1.2,
+  //                     0,
+  //                     0,
+  //                     width * 0.6,
+  //                     0,
+  //                     '#cccccc'
+  //                   );
 
   function initParticles(){
     for( var i = 0; i < particleQty; i += 1 ){

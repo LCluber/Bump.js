@@ -37,18 +37,12 @@ var BUMP = {
     space : '2D'
   },
 
-
   translate    : TYPE6JS.Vector2D.create(),
   velocity     : TYPE6JS.Vector2D.create(),
   gravity      : TYPE6JS.Vector2D.create( 0, 400 ),
   force        : TYPE6JS.Vector2D.create(),
   impulse      : TYPE6JS.Vector2D.create(),
   resultingAcc : TYPE6JS.Vector2D.create(),
-  
-  //thrust       : TYPE6JS.Vector2D.create(),
-  //direction    : TYPE6JS.Vector2D.create(),
-
-//fram=[new Vect(.0,.0),new Vect(.0,.0),new Vect(.0,.0),new Vect(.0,.0)];
 
   damping     : 0.9,
   mass        : 1.0,
@@ -113,14 +107,7 @@ var BUMP = {
   * @returns {fsm}  The new finite state machine
   */
   setPosition : function( second ){
-    //var moved = false;
-    //add new force
-    // if(direction.isNotOrigin()){
-    //   this.direction.copyTo( direction );
-    //   this.direction.normalizeTo();
-    //   this.direction.multiplyBy( this.thrust );
-    //   this.force.add( this.direction );
-    // }
+
     //init
     this.translate.setToOrigin();
     this.resultingAcc.copyTo( this.gravity );
@@ -181,10 +168,6 @@ var BUMP = {
     this.frame[2].setXY( pxph, pyph );
     this.frame[3].setXY( pxmh, pyph );
   }
-  
-  // hitTest : function(candidate){
-  //   
-  // }
 
 };
 
