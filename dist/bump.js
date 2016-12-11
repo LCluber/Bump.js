@@ -183,6 +183,12 @@ TYPE6JS.Vector2D = {
         this.x = 0;
         this.y = 0;
     },
+    setXToOrigin: function() {
+        this.x = 0;
+    },
+    setYToOrigin: function() {
+        this.y = 0;
+    },
     setAngle: function(angle) {
         if (this.valueValidation(angle)) {
             var length = this.getMagnitude();
@@ -238,7 +244,7 @@ TYPE6JS.Vector2D = {
         return this.create(this.x + scalar, this.y + scalar);
     },
     addScaledVector: function(vector2D, scalar) {
-        return this.create(this.x + vector2D.x * scalar, this.y + vector2D.y * scalar);
+        return this.create(this.x + vector2D.getX() * scalar, this.y + vector2D.getY() * scalar);
     },
     subtract: function(vector2D) {
         return this.create(this.x - vector2D.getX(), this.y - vector2D.getY());
@@ -250,10 +256,10 @@ TYPE6JS.Vector2D = {
         return this.create(this.x * value, this.y * value);
     },
     multiply: function(vector2D) {
-        return this.create(this.x * vector2D.x, this.y * vector2D.y);
+        return this.create(this.x * vector2D.getX(), this.y * vector2D.getY());
     },
     divide: function(vector2D) {
-        return this.create(this.x / vector2D.x, this.y / vector2D.y);
+        return this.create(this.x / vector2D.getX(), this.y / vector2D.getY());
     },
     halve: function() {
         return this.create(this.x * .5, this.y * .5);
@@ -327,12 +333,12 @@ TYPE6JS.Vector2D = {
         this.y += scalar;
     },
     addScaledVectorTo: function(vector2D, scalar) {
-        this.x += vector2D.x * scalar;
-        this.y += vector2D.y * scalar;
+        this.x += vector2D.getX() * scalar;
+        this.y += vector2D.getY() * scalar;
     },
     copyScaledVectorTo: function(vector2D, scalar) {
-        this.x = vector2D.x * scalar;
-        this.y = vector2D.y * scalar;
+        this.x = vector2D.getX() * scalar;
+        this.y = vector2D.getY() * scalar;
     },
     subtractFrom: function(vector2D) {
         this.x -= vector2D.getX();
@@ -351,12 +357,12 @@ TYPE6JS.Vector2D = {
         this.y *= value;
     },
     multiplyBy: function(vector2D) {
-        this.x *= vector2D.x;
-        this.y *= vector2D.y;
+        this.x *= vector2D.getX();
+        this.y *= vector2D.getY();
     },
     divideBy: function(vector2D) {
-        this.x /= vector2D.x;
-        this.y /= vector2D.y;
+        this.x /= vector2D.getX();
+        this.y /= vector2D.getY();
     },
     halveBy: function() {
         this.x *= .5;
@@ -391,7 +397,7 @@ TYPE6JS.Vector2D = {
         this.y = TYPE6JS.MathUtils.lerp(normal, min.getY(), max.getY());
     },
     dotProduct: function(vector2D) {
-        return this.x * vector2D.x + this.y * vector2D.y;
+        return this.x * vector2D.getX() + this.y * vector2D.getY();
     },
     isOrigin: function() {
         if (!this.x || !this.y) {
@@ -423,17 +429,25 @@ TYPE6JS.Geometry = {
         position: {},
         radius: 0,
         diameter: 0,
+        shape: "circle",
+        size: {},
+        halfSize: {},
         create: function(positionX, positionY, radius) {
             var obj = Object.create(this);
             obj.init();
-            obj.setPositionXY(positionX, positionY);
             obj.setRadius(radius);
+            obj.initSize();
+            obj.setPositionXY(positionX, positionY);
             return obj;
         },
         init: function() {
             this.position = TYPE6JS.Vector2D.create();
             this.radius = 0;
             this.diameter = 0;
+        },
+        initSize: function() {
+            this.size = TYPE6JS.Vector2D.create(this.diameter, this.diameter);
+            this.halfSize = TYPE6JS.Vector2D.create(this.radius, this.radius);
         },
         copy: function(circle) {
             return this.create(circle.getPositionX(), circle.getPositionY(), circle.getRadius());
@@ -470,6 +484,7 @@ TYPE6JS.Geometry = {
         setRadius: function(radius) {
             this.radius = radius;
             this.diameter = this.radius * 2;
+            this.initSize();
             return this.radius;
         },
         getRadius: function() {
@@ -478,10 +493,14 @@ TYPE6JS.Geometry = {
         setDiameter: function(diameter) {
             this.diameter = diameter;
             this.radius = this.diameter * .5;
+            this.initSize();
             return this.diameter;
         },
         getDiameter: function() {
             return this.diameter;
+        },
+        getHalfSize: function() {
+            return this.halfSize;
         },
         clampTo: function(rectangle) {
             this.position.clampTo(rectangle);
@@ -503,29 +522,42 @@ TYPE6JS.Geometry = {
     Rectangle: {
         position: {},
         topLeftCorner: {},
+        bottomRightCorner: {},
         size: {},
+        halfSize: {},
+        shape: "aabb",
         create: function(positionX, positionY, sizeX, sizeY) {
             var obj = Object.create(this);
-            obj.position = TYPE6JS.Vector2D.create(positionX, positionY);
-            obj.size = TYPE6JS.Vector2D.create(sizeX, sizeY);
-            obj.topLeftCorner = TYPE6JS.Vector2D.create(positionX - sizeX * .5, positionY - sizeY * .5);
+            obj.initSize(sizeX, sizeY);
+            obj.initPosition(positionX, positionY);
             return obj;
+        },
+        initSize: function(sizeX, sizeY) {
+            this.size = TYPE6JS.Vector2D.create(sizeX, sizeY);
+            this.halfSize = TYPE6JS.Vector2D.create(sizeX * .5, sizeY * .5);
+        },
+        initPosition: function(positionX, positionY) {
+            this.position = TYPE6JS.Vector2D.create(positionX, positionY);
+            this.topLeftCorner = TYPE6JS.Vector2D.create(positionX - this.halfSize.getX(), positionY - this.halfSize.getY());
+            this.bottomRightCorner = TYPE6JS.Vector2D.create(positionX + this.halfSize.getX(), positionY + this.halfSize.getY());
         },
         copy: function(rectangle) {
             return this.create(rectangle.getPositionX(), rectangle.getPositionY(), rectangle.getSizeX(), rectangle.getSizeY());
         },
         copyTo: function(rectangle) {
-            this.setPositionFromVector2D(rectangle.getPosition());
             this.setSizeFromVector2D(rectangle.getSize());
+            this.setPositionFromVector2D(rectangle.getPosition());
         },
         setPositionXY: function(positionX, positionY) {
             this.position.setXY(positionX, positionY);
-            this.setTopLeftCornerXY(positionX - this.getTopLeftCornerX() * .5, positionY - this.getTopLeftCornerY() * .5);
+            this.setTopLeftCornerXY(positionX - this.getHalfSizeX(), positionY - this.getHalfSizeY());
+            this.setBottomRightCornerXY(positionX + this.getHalfSizeX(), positionY + this.getHalfSizeY());
             return this.position;
         },
         setPositionFromVector2D: function(position) {
             this.position.copyTo(position);
-            this.setTopLeftCornerXY(position.getX() - this.getTopLeftCornerX() * .5, position.getY() - this.getTopLeftCornerY() * .5);
+            this.setTopLeftCornerXY(position.getX() - this.getHalfSizeX(), position.getY() - this.getHalfSizeY());
+            this.setBottomRightCornerXY(position.getX() + this.getHalfSizeX(), position.getY() + this.getHalfSizeY());
             return this.position;
         },
         setTopLeftCornerXY: function(topLeftCornerX, topLeftCornerY) {
@@ -535,6 +567,14 @@ TYPE6JS.Geometry = {
         setTopLeftCornerFromVector2D: function(topLeftCorner) {
             this.topLeftCorner.copyTo(topLeftCorner);
             return this.topLeftCorner;
+        },
+        setBottomRightCornerXY: function(bottomRightCornerX, bottomRightCornerY) {
+            this.bottomRightCorner.setXY(bottomRightCornerX, bottomRightCornerY);
+            return this.bottomRightCorner;
+        },
+        setBottomRightCornerFromVector2D: function(bottomRightCorner) {
+            this.bottomRightCorner.copyTo(bottomRightCorner);
+            return this.bottomRightCorner;
         },
         getPosition: function() {
             return this.position;
@@ -554,6 +594,15 @@ TYPE6JS.Geometry = {
         getTopLeftCornerY: function() {
             return this.topLeftCorner.getY();
         },
+        getBottomRightCorner: function() {
+            return this.bottomRightCorner;
+        },
+        getBottomRightCornerX: function() {
+            return this.bottomRightCorner.getX();
+        },
+        getBottomRightCornerY: function() {
+            return this.bottomRightCorner.getY();
+        },
         setSizeXY: function(sizeX, sizeY) {
             this.size.setXY(sizeX, sizeY);
             return this.size;
@@ -570,6 +619,15 @@ TYPE6JS.Geometry = {
         },
         getSizeY: function() {
             return this.size.getY();
+        },
+        getHalfSize: function() {
+            return this.halfSize;
+        },
+        getHalfSizeX: function() {
+            return this.halfSize.getX();
+        },
+        getHalfSizeY: function() {
+            return this.halfSize.getY();
         }
     }
 };
@@ -746,25 +804,17 @@ var BUMP = {
     mass: 1,
     inverseMass: 1,
     elasticity: -1,
-    shape: 1,
-    size: TYPE6JS.Vector2D.create(),
-    halfSize: TYPE6JS.Vector2D.create(),
-    cells: [ 0, 0, 0, 0 ],
-    frame: [ TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create(), TYPE6JS.Vector2D.create() ],
-    create: function(velocity, size, mass, damping, elasticity, shape) {
+    collisionSceneId: 0,
+    create: function(velocity, size, mass, damping, elasticity) {
         var _this = Object.create(this);
         _this.initVectors(velocity, size);
         _this.mass = mass;
         _this.inverseMass = !mass ? 0 : 1 / mass;
         _this.elasticity = -elasticity;
-        _this.shape = shape;
-        _this.setHalfSize();
         return _this;
     },
-    initVectors: function(velocity, size) {
+    initVectors: function(velocity) {
         this.velocity = velocity;
-        this.size = size;
-        this.halfSize = TYPE6JS.Vector2D.create();
         this.translate = TYPE6JS.Vector2D.create();
         this.gravity = TYPE6JS.Vector2D.create(0, 400);
         this.force = TYPE6JS.Vector2D.create();
@@ -791,27 +841,12 @@ var BUMP = {
     },
     applyImpulse: function(impulsePerInverseMass) {
         this.velocity.addScaledVectorTo(impulsePerInverseMass, this.inverseMass);
-    },
-    newCells: function() {
-        for (var i = 0; i < 4; i++) this.cells[i] = Math.floor((this.fram[i].X - SCREEN.margin[3]) / SCREEN.cellSize.X) + Math.floor((this.fram[i].Y - SCREEN.margin[0]) / SCREEN.cellSize.Y) * SCREEN.nbCell.X;
-    },
-    setHalfSize: function() {
-        this.halfSize.copyScaledVectorTo(this.size, .5);
-    },
-    setFrame: function() {
-        var pxmh = this.position.getX() - this.halfSize.getX();
-        var pxph = this.position.getX() + this.halfSize.getX();
-        var pymh = this.position.getY() - this.halfSize.getY();
-        var pyph = this.position.getY() + this.halfSize.getY();
-        this.frame[0].setXY(pxmh, pymh);
-        this.frame[1].setXY(pxph, pymh);
-        this.frame[2].setXY(pxph, pyph);
-        this.frame[3].setXY(pxmh, pyph);
     }
 };
 
 BUMP.Collision = {
     delta: TYPE6JS.Vector2D.create(),
+    delta2: TYPE6JS.Vector2D.create(),
     penetration: TYPE6JS.Vector2D.create(),
     vertex: TYPE6JS.Vector2D.create(),
     relativeVelocity: TYPE6JS.Vector2D.create(),
@@ -820,27 +855,51 @@ BUMP.Collision = {
     totalInverseMass: 0,
     impulse: 0,
     impulsePerInverseMass: TYPE6JS.Vector2D.create(),
+    pairs: [],
     create: function() {
         var _this = Object.create(this);
         return _this;
     },
-    test: function(positionA, physicsA, positionB, physicsB) {
-        if (this.aabbVSaabbHit(positionA, physicsA.halfSize, positionB, physicsB.halfSize)) {
-            if (this.getPenetration(positionA, physicsA.halfSize, physicsA.shape, positionB, physicsB.halfSize, physicsB.shape)) {
-                this.separate(positionA, positionB);
-                this.computeImpulseVectors(physicsA, physicsB);
+    test: function(bodyA, physicsA, bodyB, physicsB) {
+        this.setDelta(bodyA.getPosition(), bodyB.getPosition());
+        if (this.getPenetration(bodyA, bodyB)) {
+            this.separate(bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass);
+            this.computeImpulseVectors(physicsA, physicsB);
+        }
+    },
+    setDelta: function(positionA, positionB) {
+        this.delta.copySubtractFromTo(positionA, positionB);
+    },
+    getPenetration: function(bodyA, bodyB) {
+        if (bodyA.shape === "aabb") {
+            if (bodyB.shape === "aabb") {
+                if (this.aabbVSaabbHit(bodyA.getHalfSize(), bodyB.getHalfSize())) {
+                    this.aabbVSaabbProjection();
+                    return true;
+                }
+            } else if (bodyB.shape === "circle") {
+                if (this.aabbVSaabbHit(bodyA.getHalfSize(), bodyB.getHalfSize())) {
+                    if (this.circleVSaabbProjection(bodyB.getPosition(), bodyB.getRadius(), bodyA.getPosition(), bodyA.getHalfSize())) {
+                        return true;
+                    }
+                }
+            }
+        } else if (bodyA.shape === "circle") {
+            if (bodyB.shape === "circle") {
+                var radius = bodyA.getRadius() + bodyB.getRadius();
+                if (this.circleVScircleHit(radius)) {
+                    this.circleVScircleProjection(radius);
+                    return true;
+                }
+            } else if (bodyB.shape === "aabb") {
+                if (this.aabbVSaabbHit(bodyA.getHalfSize(), bodyB.getHalfSize())) {
+                    if (this.circleVSaabbProjection(bodyA.getPosition(), bodyA.getRadius(), bodyB.getPosition(), bodyB.getHalfSize())) {
+                        return true;
+                    }
+                }
             }
         }
-    },
-    getPenetration: function(positionA, halfSizeA, shapeA, positionB, halfSizeB, shapeB) {
-        if (shapeA === "aabb") {
-            if (shapeB === "aabb") return this.aabbVSaabb(); else if (shapeB === "circle") return this.circleVSaabb(positionB, halfSizeB, positionA, halfSizeA);
-        } else if (shapeA === "circle") {
-            if (shapeB === "circle") return this.circleVScircle(halfSizeA.getX() + halfSizeB.getX()); else if (shapeB === "aabb") return this.circleVSaabb(positionA, halfSizeA, positionB, halfSizeB);
-        }
-    },
-    separate: function(positionA, positionB) {
-        positionA.addTo(this.penetration);
+        return false;
     },
     cellTest: function(a, b) {
         for (var i = 0, k = -1; i < 4; i++) {
@@ -853,81 +912,102 @@ BUMP.Collision = {
         }
         return false;
     },
-    aabbVSaabbHit: function(apos, ahs, bpos, bhs) {
-        this.delta.copySubtractFromTo(apos, bpos);
+    aabbVSaabbHit: function(ahs, bhs) {
         this.penetration.copyTo(this.delta);
         this.penetration.absoluteTo();
-        this.penetration.oppositeTo(-1);
+        this.penetration.oppositeTo();
         this.penetration.addTo(ahs);
         this.penetration.addTo(bhs);
-        return this.penetration.isPositive();
+        if (this.penetration.isPositive()) return true;
+        return false;
     },
     aabbVSaabbProjection: function() {
         if (this.penetration.getX() < this.penetration.getY()) {
-            this.penetration.setY(0);
+            this.penetration.setYToOrigin();
             if (this.delta.getX() < 0) this.penetration.oppositeXTo();
         } else {
-            this.penetration.setX(0);
+            this.penetration.setXToOrigin();
             if (this.delta.getY() < 0) this.penetration.oppositeYTo();
         }
-        return true;
     },
-    circleVScircle: function(radius) {
-        var len = this.delta.getMagnitude(), pen = radius - len;
-        if (pen > 0) {
-            this.penetration.copyScaledVectorTo(this.delta, pen / len);
-            return true;
-        }
+    circleVScircleHit: function(radius) {
+        var squaredLen = this.delta.getSquaredMagnitude();
+        var squaredRad = radius * radius;
+        if (squaredRad - squaredLen > 0) return true;
         return false;
     },
-    circleVSaabb: function(apos, ahs, bpos, bhs) {
+    circleVScircleProjection: function(radius) {
+        var len = this.delta.getMagnitude(), pen = radius - len;
+        this.penetration.copyScaledVectorTo(this.delta, pen / len);
+    },
+    setVoronoiRegion: function(bhs) {
         this.voronoi.setToOrigin();
         var dx = this.delta.getX();
         var dy = this.delta.getY();
         var bhsX = bhs.getX();
         var bhsY = bhs.getY();
-        if (dx < -bhsX) this.voronoi.setX(-1); else if (bhsX < dx) this.voronoi.setX(1);
-        if (dy < -bhsY) this.voronoi.setY(-1); else if (bhsY < dy) this.voronoi.setY(1);
-        var oH = this.voronoi.getX();
-        var oV = this.voronoi.getY();
-        if (oH === 0) {
-            if (oV === 0) {
+        if (dx < -bhsX) this.voronoi.setX(-1); else if (dx > bhsX) this.voronoi.setX(1);
+        if (dy < -bhsY) this.voronoi.setY(-1); else if (dy > bhsY) this.voronoi.setY(1);
+    },
+    circleVSaabbProjection: function(apos, radiusA, bpos, bhs) {
+        this.setVoronoiRegion(bhs);
+        if (this.voronoi.getX() === 0) {
+            if (this.voronoi.getY() === 0) {
                 if (this.penetration.getX() < this.penetration.getY()) {
-                    this.penetration.setY(0);
-                    if (dx < 0) this.penetration.oppositeXTo();
+                    this.penetration.setYToOrigin();
+                    if (this.delta.getX() < 0) {
+                        this.penetration.oppositeXTo();
+                    }
                 } else {
-                    this.penetration.setX(0);
-                    if (dy < 0) this.penetration.oppositeYTo();
+                    this.penetration.setXToOrigin();
+                    if (this.delta.getY() < 0) {
+                        this.penetration.oppositeYTo();
+                    }
                 }
+                return true;
             } else {
-                this.penetration.setX(0);
-                if (dy < 0) this.penetration.oppositeYTo();
+                this.penetration.setXToOrigin();
+                if (this.delta.getY() < 0) {
+                    this.penetration.oppositeYTo();
+                    return true;
+                }
             }
-            return true;
-        } else if (oV === 0) {
-            this.penetration.setY(0);
-            if (dx < 0) this.penetration.oppositeXTo();
-            return true;
+        } else if (this.voronoi.getY() === 0) {
+            this.penetration.setYToOrigin();
+            if (this.delta.getX() < 0) {
+                this.penetration.oppositeXTo();
+                return true;
+            }
         } else {
             this.vertex.copyTo(this.voronoi);
             this.vertex.multiplyBy(bhs);
             this.vertex.addTo(bpos);
-            this.delta.copySubtractFromTo(apos, this.vertex);
-            var len = this.delta.getMagnitude();
-            pen = ahs.x - len;
+            this.delta2.copySubtractFromTo(apos, this.vertex);
+            var len = this.delta2.getSquaredMagnitude();
+            var pen = radiusA * radiusA - len;
             if (pen > 0) {
-                if (len === 0) this.penetration.copyScaledVectorTo(this.voronoi, pen / 1.41); else this.penetration.copyScaledVectorTo(this.delta, pen / len);
+                len = this.delta2.getMagnitude();
+                pen = radiusA - len;
+                if (len === 0) this.penetration.copyScaledVectorTo(this.voronoi, pen / 1.41); else this.penetration.copyScaledVectorTo(this.delta2, pen / len);
                 return true;
             }
         }
         return false;
+    },
+    separate: function(positionA, imA, positionB, imB) {
+        this.totalInverseMass = imA + imB;
+        if (imA) {
+            positionA.addScaledVectorTo(this.penetration, imA / this.totalInverseMass);
+        }
+        if (imB) {
+            positionB.addScaledVectorTo(this.penetration, -imB / this.totalInverseMass);
+        }
     },
     computeImpulseVectors: function(a, b) {
         var separatingVelocity = this.separatingVel(a.velocity, b.velocity);
         if (separatingVelocity < 0) {
             var newSeparatingVelocity = separatingVelocity * a.elasticity;
             this.deltaVelocity = newSeparatingVelocity - separatingVelocity;
-            this.totalInverseMass = a.inverseMass + b.inverseMass;
             this.impulse = this.deltaVelocity / this.totalInverseMass;
             this.impulsePerInverseMass.copyScaledVectorTo(this.penetration, this.impulse);
             if (a.inverseMass) {
@@ -943,5 +1023,38 @@ BUMP.Collision = {
         this.penetration.normalizeTo();
         this.relativeVelocity.copySubtractFromTo(av, bv);
         return this.relativeVelocity.dotProduct(this.penetration);
+    }
+};
+
+BUMP.Scene = {
+    bodies: [],
+    bodiesLength: 0,
+    collision: BUMP.Collision.create(),
+    gravity: TYPE6JS.Vector2D.create(0, 400),
+    create: function() {
+        var _this = Object.create(this);
+        return _this;
+    },
+    addBody: function(body) {
+        if (!body.physics.collisionSceneId) {
+            this.bodiesLength++;
+            body.physics.collisionSceneId = this.bodiesLength;
+            this.bodies.push(body);
+            return true;
+        } else return false;
+    },
+    removeBody: function() {},
+    test: function() {
+        for (var i = 0; i < this.bodiesLength; i++) {
+            for (var j = i + 1; j < this.bodiesLength; j++) {
+                var p1 = this.bodies[i];
+                var p2 = this.bodies[j];
+                this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+            }
+        }
+    },
+    setGravity: function() {},
+    getGravity: function() {
+        return this.gravity;
     }
 };

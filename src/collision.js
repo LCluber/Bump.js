@@ -2,6 +2,7 @@
 BUMP.Collision = {
 
   delta                  : TYPE6JS.Vector2D.create(),
+  delta2                 : TYPE6JS.Vector2D.create(),
   penetration            : TYPE6JS.Vector2D.create(),
   vertex                 : TYPE6JS.Vector2D.create(),
   relativeVelocity       : TYPE6JS.Vector2D.create(),
@@ -11,6 +12,8 @@ BUMP.Collision = {
   totalInverseMass       : 0,
   impulse                : 0,
   impulsePerInverseMass  : TYPE6JS.Vector2D.create(),
+  
+  pairs : [],
 
   create : function() {
     var _this = Object.create( this );
@@ -19,14 +22,16 @@ BUMP.Collision = {
     return _this;
   },
 
-  test : function( positionA, physicsA, positionB, physicsB ) {
+  test : function( bodyA, physicsA, bodyB, physicsB ) {
     //if( a.onScreen() ){
       //if( this.cellTest( physicsA.cells, physicsB.cells ) ){
-        if( this.aabbVSaabbHit( positionA, physicsA.halfSize,
-                                positionB, physicsB.halfSize )){
-          if( this.getPenetration( positionA, physicsA.halfSize, physicsA.shape,
-                                   positionB, physicsB.halfSize, physicsB.shape )){
-            this.separate( positionA, positionB );
+        // if( this.aabbVSaabbHit( positionA, physicsA.halfSize,
+        //                         positionB, physicsB.halfSize )){
+        
+          this.setDelta( bodyA.getPosition(), bodyB.getPosition() );
+
+          if( this.getPenetration( bodyA, bodyB )){
+            this.separate( bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass );
             this.computeImpulseVectors( physicsA, physicsB );
           }
           // if(hit)
@@ -44,36 +49,51 @@ BUMP.Collision = {
               //calculate impulse vector
               //this.computeImpulseVectors();
             //}
-        }
+        //}
       //}
     //}
   },
   
-  getPenetration : function( positionA, halfSizeA, shapeA,
-                             positionB, halfSizeB, shapeB ){
-    if( shapeA === 'aabb' ){//aabb
-      
-      if( shapeB === 'aabb' ) 
-        return this.aabbVSaabb();
-      else if( shapeB === 'circle' )
-        return this.circleVSaabb( positionB, halfSizeB,
-                                  positionA, halfSizeA );//vs aabb
-    
-    }else if( shapeA === 'circle' ){//circle
-      
-      if( shapeB === 'circle' ){
-        var radius = halfSizeA.getX() + halfSizeB.getX();
-        if( this.circleVScircleHit( radius )// vs circle
-          this.circleVScircleProjection( radius );
-      }else if( shapeB === 'aabb' )
-        if( this.circleVSaabbHit( positionA, halfSizeA,
-                                     positionB, halfSizeB ) )//vs aabb
-          this.circleVSaabbProjection();
-    }
+  setDelta: function( positionA, positionB ){
+    this.delta.copySubtractFromTo( positionA, positionB );//delta between a and b centers on each axis
   },
   
-  separate : function( positionA, positionB ){
-    positionA.addTo( this.penetration );
+  getPenetration : function( bodyA, bodyB ){
+    
+    if( bodyA.shape === 'aabb' ){//aabb
+      
+      if( bodyB.shape === 'aabb' ){
+        if( this.aabbVSaabbHit( bodyA.getHalfSize(), bodyB.getHalfSize() )){
+          this.aabbVSaabbProjection();
+          return true;
+        }
+      }else if( bodyB.shape === 'circle' ){
+        if (this.aabbVSaabbHit( bodyA.getHalfSize(), bodyB.getHalfSize() )){
+          if( this.circleVSaabbProjection( bodyB.getPosition(), bodyB.getRadius(),
+                                           bodyA.getPosition(), bodyA.getHalfSize() )){
+            return true;
+          }
+        }
+      }
+    
+    }else if( bodyA.shape === 'circle' ){//circle
+      
+      if( bodyB.shape === 'circle' ){
+        var radius = bodyA.getRadius() + bodyB.getRadius();
+        if( this.circleVScircleHit( radius )){// vs circle
+          this.circleVScircleProjection( radius );
+          return true;
+        }
+      }else if( bodyB.shape === 'aabb' ){
+        if (this.aabbVSaabbHit( bodyA.getHalfSize(), bodyB.getHalfSize() )){
+          if( this.circleVSaabbProjection( bodyA.getPosition(), bodyA.getRadius(),
+                                           bodyB.getPosition(), bodyB.getHalfSize() )){//vs aabb
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   },
   
   cellTest:function(a,b){
@@ -89,58 +109,42 @@ BUMP.Collision = {
     return false;
   },
   
-  aabbVSaabbHit: function( aabbA, aabbB ){
-    // Exit with no intersection if found separated along an axis
-    if( aabbA.getTopLeftCornerX() < aabbB.getBottomRightX() || aabbA.getBottomRightX() > aabbB.getTopLeftCornerX() )
-      return false
-    if( aabbA.getTopLeftCornerY() < aabbB.getBottomRightY() || aabbA.getBottomRightY() > aabbB.getTopLeftCornerY() )
-      return false
- 
-    // No separating axis found, therefor there is at least one overlapping axis
-    return true
-  },
-  
-  boxVSboxHit:function( apos, ahs,
-                        bpos, bhs ){
-    /*
-    var dx=this.position.X-foe.position.X,//delta between a and b centers on x axis
-    px=(this.halfSize.X+foe.halfSize.X)-Math.abs(dx);//penetration depth on x axis
-    if(px>0){ //possible penetration on x axis
-    var dy=this.position.Y-foe.position.Y,//delta between a and b centers on y axis
-    py=(this.halfSize.Y+foe.halfSize.Y)-Math.abs(dy);//penetration depth on y axis
-    if(py>0){ //objects may be colliding
-    */
-    this.delta.copySubtractFromTo( apos, bpos );//delta between a and b centers on each axis
-
+  aabbVSaabbHit : function( ahs, bhs ){//separating axis theorem
+    
     this.penetration.copyTo( this.delta );
     this.penetration.absoluteTo();
-    this.penetration.oppositeTo( -1 );
+    this.penetration.oppositeTo();
     this.penetration.addTo( ahs );
     this.penetration.addTo( bhs );//penetration depth on each axis
-
-    return this.penetration.isPositive(); //objects may be colliding
+    
+    if( this.penetration.isPositive() )
+      return true;
+      
+    return false;
+    
   },
-
+  
   aabbVSaabbProjection : function(){
+
     if( this.penetration.getX() < this.penetration.getY() ){ //project on x axis
-      this.penetration.setY( 0 );
+      this.penetration.setYToOrigin();
       if( this.delta.getX() < 0 )
         this.penetration.oppositeXTo(); //project left
     }else{ //project on y axis
-      this.penetration.setX( 0 );
+      this.penetration.setXToOrigin();
       if( this.delta.getY() < 0 )
         this.penetration.oppositeYTo(); //project up
     }
-    return true; //collision detected
+
   },
 
   circleVScircleHit : function( radius ){
     
-    var suaredLen  = this.delta.getSquaredMagnitude();
+    var squaredLen = this.delta.getSquaredMagnitude();
     var squaredRad = radius * radius;
-    if( squaredRad - squareLen > 0 ){
+    if( squaredRad - squaredLen > 0 )
       return true; //collision detected
-    }
+
     return false;
   },
 
@@ -152,73 +156,96 @@ BUMP.Collision = {
     
   },
 
-  circleVSaabb : function( apos, ahs,
-                           bpos, bhs ){
-    //determine grid/voronoi region of circle center
-    this.voronoi.setToOrigin();
+  setVoronoiRegion: function(bhs){//determine grid/voronoi region of circle center
     
+    this.voronoi.setToOrigin();
+   
     var dx   = this.delta.getX();
     var dy   = this.delta.getY();
     var bhsX = bhs.getX();
     var bhsY = bhs.getY();
-    
-    if( dx <- bhsX )
+   
+    // x axis
+    if( dx < -bhsX )
       this.voronoi.setX( -1 ) ;//circle is on left side of tile
-    else if( bhsX < dx )
+    else if( dx > bhsX )
       this.voronoi.setX( 1 );//circle is on right side of tile
-    if( dy <- bhsY )
-      this.voronoi.setY( -1 );//circle is on bottom side of tile
-    else if( bhsY < dy )
-      this.voronoi.setY( 1 );//circle is on top side of tile
-
-    var oH = this.voronoi.getX();
-    var oV = this.voronoi.getY();
     
-    if( oH === 0 ){
-      if( oV === 0 ){//circle is in the aabb
+    // y axis
+    if( dy < -bhsY )
+      this.voronoi.setY( -1 );//circle is on bottom side of tile
+    else if( dy > bhsY )
+      this.voronoi.setY( 1 );//circle is on top side of tile
+  
+  },
+
+  circleVSaabbProjection: function( apos, radiusA,
+                                    bpos, bhs ){
+    
+    this.setVoronoiRegion( bhs );
+      
+    if( this.voronoi.getX() === 0 ){
+      if( this.voronoi.getY() === 0 ){//circle is in the aabb
         if( this.penetration.getX() < this.penetration.getY() ){ //penetration in x is smaller; project on x
-          this.penetration.setY(0);
-          if( dx < 0 )
+          this.penetration.setYToOrigin();
+          if( this.delta.getX() < 0 ){
             this.penetration.oppositeXTo(); //project left
+          }
         }else{ //penetration in y is smaller; project on y
-          this.penetration.setX(0);
-          if( dy < 0 )
+          this.penetration.setXToOrigin();
+          if( this.delta.getY() < 0 ){
             this.penetration.oppositeYTo(); //project up
+          }
         }
-
+        return true;
       }else{ //project on y axis
-        this.penetration.setX(0);
-        if( dy < 0 )
+        this.penetration.setXToOrigin();
+        if( this.delta.getY() < 0 ){
           this.penetration.oppositeYTo(); //project up
+          return true;
+        }
       }
-      return true; //collision detected
 
-    }else if( oV === 0 ){ //project on x axis
-      this.penetration.setY(0);
-      if( dx < 0 )
+    }else if( this.voronoi.getY() === 0 ){ //project on x axis
+      this.penetration.setYToOrigin();
+      if( this.delta.getX() < 0 ){
         this.penetration.oppositeXTo(); //project left
-      return true; //collision detected
+        return true;
+      }
     }else{//possible diagonal collision
-      //this.voronoi.init(oH,oV);
       this.vertex.copyTo( this.voronoi );
       this.vertex.multiplyBy( bhs ); //component product in 3D
       this.vertex.addTo( bpos );//get diag vertex position
       //calc vert->circle vector
-      this.delta.copySubtractFromTo( apos, this.vertex );
-      var len = this.delta.getMagnitude();
-      pen = ahs.x - len;
-      if( pen > 0 ){//vertex is in the circle; project outward
+      this.delta2.copySubtractFromTo( apos, this.vertex );
+      var len = this.delta2.getSquaredMagnitude();
+      var pen = radiusA * radiusA - len;
+      if( pen > 0 ){ //vertex is in the circle; project outward
+        len = this.delta2.getMagnitude();
+        pen = radiusA - len;
         if( len === 0 )
-          this.penetration.copyScaledVectorTo( this.voronoi, pen/1.41 );//project out by 45deg (1/square root of 2)
+          this.penetration.copyScaledVectorTo( this.voronoi, pen / 1.41 );//project out by 45deg (1/square root of 2)
         else
-          this.penetration.copyScaledVectorTo( this.delta, pen/len );
+          this.penetration.copyScaledVectorTo( this.delta2, pen / len );
         return true; //collision detected
       }
     }
     return false;
   },
+
+  separate : function( positionA, imA , positionB, imB ){
+    this.totalInverseMass = imA + imB;
+    if( imA ){
+      positionA.addScaledVectorTo( this.penetration, imA / this.totalInverseMass );
+    }
+    if( imB ){
+      //this.penetration.oppositeTo();
+      positionB.addScaledVectorTo( this.penetration, -imB / this.totalInverseMass );
+      //this.penetration.oppositeTo();
+    }
+  },
   
-  computeImpulseVectors : function(a,b){
+  computeImpulseVectors : function( a, b ){
     var separatingVelocity = this.separatingVel( a.velocity, b.velocity );
     if( separatingVelocity < 0 ){//apply collision response forces only if objects are travelling in each other
       //vel+=1/m*impulse
@@ -227,8 +254,6 @@ BUMP.Collision = {
       var newSeparatingVelocity = separatingVelocity * a.elasticity;
       //real deltaVelocity = newSepVelocity - separatingVelocity
       this.deltaVelocity = newSeparatingVelocity - separatingVelocity;
-      //console.log(this.deltaVelocity);
-      this.totalInverseMass = a.inverseMass + b.inverseMass;
       // Calculate the impulse to apply.
       this.impulse = this.deltaVelocity / this.totalInverseMass;
       // Find the amount of impulse per unit of inverse mass.

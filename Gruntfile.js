@@ -13,7 +13,8 @@ module.exports = function(grunt){
   var zipDir    = 'zip/';
 
   var src       = [ srcDir + projectName.toLowerCase() + '.js',
-                    srcDir + 'collision.js'
+                    srcDir + 'collision.js',
+                    srcDir + 'scene.js',
                   ];
   
   var banner    = '/** MIT License\n' +
