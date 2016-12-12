@@ -4,6 +4,7 @@
   var width          = canvas.width  = window.innerWidth;
   var height         = canvas.height = window.innerHeight;
   var particles      = [];
+  //create collision scene
   var collisionScene = BUMP.Scene.create();
   //create animation frame
   var animation      = FRAMERAT.create(render);
@@ -13,13 +14,13 @@
 
   var particle = {
     create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
-      var obj = Object.create(this);
+      var obj     = Object.create(this);
       obj.body    = TYPE6JS.Geometry.Circle.create( positionX, positionY, size * 0.5 );
       obj.physics = BUMP.create(  TYPE6JS.Vector2D.create( velocityX, velocityY ),
                                   TYPE6JS.Vector2D.create( size, size ),
                                   weight,
-                                  0.99,
-                                  0.7
+                                  0.98,
+                                  0.8
                                 );
       obj.color   = color ? color : '#000000';
       return obj;
@@ -45,13 +46,13 @@
   
   var rectangle = {
     create : function( positionX, positionY ){
-      var obj = Object.create(this);
-      obj.body    = TYPE6JS.Geometry.Rectangle.create( positionX, positionY, 500, 200 );
+      var obj     = Object.create(this);
+      obj.body    = TYPE6JS.Geometry.Rectangle.create( positionX, positionY, width * 0.5, 200 );
       obj.physics = BUMP.create(  TYPE6JS.Vector2D.create(),
-                                  TYPE6JS.Vector2D.create( 500, 200 ),
+                                  TYPE6JS.Vector2D.create( width * 0.5, 200 ),
                                   0.0,
                                   0.0,
-                                  0.7
+                                  0.2
                                 );
       return obj;
     },

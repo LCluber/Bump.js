@@ -12,8 +12,6 @@ BUMP.Collision = {
   totalInverseMass       : 0,
   impulse                : 0,
   impulsePerInverseMass  : TYPE6JS.Vector2D.create(),
-  
-  pairs : [],
 
   create : function() {
     var _this = Object.create( this );
@@ -25,31 +23,12 @@ BUMP.Collision = {
   test : function( bodyA, physicsA, bodyB, physicsB ) {
     //if( a.onScreen() ){
       //if( this.cellTest( physicsA.cells, physicsB.cells ) ){
-        // if( this.aabbVSaabbHit( positionA, physicsA.halfSize,
-        //                         positionB, physicsB.halfSize )){
+        this.setDelta( bodyA.getPosition(), bodyB.getPosition() );
         
-          this.setDelta( bodyA.getPosition(), bodyB.getPosition() );
-
-          if( this.getPenetration( bodyA, bodyB )){
-            this.separate( bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass );
-            this.computeImpulseVectors( physicsA, physicsB );
-          }
-          // if(hit)
-          //   positionA.addTo( this.penetration );
-          //   
-  							//if(a.grab)
-  								//a.collision();
-  							//else{
-            
-  								//for(var i=0;i<4;i++)
-  									//a.fram[i].add(this.penetration);
-            //a.collision( b.damage );
-            //b.collision( a.damage );
-            //if( a.life && b.life ){
-              //calculate impulse vector
-              //this.computeImpulseVectors();
-            //}
-        //}
+        if( this.getPenetration( bodyA, bodyB )){
+          this.separate( bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass );
+          this.computeImpulseVectors( physicsA, physicsB );
+        }
       //}
     //}
   },
@@ -58,56 +37,60 @@ BUMP.Collision = {
     this.delta.copySubtractFromTo( positionA, positionB );//delta between a and b centers on each axis
   },
   
+  circleVScircle : function( radius ){
+    if( this.circleVScircleHit( radius ))// vs circle
+      return this.circleVScircleProjection( radius );
+    return false;
+  },
+  
+  aabbVSaabb : function( halfSizeA, halfSizeB ){
+    if( this.aabbVSaabbHit( halfSizeA, halfSizeB ))
+      return this.aabbVSaabbProjection();
+    return false;
+  },
+  
+  circleVSaabb : function( positionA, halfSizeA, radiusA,
+                           positionB, halfSizeB ){
+    if ( this.aabbVSaabbHit( halfSizeA, halfSizeB ) )
+      return this.circleVSaabbProjection( positionA, radiusA,
+                                          positionB, halfSizeB );//vs aabb
+    return false;
+  },
+  
   getPenetration : function( bodyA, bodyB ){
     
-    if( bodyA.shape === 'aabb' ){//aabb
+    if( bodyA.shape === 'circle' ){//circle
       
-      if( bodyB.shape === 'aabb' ){
-        if( this.aabbVSaabbHit( bodyA.getHalfSize(), bodyB.getHalfSize() )){
-          this.aabbVSaabbProjection();
-          return true;
-        }
-      }else if( bodyB.shape === 'circle' ){
-        if (this.aabbVSaabbHit( bodyA.getHalfSize(), bodyB.getHalfSize() )){
-          if( this.circleVSaabbProjection( bodyB.getPosition(), bodyB.getRadius(),
-                                           bodyA.getPosition(), bodyA.getHalfSize() )){
-            return true;
-          }
-        }
-      }
-    
-    }else if( bodyA.shape === 'circle' ){//circle
+      if( bodyB.shape === 'circle' )
+        return this.circleVScircle( bodyA.getRadius() + bodyB.getRadius() );
+      else if( bodyB.shape === 'aabb' )
+        return this.circleVSaabb( bodyA.getPosition(), bodyA.getHalfSize(), bodyA.getRadius(),
+                                  bodyB.getPosition(), bodyB.getHalfSize() );
       
-      if( bodyB.shape === 'circle' ){
-        var radius = bodyA.getRadius() + bodyB.getRadius();
-        if( this.circleVScircleHit( radius )){// vs circle
-          this.circleVScircleProjection( radius );
-          return true;
-        }
-      }else if( bodyB.shape === 'aabb' ){
-        if (this.aabbVSaabbHit( bodyA.getHalfSize(), bodyB.getHalfSize() )){
-          if( this.circleVSaabbProjection( bodyA.getPosition(), bodyA.getRadius(),
-                                           bodyB.getPosition(), bodyB.getHalfSize() )){//vs aabb
-            return true;
-          }
-        }
-      }
+    }else if( bodyA.shape === 'aabb' ){//aabb
+      
+      if( bodyB.shape === 'circle' )
+        return this.circleVSaabb( bodyB.getPosition(), bodyB.getHalfSize(), bodyB.getRadius(),
+                                  bodyA.getPosition(), bodyA.getHalfSize() );
+      else if( bodyB.shape === 'aabb' )
+        return this.aabbVSaabb( bodyA.getHalfSize(), bodyB.getHalfSize() );
+            
     }
     return false;
   },
   
-  cellTest:function(a,b){
-    for( var i = 0, k = -1 ; i < 4; i++ ){
-      if( k != a[i] ){
-        for( var j = 0; j < 4; j++ ){
-          if( a[i] === b[j] )//common cell found
-            return true;
-        }
-        k = a[i];
-      }
-    }
-    return false;
-  },
+  // cellTest:function(a,b){
+  //   for( var i = 0, k = -1 ; i < 4; i++ ){
+  //     if( k != a[i] ){
+  //       for( var j = 0; j < 4; j++ ){
+  //         if( a[i] === b[j] )//common cell found
+  //           return true;
+  //       }
+  //       k = a[i];
+  //     }
+  //   }
+  //   return false;
+  // },
   
   aabbVSaabbHit : function( ahs, bhs ){//separating axis theorem
     
@@ -126,15 +109,10 @@ BUMP.Collision = {
   
   aabbVSaabbProjection : function(){
 
-    if( this.penetration.getX() < this.penetration.getY() ){ //project on x axis
-      this.penetration.setYToOrigin();
-      if( this.delta.getX() < 0 )
-        this.penetration.oppositeXTo(); //project left
-    }else{ //project on y axis
-      this.penetration.setXToOrigin();
-      if( this.delta.getY() < 0 )
-        this.penetration.oppositeYTo(); //project up
-    }
+    if( this.penetration.getX() < this.penetration.getY() ) //project on x axis
+      this.projectOnX();
+    else //project on y axis
+      this.projectOnY();
 
   },
 
@@ -153,7 +131,7 @@ BUMP.Collision = {
     pen = radius - len;
     //distance vector is normalized and scaled by penetration depth
     this.penetration.copyScaledVectorTo( this.delta, pen/len );
-    
+    return true;
   },
 
   setVoronoiRegion: function(bhs){//determine grid/voronoi region of circle center
@@ -185,34 +163,21 @@ BUMP.Collision = {
     this.setVoronoiRegion( bhs );
       
     if( this.voronoi.getX() === 0 ){
+      
       if( this.voronoi.getY() === 0 ){//circle is in the aabb
-        if( this.penetration.getX() < this.penetration.getY() ){ //penetration in x is smaller; project on x
-          this.penetration.setYToOrigin();
-          if( this.delta.getX() < 0 ){
-            this.penetration.oppositeXTo(); //project left
-          }
-        }else{ //penetration in y is smaller; project on y
-          this.penetration.setXToOrigin();
-          if( this.delta.getY() < 0 ){
-            this.penetration.oppositeYTo(); //project up
-          }
-        }
+        if( this.penetration.getX() < this.penetration.getY() ) //penetration in x is smaller; project on x
+          this.projectOnX();
+        else //penetration in y is smaller; project on y
+          this.projectOnY();
         return true;
-      }else{ //project on y axis
-        this.penetration.setXToOrigin();
-        if( this.delta.getY() < 0 ){
-          this.penetration.oppositeYTo(); //project up
-          return true;
-        }
-      }
+      }else //project on y axis
+        return this.projectOnY();
 
-    }else if( this.voronoi.getY() === 0 ){ //project on x axis
-      this.penetration.setYToOrigin();
-      if( this.delta.getX() < 0 ){
-        this.penetration.oppositeXTo(); //project left
-        return true;
-      }
-    }else{//possible diagonal collision
+    }else if( this.voronoi.getY() === 0 ) //project on x axis
+      return this.projectOnX();
+    
+    else{//possible diagonal collision
+      
       this.vertex.copyTo( this.voronoi );
       this.vertex.multiplyBy( bhs ); //component product in 3D
       this.vertex.addTo( bpos );//get diag vertex position
@@ -229,20 +194,37 @@ BUMP.Collision = {
           this.penetration.copyScaledVectorTo( this.delta2, pen / len );
         return true; //collision detected
       }
+      
+    }
+    return false;
+  },
+  
+  projectOnX : function(){
+    this.penetration.setYToOrigin();
+    if( this.delta.getX() < 0 ){
+      this.penetration.oppositeXTo(); //project left
+      return true; //collision
+    }
+    return false;
+  },
+  
+  projectOnY : function(){
+    this.penetration.setXToOrigin();
+    if( this.delta.getY() < 0 ){
+      this.penetration.oppositeYTo(); //project up
+      return true; //collision
     }
     return false;
   },
 
   separate : function( positionA, imA , positionB, imB ){
     this.totalInverseMass = imA + imB;
-    if( imA ){
+    if( imA )
       positionA.addScaledVectorTo( this.penetration, imA / this.totalInverseMass );
-    }
-    if( imB ){
-      //this.penetration.oppositeTo();
-      positionB.addScaledVectorTo( this.penetration, -imB / this.totalInverseMass );
-      //this.penetration.oppositeTo();
-    }
+    
+    if( imB )
+      positionB.subtractScaledVectorFrom( this.penetration, imB / this.totalInverseMass );
+    
   },
   
   computeImpulseVectors : function( a, b ){

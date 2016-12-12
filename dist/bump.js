@@ -252,6 +252,9 @@ TYPE6JS.Vector2D = {
     subtractScalar: function(scalar) {
         return this.create(this.x - scalar, this.y - scalar);
     },
+    subtractScaledVector: function(vector2D, scalar) {
+        return this.create(this.x - vector2D.getX() * scalar, this.y - vector2D.getY() * scalar);
+    },
     scale: function(value) {
         return this.create(this.x * value, this.y * value);
     },
@@ -351,6 +354,10 @@ TYPE6JS.Vector2D = {
     subtractScalarFrom: function(scalar) {
         this.x -= scalar;
         this.y -= scalar;
+    },
+    subtractScaledVectorFrom: function(vector2D, scalar) {
+        this.x -= vector2D.getX() * scalar;
+        this.y -= vector2D.getY() * scalar;
     },
     scaleBy: function(value) {
         this.x *= value;
@@ -855,7 +862,6 @@ BUMP.Collision = {
     totalInverseMass: 0,
     impulse: 0,
     impulsePerInverseMass: TYPE6JS.Vector2D.create(),
-    pairs: [],
     create: function() {
         var _this = Object.create(this);
         return _this;
@@ -870,45 +876,23 @@ BUMP.Collision = {
     setDelta: function(positionA, positionB) {
         this.delta.copySubtractFromTo(positionA, positionB);
     },
-    getPenetration: function(bodyA, bodyB) {
-        if (bodyA.shape === "aabb") {
-            if (bodyB.shape === "aabb") {
-                if (this.aabbVSaabbHit(bodyA.getHalfSize(), bodyB.getHalfSize())) {
-                    this.aabbVSaabbProjection();
-                    return true;
-                }
-            } else if (bodyB.shape === "circle") {
-                if (this.aabbVSaabbHit(bodyA.getHalfSize(), bodyB.getHalfSize())) {
-                    if (this.circleVSaabbProjection(bodyB.getPosition(), bodyB.getRadius(), bodyA.getPosition(), bodyA.getHalfSize())) {
-                        return true;
-                    }
-                }
-            }
-        } else if (bodyA.shape === "circle") {
-            if (bodyB.shape === "circle") {
-                var radius = bodyA.getRadius() + bodyB.getRadius();
-                if (this.circleVScircleHit(radius)) {
-                    this.circleVScircleProjection(radius);
-                    return true;
-                }
-            } else if (bodyB.shape === "aabb") {
-                if (this.aabbVSaabbHit(bodyA.getHalfSize(), bodyB.getHalfSize())) {
-                    if (this.circleVSaabbProjection(bodyA.getPosition(), bodyA.getRadius(), bodyB.getPosition(), bodyB.getHalfSize())) {
-                        return true;
-                    }
-                }
-            }
-        }
+    circleVScircle: function(radius) {
+        if (this.circleVScircleHit(radius)) return this.circleVScircleProjection(radius);
         return false;
     },
-    cellTest: function(a, b) {
-        for (var i = 0, k = -1; i < 4; i++) {
-            if (k != a[i]) {
-                for (var j = 0; j < 4; j++) {
-                    if (a[i] === b[j]) return true;
-                }
-                k = a[i];
-            }
+    aabbVSaabb: function(halfSizeA, halfSizeB) {
+        if (this.aabbVSaabbHit(halfSizeA, halfSizeB)) return this.aabbVSaabbProjection();
+        return false;
+    },
+    circleVSaabb: function(positionA, halfSizeA, radiusA, positionB, halfSizeB) {
+        if (this.aabbVSaabbHit(halfSizeA, halfSizeB)) return this.circleVSaabbProjection(positionA, radiusA, positionB, halfSizeB);
+        return false;
+    },
+    getPenetration: function(bodyA, bodyB) {
+        if (bodyA.shape === "circle") {
+            if (bodyB.shape === "circle") return this.circleVScircle(bodyA.getRadius() + bodyB.getRadius()); else if (bodyB.shape === "aabb") return this.circleVSaabb(bodyA.getPosition(), bodyA.getHalfSize(), bodyA.getRadius(), bodyB.getPosition(), bodyB.getHalfSize());
+        } else if (bodyA.shape === "aabb") {
+            if (bodyB.shape === "circle") return this.circleVSaabb(bodyB.getPosition(), bodyB.getHalfSize(), bodyB.getRadius(), bodyA.getPosition(), bodyA.getHalfSize()); else if (bodyB.shape === "aabb") return this.aabbVSaabb(bodyA.getHalfSize(), bodyB.getHalfSize());
         }
         return false;
     },
@@ -922,13 +906,7 @@ BUMP.Collision = {
         return false;
     },
     aabbVSaabbProjection: function() {
-        if (this.penetration.getX() < this.penetration.getY()) {
-            this.penetration.setYToOrigin();
-            if (this.delta.getX() < 0) this.penetration.oppositeXTo();
-        } else {
-            this.penetration.setXToOrigin();
-            if (this.delta.getY() < 0) this.penetration.oppositeYTo();
-        }
+        if (this.penetration.getX() < this.penetration.getY()) this.projectOnX(); else this.projectOnY();
     },
     circleVScircleHit: function(radius) {
         var squaredLen = this.delta.getSquaredMagnitude();
@@ -939,6 +917,7 @@ BUMP.Collision = {
     circleVScircleProjection: function(radius) {
         var len = this.delta.getMagnitude(), pen = radius - len;
         this.penetration.copyScaledVectorTo(this.delta, pen / len);
+        return true;
     },
     setVoronoiRegion: function(bhs) {
         this.voronoi.setToOrigin();
@@ -953,32 +932,10 @@ BUMP.Collision = {
         this.setVoronoiRegion(bhs);
         if (this.voronoi.getX() === 0) {
             if (this.voronoi.getY() === 0) {
-                if (this.penetration.getX() < this.penetration.getY()) {
-                    this.penetration.setYToOrigin();
-                    if (this.delta.getX() < 0) {
-                        this.penetration.oppositeXTo();
-                    }
-                } else {
-                    this.penetration.setXToOrigin();
-                    if (this.delta.getY() < 0) {
-                        this.penetration.oppositeYTo();
-                    }
-                }
+                if (this.penetration.getX() < this.penetration.getY()) this.projectOnX(); else this.projectOnY();
                 return true;
-            } else {
-                this.penetration.setXToOrigin();
-                if (this.delta.getY() < 0) {
-                    this.penetration.oppositeYTo();
-                    return true;
-                }
-            }
-        } else if (this.voronoi.getY() === 0) {
-            this.penetration.setYToOrigin();
-            if (this.delta.getX() < 0) {
-                this.penetration.oppositeXTo();
-                return true;
-            }
-        } else {
+            } else return this.projectOnY();
+        } else if (this.voronoi.getY() === 0) return this.projectOnX(); else {
             this.vertex.copyTo(this.voronoi);
             this.vertex.multiplyBy(bhs);
             this.vertex.addTo(bpos);
@@ -994,14 +951,26 @@ BUMP.Collision = {
         }
         return false;
     },
+    projectOnX: function() {
+        this.penetration.setYToOrigin();
+        if (this.delta.getX() < 0) {
+            this.penetration.oppositeXTo();
+            return true;
+        }
+        return false;
+    },
+    projectOnY: function() {
+        this.penetration.setXToOrigin();
+        if (this.delta.getY() < 0) {
+            this.penetration.oppositeYTo();
+            return true;
+        }
+        return false;
+    },
     separate: function(positionA, imA, positionB, imB) {
         this.totalInverseMass = imA + imB;
-        if (imA) {
-            positionA.addScaledVectorTo(this.penetration, imA / this.totalInverseMass);
-        }
-        if (imB) {
-            positionB.addScaledVectorTo(this.penetration, -imB / this.totalInverseMass);
-        }
+        if (imA) positionA.addScaledVectorTo(this.penetration, imA / this.totalInverseMass);
+        if (imB) positionB.subtractScaledVectorFrom(this.penetration, imB / this.totalInverseMass);
     },
     computeImpulseVectors: function(a, b) {
         var separatingVelocity = this.separatingVel(a.velocity, b.velocity);
