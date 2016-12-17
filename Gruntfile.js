@@ -4,6 +4,9 @@ module.exports = function(grunt){
 
   var projectName = 'Bump';
 
+  var port      = 3006;
+  var host      = 'localhost';
+  var browser   = 'Google Chrome';
   var srcDir    = 'src/';
   var distDir   = 'dist/';
   var webDir    = 'website/';
@@ -46,14 +49,19 @@ module.exports = function(grunt){
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     clean: {
-      dist     : distDir,
-      doc      : docDir,
-      static   : webDir    + 'static/',
-      js       : publicDir + 'js/',
-      css      : publicDir + 'css/',
-      sass     : webDir    + 'sass/build/',
-      fonts    : publicDir + 'fonts/',
-      zip      : zipDir
+      lib:{
+        src: distDir + '*'
+      },
+      web:{
+        src: [  docDir    + '*',
+                webDir    + 'static/*',
+                publicDir + 'js/*',
+                publicDir + 'css/*',
+                webDir    + 'sass/build/*',
+                publicDir + 'fonts/*',
+                zipDir    + '*'
+        ]
+      }
     },
     copy: {
       main: {
@@ -313,7 +321,51 @@ module.exports = function(grunt){
           { src: ['RELEASE_NOTES.md'], dest: '/'},
         ]
       }
-    }
+    },
+    nodemon: {
+      dev: {
+        script: 'bin/www',
+        options: {
+          //nodeArgs: ['--debug'],
+          delay:1000,
+          watch: ['website/routes', 'website/app.js'],
+          ext: 'js,scss'
+        }
+      }
+    },
+    open: {
+      all: {
+        path: 'http://' + host + ':' + port,
+        app: browser
+      }
+    },
+    watch: {
+      lib: {
+        files: srcDir + '**/*.js',
+        tasks: ['src', 'doc'],  
+      },
+      webjs: {
+        files: webDir + 'js/**/*.js',
+        tasks: ['js'],
+      },
+      webcss: {
+        files: webDir + 'sass/**/*.scss',
+        tasks: ['css', 'static'],
+      },
+      options: {
+        interrupt: true,
+        spawn: false,
+        livereload: true,
+        livereloadOnError:false
+      }
+    },
+    // run watch and nodemon at the same time
+    concurrent: {
+      options: {
+        logConcurrentOutput: true
+      },
+      tasks: ['nodemon', 'watch', 'open' ]
+    }  
   });
 
   grunt.loadNpmTasks( 'grunt-contrib-clean' );
@@ -328,18 +380,25 @@ module.exports = function(grunt){
   grunt.loadNpmTasks( 'grunt-contrib-htmlmin' );
   grunt.loadNpmTasks( 'grunt-contrib-symlink' );
   grunt.loadNpmTasks( 'grunt-contrib-compress' );
+  grunt.loadNpmTasks( 'grunt-contrib-watch' );
   grunt.loadNpmTasks( 'grunt-jsdoc' );
+  grunt.loadNpmTasks( 'grunt-concurrent' );
+  grunt.loadNpmTasks( 'grunt-nodemon' );
+  grunt.loadNpmTasks( 'grunt-open' );
+  
 
-  grunt.registerTask('default', [ 'jshint', 'clean', 'copy', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'concat', 'symlink', 'compress' ]); //build all
+  grunt.registerTask('default', [ 'jshint', 'clean', 'copy', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'concat', 'symlink', 'compress' ]); //build all for release
 
-  grunt.registerTask('prod', [ 'clean', 'copy', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'concat', 'htmlmin', 'compress' ]); //build prod
+  grunt.registerTask('prod', [ 'clean:web', 'copy', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify:web', 'concat', 'htmlmin', 'compress' ]); //build for prod on the server
+  
+  grunt.registerTask('serve', [ 'concurrent' ]); //serve files, open website watch for changes and.
 
   grunt.registerTask('doc', [ 'jsdoc' ]); //build jsdoc into /doc
-  grunt.registerTask('src', [ 'jshint:lib', 'uglify:lib', 'uglify:libmin' ]); //build library into /dist
+  grunt.registerTask('src', [ 'jshint:lib', 'clean:lib', 'uglify:lib', 'uglify:libmin', 'concat:lib', 'concat:libmin', 'concat:webjs' ]); //build library into /dist
   //website
   grunt.registerTask('js', [ 'jshint:web', 'uglify:web', 'concat:webjs' ]); //build js into /website/public/js
   grunt.registerTask('css', [ 'sass', 'csslint', 'cssmin', 'concat:webcss' ]); //build sass into /website/public/css
-  grunt.registerTask('static', [ 'pug', 'htmlmin', 'symlink' ]); //build static site into /website/static
+  grunt.registerTask('static', [ 'pug', 'htmlmin', 'symlink' ]); //build static website into /website/static
 
   grunt.registerTask('zip', [ 'compress' ]); //compress the project in a downloadable static package
 

@@ -29,12 +29,19 @@ You just cloned Bump.js : git clone https://github.com/LCluber/Bump.js.git
 
 
 ### Workflow
-  - Run **grunt** to build the app. Check **Gruntfile.js** to learn specific commands :
+  - Run **grunt** to build the app. 
+  - Run **grunt serve** to serve files, launch the website, watch for changes and start working.
+  
+  - You can use those commands if you don't like grunt-watch :
     - **grunt doc** builds the static documentation,
     - **grunt src** builds the library in the dist folder,
-    - **grunt js** builds javascript for the website only,
+    - **grunt js** builds javascript for the website,
     - **grunt css** builds CSS for the website,
     - **grunt static** builds the static version of the website,
     - **grunt zip** builds the downloadable zip.
-  - Run **DEBUG=myapp:* npm start** in a new window to start Express server.
-  - Go to **http://localhost:3006/** to test the app.
+    - **grunt watch** builds the library automatically on files modifications.
+    - Start Express server :
+      - Windows : Run **set DEBUG=Bumpjs:* & npm start**
+      - Linux / OSX : Run **DEBUG=Bumpjs:* npm start**
+    - Go to **http://localhost:3006/** to test the app.
+    - Keep in mind running **grunt serve** once will do all this automatically.

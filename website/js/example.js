@@ -16,7 +16,7 @@
     create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
       var obj     = Object.create(this);
       obj.body    = TYPE6JS.Geometry.Circle.create( positionX, positionY, size * 0.5 );
-      obj.physics = BUMP.create(  TYPE6JS.Vector2D.create( velocityX, velocityY ),
+      obj.physics  = BUMP.create(  TYPE6JS.Vector2D.create( velocityX, velocityY ),
                                   TYPE6JS.Vector2D.create( size, size ),
                                   weight,
                                   0.98,

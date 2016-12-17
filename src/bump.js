@@ -116,12 +116,10 @@ var BUMP = {
   */
   setPosition : function( second ){
 
-    //init
     this.translate.setToOrigin();
     this.resultingAcc.copyTo( this.gravity );
     //apply impulse from collision directly to velocity
-    if( this.impulse.isNotOrigin() ){
-      //if( this.inverseMass )
+    if( this.inverseMass && this.impulse.isNotOrigin() ){
       //add impulse per inverse mass
       this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );
       this.impulse.setToOrigin();
@@ -178,135 +176,3 @@ var BUMP = {
   // }
 
 };
-
-
-
-                        //velocity throttle size mass damping elasticity shape
-// ROOSTR.physics = function (/*velocityX,velocityY,velocityZ,*/
-//                         throttleX,throttleY,throttleZ,
-//                         sizeX,sizeY,sizeZ,
-//                         mass,damping,elasticity,shape){
-//
-//     this.position = new ROOSTR.Vector3();
-// 	this.gravity = new ROOSTR.Vector3();
-// 	this.force = new ROOSTR.Vector3();
-// 	this.resultingAcc = new ROOSTR.Vector3();
-// 	this.velocity = new ROOSTR.Vector3(/*velocityX,velocityY,velocityZ*/);
-// 	this.thrust = new ROOSTR.Vector3(throttleX,throttleY,throttleZ);
-//     this.direction = new ROOSTR.Vector3();
-//
-// 	//this.fram=[new Vect(.0,.0),new Vect(.0,.0),new Vect(.0,.0),new Vect(.0,.0)];
-//
-//     this.damping = damping;
-// 	this.mass=mass;
-// 	this.inverseMass=!mass?0:1/mass;
-// 	this.elasticity=-elasticity;//-e
-// 	this.shape=shape;
-//
-// 	this.size=new ROOSTR.Vector3(sizeX, sizeY, sizeZ);
-// 	this.halfSize=new ROOSTR.Vector3(sizeX>>1, sizeY>>1, sizeZ>>1);
-// 	this.cells=[0,0,0,0];
-// 	//this.margin=[-this.halfSize.y,ROOSTR.Screen.size.x+this.halfSize.x,ROOSTR.Screen.size.y+this.halfSize.y,-this.halfSize.x];
-//
-// 	this.impulsePerInverseMass=new ROOSTR.Vector3();
-//
-// 	//this.initFram();
-// }
-// ROOSTR.physics.prototype={
-// 	computePosition:function(direction,time){
-// 		//var p=0;
-//         //add new force
-//         if(direction.notNull()){
-//             this.direction.copy(direction);
-//             this.direction.normalize();
-//             this.direction.multiply(this.thrust);
-//             this.force.add(this.direction);
-//         }
-//         //init
-//         this.position.zero();
-// 		this.resultingAcc.copy(this.gravity);
-//
-//         if(this.force.notNull()){
-// 			this.resultingAcc.addScaledVector(this.force,this.inverseMass);
-// 			this.force.zero();
-// 		}
-// 		if(this.resultingAcc.notNull())
-// 			this.velocity.addScaledVector(this.resultingAcc,time);
-//
-// 		if(this.velocity.notNull()){
-// 			this.velocity.scale(Math.pow(this.damping,time),0);
-// 			//this.velocity.scale(this.damping,0);// use if damping just solves numerical problems and other drag forces are applied
-//             this.position.addScaledVector(this.velocity,time);
-//
-// 			//p=1;
-// 		}
-//
-//         return this.position;
-// 		/*if(LEVEL.scaledVel.c0()){
-// 			this.position.add(LEVEL.scaledVel);
-// 			for(var i=0;i<4;i++)this.fram[i].add(LEVEL.scaledVel);
-// 			p=1;
-// 		}*/
-// 		//if(p)
-// 			//this.newCells();
-// 	},
-// 	newCells:function(){
-// 		for(var i=0;i<4;i++)
-// 			this.cells[i]=Math.floor((this.fram[i].X-SCREEN.margin[3])/SCREEN.cellSize.X) +Math.floor((this.fram[i].Y-SCREEN.margin[0])/SCREEN.cellSize.Y)*SCREEN.nbCell.X;
-// 	},
-// 	addScaledVector:function(v){
-// 		//this.position.addScaledVector(v,ROOSTR.frames.second);
-// 		//for(var i=0;i<4;i++)
-// 			//this.fram[i].addScaledVector(v,ROOSTR.second);
-// 		//if(this.cameras.length>0){
-// 			/*for(var i=0;i<this.cameras.length;i++){
-// 				CAM.list[this.cameras[i]].position.addScaledVector(v,ROOSTR.second);
-// 				CAM.list[this.cameras[i]].target.addScaledVector(v,ROOSTR.second);
-// 			}*/
-// 		//}
-// 	},
-// 	initFram:function(){
-// 		var pxmh=this.position.X-this.halfSize.X,
-// 		pxph=this.position.X+this.halfSize.X,
-// 		pymh=this.position.Y-this.halfSize.Y,
-// 		pyph=this.position.Y+this.halfSize.Y;
-// 		this.fram[0].init(pxmh,pymh);
-// 		this.fram[1].init(pxph,pymh);
-// 		this.fram[2].init(pxph,pyph);
-// 		this.fram[3].init(pxmh,pyph);
-// 	},
-// 	onScreen:function(){
-// 		if(this.position.x>this.margin[3]&&this.position.x<this.margin[1]&&this.position.y>this.margin[0]&&this.position.y<this.margin[2])return 1;
-// 	},
-// 	applyImpulse:function(ipim){
-// 		if(this.life&&this.inverseMass){
-// 			this.impulsePerInverseMass.copy(ipim);
-// 			this.impulsePerInverseMass.scale(this.inverseMass,0);
-// 			this.velocity.add(this.impulsePerInverseMass);//add impulse vector to velocity
-// 		}
-// 	},
-// 	setHalfSize:function(){
-// 		this.halfSize.initV(this.size);
-// 		this.halfSize.scale(0.5,0);
-// 	},
-// 	delPhysics:function(){
-// 		delete this.position;
-// 		delete this.gravity;
-// 		delete this.force;
-// 		delete this.resultingAcc;
-// 		delete this.velocity;
-// 		delete this.throttle;
-// 		delete this.fram[0];
-// 		delete this.fram[1];
-// 		delete this.fram[2];
-// 		delete this.fram[3];
-// 		delete this.fram;
-//
-// 		delete this.size;
-// 		delete this.halfSize;
-// 		delete this.cells;
-// 		delete this.margin;
-//
-// 		delete this.impulsePerInverseMass;
-// 	}
-// };
