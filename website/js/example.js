@@ -8,18 +8,19 @@
   var collisionScene = BUMP.Scene.create();
   //create animation frame
   var animation      = FRAMERAT.create(render);
-  var particleQty    = 1;
+  var particleQty    = 400;
   var particleSize   = 6;
   var particleWeight = 1.0;
+  var floor          = [];
 
   var particle = {
     create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
       var obj     = Object.create(this);
       obj.body    = TYPE6JS.Geometry.Circle.create( positionX, positionY, size * 0.5 );
-      obj.physics  = BUMP.create(  TYPE6JS.Vector2D.create( velocityX, velocityY ),
+      obj.physics = BUMP.Physics.create(  TYPE6JS.Vector2D.create( velocityX, velocityY ),
                                   TYPE6JS.Vector2D.create( size, size ),
                                   weight,
-                                  0.98,
+                                  0.9,
                                   0.8
                                 );
       obj.color   = color ? color : '#000000';
@@ -45,11 +46,11 @@
   };
   
   var rectangle = {
-    create : function( positionX, positionY ){
+    create : function( positionX, positionY, sizeX, sizeY ){
       var obj     = Object.create(this);
-      obj.body    = TYPE6JS.Geometry.Rectangle.create( positionX, positionY, width * 0.5, 200 );
-      obj.physics = BUMP.create(  TYPE6JS.Vector2D.create(),
-                                  TYPE6JS.Vector2D.create( width * 0.5, 200 ),
+      obj.body    = TYPE6JS.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
+      obj.physics = BUMP.Physics.create(  TYPE6JS.Vector2D.create(),
+                                  TYPE6JS.Vector2D.create( sizeX, sizeY ),
                                   0.0,
                                   0.0,
                                   0.2
@@ -68,23 +69,28 @@
     
   };
 
-  var floor = rectangle.create( width * 0.5, height );
-  // var floor = particle.create(
-  //                     width * 0.5,
-  //                     height * 1.2,
-  //                     0,
-  //                     0,
-  //                     width * 0.6,
-  //                     0,
-  //                     '#cccccc'
-  //                   );
-  collisionScene.addBody( floor );
+  function initFloor(){
+
+    floor.push(rectangle.create( width * 0.5, height, width * 0.5, 200 ));
+    floor.push(rectangle.create( width * 0.12, height * 0.75, 200, width * 0.5 ));
+    floor.push(particle.create( width * 0.5,
+                                height * 0.86,
+                                0,
+                                0,
+                                width * 0.2,
+                                0,
+                                '#cccccc'
+                              ));
+    for ( var i = 0 ; i < floor.length ; i++ )
+      collisionScene.addBody( floor[i] );
+    
+  }
 
   function initParticles(){
-    for( var i = 0; i < particleQty; i += 1 ){
-      var radius    = TYPE6JS.Random.float( 0, 100 );
-      var angle     = TYPE6JS.Random.float( 0, TYPE6JS.Trigonometry.TWOPI );
-      particles[i]  = particle.create(
+    for( var i = 0 ; i < particleQty; i++ ){
+      var radius   = TYPE6JS.Random.float( 0, 120 );
+      var angle    = TYPE6JS.Random.float( 0, TYPE6JS.Trigonometry.TWOPI );
+      particles[i] = particle.create(
                         width * 0.5,
                         height * 0.25,
                         TYPE6JS.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
@@ -92,27 +98,28 @@
                         particleSize,
                         particleWeight,
                         null
-                      );
+                     );
       collisionScene.addBody( particles[i] );
     }
   }
   
+  
   initParticles();
+  initFloor();
 
   function draw() {
     
-    floor.draw();
+    for( var i = 0 ; i < floor.length ; i++ )
+      floor[i].draw();
     
-    for( var i = 0 ; i < particleQty ; i += 1 ) {
+    for( i = 0 ; i < particleQty ; i++ )
       particles[i].draw();
-    }
     
   }
   
   function updatePositions(){
-    for( var i = 0 ; i < particleQty ; i++ ){
+    for( var i = 0 ; i < particleQty ; i++ )
       particles[i].update();
-    }
   }
 
   function testCollisions(){
@@ -128,7 +135,7 @@
     testCollisions();
     clearFrame();
     draw();
-    //writeConsole();
+    writeConsole();
     animation.newFrame();
   }
 
@@ -144,5 +151,18 @@
     animation.stop();
     clearFrame();
     initParticles();
-    //writeConsole(); //draw the console one time to show the reset
+    writeConsole(); //draw the console one time to show the reset
+  }
+  
+  function write(text, posX, posY){
+    context.fillStyle = "rgba(0, 0, 0, 1)";
+    context.fillText( text, posX, posY );
+  }
+  
+  function writeConsole(){
+    context.font = "20px Georgia";
+    write('Elapsed time : '     + animation.getTotalTime(0) + ' seconds', 20, 40);
+    write('Frame number : '     + animation.getFrameNumber(), 20, 70);
+    write('Frame Per Second : ' + animation.getFramePerSecond(30, 0), 20, 100);
+    write('Frame duration : '   + animation.getRoundedDelta(30, 0).getMillisecond() + ' ms', 20, 130);
   }

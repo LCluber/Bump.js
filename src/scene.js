@@ -1,4 +1,7 @@
-
+/**
+* @class
+* @classdesc A class that represents a physics scene containing bodies to check.
+*/
 BUMP.Scene = {
 
   bodies : [],
@@ -9,7 +12,6 @@ BUMP.Scene = {
   
   create : function() {
     var _this = Object.create( this );
-    //_this.config = config;
 
     return _this;
   },
@@ -35,11 +37,9 @@ BUMP.Scene = {
   
     for( var i = 0 ; i < this.bodiesLength ; i++ ){
       for( var j = i + 1 ; j < this.bodiesLength ; j++ ){
-        //if( i != j ){
-          var p1 = this.bodies[i];
-          var p2 = this.bodies[j];
-          this.collision.test( p1.body, p1.physics, p2.body, p2.physics );
-        //}  
+        var p1 = this.bodies[i];
+        var p2 = this.bodies[j];
+        this.collision.test( p1.body, p1.physics, p2.body, p2.physics );  
       }
     }
     

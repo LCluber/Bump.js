@@ -193,7 +193,6 @@ BUMP.Collision = {
           this.penetration.copyScaledVectorTo( this.delta2, pen / len );
         return true; //collision detected
       }
-      
     }
     return false;
   },
@@ -220,12 +219,10 @@ BUMP.Collision = {
     this.totalInverseMass = imA + imB;
     if( imA )
       positionA.addScaledVectorTo( this.penetration, imA / this.totalInverseMass );
-    
     if( imB )
       positionB.subtractScaledVectorFrom( this.penetration, imB / this.totalInverseMass );
     
   },
-  
   
   computeImpulseVectors : function( a, b ){
     var separatingVelocity = this.separatingVel( a.velocity, b.velocity );
@@ -233,9 +230,7 @@ BUMP.Collision = {
       //vel+=1/m*impulse
       //calculate separating velocity with restitution (between 0 and 1)
       //Calculate the new separating velocity
-      var newSeparatingVelocity = separatingVelocity * a.elasticity;
-      //real deltaVelocity = newSepVelocity - separatingVelocity
-      this.deltaVelocity = newSeparatingVelocity - separatingVelocity;
+      this.deltaVelocity = separatingVelocity * a.elasticity - separatingVelocity;
       // Calculate the impulse to apply.
       this.impulse = this.deltaVelocity / this.totalInverseMass;
       // Find the amount of impulse per unit of inverse mass.
@@ -243,16 +238,11 @@ BUMP.Collision = {
       this.impulsePerInverseMass.copyScaledVectorTo( this.penetration, this.impulse );
       // Apply impulses: they are applied in the direction of the contact,
       // and are proportional to the inverse mass.
-      //if( a.inverseMass ){
-        a.impulse.copyTo( this.impulsePerInverseMass );
-        //a.velocity.addScaledVectorTo( this.impulsePerInverseMass, a.inverseMass );
-      //}
-      //if( b.inverseMass ){
-        this.impulsePerInverseMass.oppositeTo();
-        b.impulse.copyTo( this.impulsePerInverseMass );
-        //b.velocity.addScaledVectorTo( this.impulsePerInverseMass, b.inverseMass );
-      //}
-      //console.log(a.impulse);
+      a.impulse.copyTo( this.impulsePerInverseMass );
+      //a.velocity.addScaledVectorTo( this.impulsePerInverseMass, a.inverseMass );
+      this.impulsePerInverseMass.oppositeTo();
+      b.impulse.copyTo( this.impulsePerInverseMass );
+      //b.velocity.addScaledVectorTo( this.impulsePerInverseMass, b.inverseMass );
     }
   },
   

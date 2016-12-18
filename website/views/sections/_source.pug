@@ -5,34 +5,90 @@ section( id='source' class='container content-section text-center' )
       
       h3 Javascript (main.js)
       
-      p Instantiate an animation with an onAnimate callback .
+      p Instantiate a scene to handle collisions of rigid bodies .
       pre. 
-        var animation = FRAMERAT.create(render);
+        //create collision scene
+        var collisionScene = BUMP.Scene.create();
       
-      p Render function
+      p Create few particles
       pre.
+        var particleQty    = 400;
+        var particleSize   = 6;
+        var particleWeight = 1.0;
+        var particle = {
+          create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
+            var obj     = Object.create(this);
+            obj.body    = TYPE6JS.Geometry.Circle.create( positionX, positionY, size * 0.5 );
+            obj.physics = BUMP.Physics.create(  
+                                        TYPE6JS.Vector2D.create( velocityX, velocityY ),
+                                        TYPE6JS.Vector2D.create( size, size ),
+                                        weight,
+                                        0.9,
+                                        0.8
+                                      );
+            obj.color   = color ? color : '#000000';
+            return obj;
+          },
+
+          update: function(){
+            this.body.position.addTo( this.physics.setPosition( animation.getDelta().getSecond() ) );
+          },
+          
+          draw: function(){
+            //draw
+          }
+        };
+        
+        for( var i = 0 ; i < particleQty; i++ ){
+          var radius   = TYPE6JS.Random.float( 0, 120 );
+          var angle    = TYPE6JS.Random.float( 0, TYPE6JS.Trigonometry.TWOPI );
+          particles[i] = particle.create(
+                            width * 0.5,
+                            height * 0.25,
+                            TYPE6JS.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
+                            TYPE6JS.Trigonometry.sineEquation( radius, angle, 0, 0 ),
+                            particleSize,
+                            particleWeight,
+                            null
+                         );
+          collisionScene.addBody( particles[i] );
+        }
+      
+      p Create floor
+      pre.
+        var rectangle = {
+          create : function( positionX, positionY, sizeX, sizeY ){
+            var obj     = Object.create(this);
+            obj.body    = TYPE6JS.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
+            obj.physics = BUMP.Physics.create(  TYPE6JS.Vector2D.create(),
+                                        TYPE6JS.Vector2D.create( sizeX, sizeY ),
+                                        0.0,
+                                        0.0,
+                                        0.2
+                                      );
+            return obj;
+          },
+          
+          draw : function(){
+            //draw
+          }
+          
+        };
+        
+        var floor = rectangle.create( width * 0.5, height, width * 0.5, 200 );
+        collisionScene.addBody( floor );
+        
+      p Animation
+      pre.
+        function updatePositions(){
+          for( var i = 0 ; i < particleQty ; i++ )
+            particles[i].update();
+        }
+        
         function render(){
+          updatePositions();
+          collisionScene.test();
           clearFrame();
-          drawStuff();
-          writeStuff('Elapsed time : '     + animation.getTotalTime(0) + ' seconds');
-          writeStuff('Frame number : '     + animation.getFrameNumber());
-          writeStuff('Frame Per Second : ' + animation.getFramePerSecond(30, 0));
-          writeStuff('Frame duration : '   + animation.getDelta().getSecond();
-          writeStuff('Rounded Frame duration : ' + animation.getRoundedDelta(30, 0).getMillisecond() + ' ms');
+          draw();
           animation.newFrame();
-        }
-      
-      p Play, Pause, Stop functions
-      pre.
-        function playAnimation(){ //bind a button to this function
-          animation.play();
-        }
-
-        function pauseAnimation () { //bind a button to this function
-          animation.pause();
-        }
-
-        function stopAnimation () { //bind a button to this function
-          animation.stop();
-          clearFrame();
         }

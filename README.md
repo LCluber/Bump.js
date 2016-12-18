@@ -1,20 +1,18 @@
 ## Synopsis
 
-  A finite state machine is a very good way to simplify a project when sequential logic is required. It helps your code to stay clean and easy to understand.
-
-  It is an abstract machine that can be in one of a finite number of states. The machine is in only one state at a time; the state it is in at any given time is called the current state. It can change from one state to another when initiated by a triggering event or condition; this is called a transition. A particular FSM is defined by a list of its states, its initial state, and the triggering condition for each transition.
+Bump.js is a 2D physics engine.
 
 ## Code Example
 
- [See a basic example on the dedicated website](http://bumpjs.lcluber.com/#source).
+[See a basic example on the dedicated website](http://bumpjs.lcluber.com/#source).
 
 ## Motivation
 
-The main purpose of this library is to provide a simple way to handle sequential logics.
+The main purpose of this library is to provide a simple way to handle physics.
 
 ## Installation
 
-To use **Taipan.js** download it **[here](http://bumpjs.lcluber.com/#download)** and learn how to use it **[there](http://bumpjs.lcluber.com/#example)**.
+To use **Bump.js** download it **[here](http://bumpjs.lcluber.com/#download)** and learn how to use it **[there](http://bumpjs.lcluber.com/#example)**.
 
 ## API Reference
 
