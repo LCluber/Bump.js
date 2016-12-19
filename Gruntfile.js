@@ -6,7 +6,6 @@ module.exports = function(grunt){
 
   var port      = 3006;
   var host      = 'localhost';
-  var browser   = 'Google Chrome';
   
   var srcDir    = 'src/';
   var distDir   = 'dist/';
@@ -338,14 +337,16 @@ module.exports = function(grunt){
     },
     open: {
       all: {
-        path: 'http://' + host + ':' + port,
-        app: browser
+        path: 'http://' + host + ':' + port
       }
     },
     watch: {
       lib: {
         files: srcDir + '**/*.js',
         tasks: ['src', 'doc'],  
+      },
+      webpug:{
+        files: webDir + 'views/**/*.pug'
       },
       webjs: {
         files: webDir + 'js/**/*.js',
