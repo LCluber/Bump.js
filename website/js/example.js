@@ -23,12 +23,17 @@
                                   0.9,
                                   0.8
                                 );
-      obj.color   = color ? color : '#000000';
+      obj.color   = color;
       return obj;
     },
 
     update: function(){
       this.body.position.addTo( this.physics.setPosition( animation.getDelta().getSecond() ) );
+    },
+    
+    reset: function(){
+      this.body.position.setXY( width * 0.5, height * 0.25 );
+      this.physics.reset();
     },
     
     draw: function(){
@@ -97,12 +102,16 @@
                         TYPE6JS.Trigonometry.sineEquation( radius, angle, 0, 0 ),
                         particleSize,
                         particleWeight,
-                        null
+                        getRandomColor()
                      );
       collisionScene.addBody( particles[i] );
     }
   }
   
+  function resetParticles(){
+    for( var i = 0 ; i < particleQty; i++ )
+      particles[i].reset();
+  }
   
   initParticles();
   initFloor();
@@ -150,19 +159,28 @@
   function stopAnimation () {
     animation.stop();
     clearFrame();
-    initParticles();
+    resetParticles();
     writeConsole(); //draw the console one time to show the reset
   }
   
   function write(text, posX, posY){
-    context.fillStyle = "rgba(0, 0, 0, 1)";
+    context.fillStyle = 'rgba(0, 0, 0, 1)';
     context.fillText( text, posX, posY );
   }
   
   function writeConsole(){
-    context.font = "20px Georgia";
+    context.font = '20px Georgia';
     write('Elapsed time : '     + animation.getTotalTime(0) + ' seconds', 20, 40);
     write('Frame number : '     + animation.getFrameNumber(), 20, 70);
     write('Frame Per Second : ' + animation.getFramePerSecond(30, 0), 20, 100);
     write('Frame duration : '   + animation.getRoundedDelta(30, 0).getMillisecond() + ' ms', 20, 130);
+  }
+  
+  function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ )
+        color += letters[Math.floor(Math.random() * 16)];
+
+    return color;
   }

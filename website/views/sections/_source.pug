@@ -15,6 +15,7 @@ section( id='source' class='container content-section text-center' )
         var particleQty    = 400;
         var particleSize   = 6;
         var particleWeight = 1.0;
+        // class for a particle
         var particle = {
           create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
             var obj     = Object.create(this);
@@ -26,10 +27,10 @@ section( id='source' class='container content-section text-center' )
                                         0.9,
                                         0.8
                                       );
-            obj.color   = color ? color : '#000000';
+            obj.color   = color;
             return obj;
           },
-
+          // compute the position of a particle at each frame
           update: function(){
             this.body.position.addTo( this.physics.setPosition( animation.getDelta().getSecond() ) );
           },
@@ -39,6 +40,7 @@ section( id='source' class='container content-section text-center' )
           }
         };
         
+        // create a bunch of particles
         for( var i = 0 ; i < particleQty; i++ ){
           var radius   = TYPE6JS.Random.float( 0, 120 );
           var angle    = TYPE6JS.Random.float( 0, TYPE6JS.Trigonometry.TWOPI );
@@ -49,13 +51,15 @@ section( id='source' class='container content-section text-center' )
                             TYPE6JS.Trigonometry.sineEquation( radius, angle, 0, 0 ),
                             particleSize,
                             particleWeight,
-                            null
+                            '#000000'
                          );
+          // add each particle to the collision scene
           collisionScene.addBody( particles[i] );
         }
       
       p Create floor
       pre.
+        // class for rectangle floor
         var rectangle = {
           create : function( positionX, positionY, sizeX, sizeY ){
             var obj     = Object.create(this);
@@ -74,8 +78,9 @@ section( id='source' class='container content-section text-center' )
           }
           
         };
-        
+        // create the floor
         var floor = rectangle.create( width * 0.5, height, width * 0.5, 200 );
+        // add the floor to the collision scene
         collisionScene.addBody( floor );
         
       p Animation

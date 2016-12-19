@@ -4,12 +4,13 @@
 */
 BUMP.Physics = {
 
-  translate    : TYPE6JS.Vector2D.create(),
-  velocity     : TYPE6JS.Vector2D.create(),
-  gravity      : TYPE6JS.Vector2D.create( 0, 400 ),
-  force        : TYPE6JS.Vector2D.create(),
-  impulse      : TYPE6JS.Vector2D.create(),
-  resultingAcc : TYPE6JS.Vector2D.create(),
+  translate       : TYPE6JS.Vector2D.create(),
+  velocity        : TYPE6JS.Vector2D.create(),
+  initialVelocity : TYPE6JS.Vector2D.create(),
+  gravity         : TYPE6JS.Vector2D.create( 0, 400 ),
+  force           : TYPE6JS.Vector2D.create(),
+  impulse         : TYPE6JS.Vector2D.create(),
+  resultingAcc    : TYPE6JS.Vector2D.create(),
 
   damping     : 0.9,
   mass        : 1.0,
@@ -64,14 +65,15 @@ BUMP.Physics = {
   },
 
   initVectors : function( velocity ){
-    this.velocity     = velocity;
-    //this.size         = size;
-    //this.halfSize     = TYPE6JS.Vector2D.create();
-    this.translate    = TYPE6JS.Vector2D.create();
-    this.gravity      = TYPE6JS.Vector2D.create( 0, 400 );
-    this.force        = TYPE6JS.Vector2D.create();
-    this.impulse      = TYPE6JS.Vector2D.create();
-    this.resultingAcc = TYPE6JS.Vector2D.create();
+    this.velocity        = velocity;
+    this.initialVelocity = velocity;
+    //this.size          = size;
+    //this.halfSize      = TYPE6JS.Vector2D.create();
+    this.translate       = TYPE6JS.Vector2D.create();
+    this.gravity         = TYPE6JS.Vector2D.create( 0, 400 );
+    this.force           = TYPE6JS.Vector2D.create();
+    this.impulse         = TYPE6JS.Vector2D.create();
+    this.resultingAcc    = TYPE6JS.Vector2D.create();
   },
 
   /**
@@ -121,6 +123,18 @@ BUMP.Physics = {
   applyImpulse : function( impulsePerInverseMass ){
       this.velocity.addScaledVectorTo( impulsePerInverseMass, this.inverseMass );//add impulse vector to velocity
   },
+  
+  reset : function(){
+    this.initVectors(this.velocity);
+    this.velocity.copyTo(this.initialVelocity);
+    //this.size          = size;
+    //this.halfSize      = TYPE6JS.Vector2D.create();
+    this.translate.setToOrigin();
+    //this.gravity;
+    this.force.setToOrigin();
+    this.impulse.setToOrigin();
+    this.resultingAcc.setToOrigin();
+  }
   
   // newCells : function(){
   //   for(var i=0;i<4;i++)// can be in for cells maximum
