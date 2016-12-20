@@ -228,8 +228,8 @@ TYPE6JS.Vector2D = {
         this.addTo(vector2D);
         return squaredMagnitude;
     },
-    copy: function(vector2D) {
-        return this.create(vector2D.getX(), vector2D.getY());
+    copy: function() {
+        return this.create(this.getX(), this.getY());
     },
     add: function(vector2D) {
         return this.create(this.x + vector2D.getX(), this.y + vector2D.getY());
@@ -825,7 +825,7 @@ BUMP.Physics = {
     },
     initVectors: function(velocity) {
         this.velocity = velocity;
-        this.initialVelocity = velocity;
+        this.initialVelocity = this.velocity.copy();
         this.translate = TYPE6JS.Vector2D.create();
         this.gravity = TYPE6JS.Vector2D.create(0, 400);
         this.force = TYPE6JS.Vector2D.create();
@@ -854,7 +854,7 @@ BUMP.Physics = {
         this.velocity.addScaledVectorTo(impulsePerInverseMass, this.inverseMass);
     },
     reset: function() {
-        this.initVectors(this.velocity);
+        console.log(this.initialVelocity);
         this.velocity.copyTo(this.initialVelocity);
         this.translate.setToOrigin();
         this.force.setToOrigin();

@@ -66,7 +66,8 @@ BUMP.Physics = {
 
   initVectors : function( velocity ){
     this.velocity        = velocity;
-    this.initialVelocity = velocity;
+    this.initialVelocity = this.velocity.copy();
+    
     //this.size          = size;
     //this.halfSize      = TYPE6JS.Vector2D.create();
     this.translate       = TYPE6JS.Vector2D.create();
@@ -125,7 +126,7 @@ BUMP.Physics = {
   },
   
   reset : function(){
-    this.initVectors(this.velocity);
+    console.log(this.initialVelocity);
     this.velocity.copyTo(this.initialVelocity);
     //this.size          = size;
     //this.halfSize      = TYPE6JS.Vector2D.create();
