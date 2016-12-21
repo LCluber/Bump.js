@@ -1,5 +1,5 @@
 
-Version 0.2.0 (November 22th 2016)
+Version 0.2.0 (December 22th 2016)
 ------------------------------
  * Updated for open source release on GitHub
  * Code reworked
