@@ -6,7 +6,7 @@ section( id='source' class='container content-section text-center' )
       h3 Javascript (main.js)
       
       p Instantiate a collision scene to handle collisions between rigid bodies .
-      pre. 
+      pre.
         //create collision scene
         var collisionScene = BUMP.Scene.create();
       
@@ -41,7 +41,7 @@ section( id='source' class='container content-section text-center' )
         };
         
         // create a bunch of particles
-        for( var i = 0 ; i < particleQty; i++ ){
+        for( var i = 0 ; i &lt; particleQty; i++ ){
           var radius   = TYPE6JS.Random.float( 0, 120 );
           var angle    = TYPE6JS.Random.float( 0, TYPE6JS.Trigonometry.TWOPI );
           particles[i] = particle.create(
@@ -86,7 +86,7 @@ section( id='source' class='container content-section text-center' )
       p Animation
       pre.
         function updatePositions(){
-          for( var i = 0 ; i < particleQty ; i++ )
+          for( var i = 0 ; i &lt; particleQty ; i++ )
             particles[i].update();
         }
         
