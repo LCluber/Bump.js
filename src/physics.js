@@ -4,26 +4,26 @@
 */
 BUMP.Physics = {
 
-  translate       : TYPE6JS.Vector2D.create(),
-  velocity        : TYPE6JS.Vector2D.create(),
-  initialVelocity : TYPE6JS.Vector2D.create(),
-  gravity         : TYPE6JS.Vector2D.create( 0, 400 ),
-  force           : TYPE6JS.Vector2D.create(),
-  impulse         : TYPE6JS.Vector2D.create(),
-  resultingAcc    : TYPE6JS.Vector2D.create(),
+  translate       : TYPE6.Vector2D.create(),
+  velocity        : TYPE6.Vector2D.create(),
+  initialVelocity : TYPE6.Vector2D.create(),
+  gravity         : TYPE6.Vector2D.create( 0, 400 ),
+  force           : TYPE6.Vector2D.create(),
+  impulse         : TYPE6.Vector2D.create(),
+  resultingAcc    : TYPE6.Vector2D.create(),
 
   damping     : 0.9,
   mass        : 1.0,
   inverseMass : 1.0,
   elasticity  : -1,//-e
 
-  //size        : TYPE6JS.Vector2D.create(),
-  //halfSize    : TYPE6JS.Vector2D.create(),
+  //size        : TYPE6.Vector2D.create(),
+  //halfSize    : TYPE6.Vector2D.create(),
   // cells       : [ 0, 0, 0, 0 ],
-  // frame       : [ TYPE6JS.Vector2D.create(),
-  //                 TYPE6JS.Vector2D.create(),
-  //                 TYPE6JS.Vector2D.create(),
-  //                 TYPE6JS.Vector2D.create()
+  // frame       : [ TYPE6.Vector2D.create(),
+  //                 TYPE6.Vector2D.create(),
+  //                 TYPE6.Vector2D.create(),
+  //                 TYPE6.Vector2D.create()
   //               ],
                 
   collisionSceneId : 0,
@@ -38,7 +38,7 @@ BUMP.Physics = {
   // Static     Density : 0.0  Restitution : 0.4
 //margin=[-halfSize.y,ROOSTR.Screen.size.x+halfSize.x,ROOSTR.Screen.size.y+halfSize.y,-halfSize.x];
 
-  //impulsePerInverseMass : TYPE6JS.Vector2D.create(),
+  //impulsePerInverseMass : TYPE6.Vector2D.create(),
 
   //collision : BUMP.Collision.create(),
 
@@ -69,12 +69,12 @@ BUMP.Physics = {
     this.initialVelocity = this.velocity.copy();
     
     //this.size          = size;
-    //this.halfSize      = TYPE6JS.Vector2D.create();
-    this.translate       = TYPE6JS.Vector2D.create();
-    this.gravity         = TYPE6JS.Vector2D.create( 0, 400 );
-    this.force           = TYPE6JS.Vector2D.create();
-    this.impulse         = TYPE6JS.Vector2D.create();
-    this.resultingAcc    = TYPE6JS.Vector2D.create();
+    //this.halfSize      = TYPE6.Vector2D.create();
+    this.translate       = TYPE6.Vector2D.create();
+    this.gravity         = TYPE6.Vector2D.create( 0, 400 );
+    this.force           = TYPE6.Vector2D.create();
+    this.impulse         = TYPE6.Vector2D.create();
+    this.resultingAcc    = TYPE6.Vector2D.create();
   },
 
   /**
@@ -126,10 +126,9 @@ BUMP.Physics = {
   },
   
   reset : function(){
-    console.log(this.initialVelocity);
     this.velocity.copyTo(this.initialVelocity);
     //this.size          = size;
-    //this.halfSize      = TYPE6JS.Vector2D.create();
+    //this.halfSize      = TYPE6.Vector2D.create();
     this.translate.setToOrigin();
     //this.gravity;
     this.force.setToOrigin();
