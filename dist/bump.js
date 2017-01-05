@@ -46,11 +46,11 @@
 *
 * http://type6js.lcluber.com
 */
-var TYPE6JS = {
-    Revision: "0.2.0"
+var TYPE6 = {
+    Revision: "0.2.2"
 };
 
-TYPE6JS.MathUtils = {
+TYPE6.MathUtils = {
     round: function(x, decimals) {
         decimals = Math.pow(10, decimals);
         return Math.round(x * decimals) / decimals;
@@ -99,7 +99,7 @@ TYPE6JS.MathUtils = {
     }
 };
 
-TYPE6JS.Random = {
+TYPE6.Random = {
     "float": function(min, max) {
         return min + Math.random() * (max - min);
     },
@@ -118,7 +118,7 @@ TYPE6JS.Random = {
     }
 };
 
-TYPE6JS.Bezier = {
+TYPE6.Bezier = {
     quadratic: function(p0x, p1x, p2x, t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT) {
         return powerOf2 * p0x + oneMinusTByTwo2ByT * p1x + tt * p2x;
     },
@@ -127,7 +127,7 @@ TYPE6JS.Bezier = {
     }
 };
 
-TYPE6JS.Vector2D = {
+TYPE6.Vector2D = {
     x: 0,
     y: 0,
     create: function(x, y) {
@@ -192,8 +192,8 @@ TYPE6JS.Vector2D = {
     setAngle: function(angle) {
         if (this.valueValidation(angle)) {
             var length = this.getMagnitude();
-            this.x = TYPE6JS.Trigonometry.cosinus(angle) * length;
-            this.y = TYPE6JS.Trigonometry.sinus(angle) * length;
+            this.x = TYPE6.Trigonometry.cosinus(angle) * length;
+            this.y = TYPE6.Trigonometry.sinus(angle) * length;
             return true;
         }
         return false;
@@ -204,8 +204,8 @@ TYPE6JS.Vector2D = {
     setMagnitude: function(length) {
         if (this.valueValidation(length)) {
             var angle = this.getAngle();
-            this.x = TYPE6JS.Trigonometry.cosinus(angle) * length;
-            this.y = TYPE6JS.Trigonometry.sinus(angle) * length;
+            this.x = TYPE6.Trigonometry.cosinus(angle) * length;
+            this.y = TYPE6.Trigonometry.sinus(angle) * length;
             return true;
         }
         return false;
@@ -286,36 +286,36 @@ TYPE6JS.Vector2D = {
         return this.create(this.x, -this.y);
     },
     clamp: function(rectangle) {
-        return this.create(TYPE6JS.MathUtils.clamp(this.x, rectangle.topLeftCorner.getX(), rectangle.bottomRightCorner.getX()), TYPE6JS.MathUtils.clamp(this.y, rectangle.topLeftCorner.getY(), rectangle.bottomRightCorner.getY()));
+        return this.create(TYPE6.MathUtils.clamp(this.x, rectangle.topLeftCorner.getX(), rectangle.bottomRightCorner.getX()), TYPE6.MathUtils.clamp(this.y, rectangle.topLeftCorner.getY(), rectangle.bottomRightCorner.getY()));
     },
     lerp: function(normal, min, max) {
-        return this.create(TYPE6JS.MathUtils.lerp(normal, min.getX(), max.getX()), TYPE6JS.MathUtils.lerp(normal, min.getY(), max.getY()));
+        return this.create(TYPE6.MathUtils.lerp(normal, min.getX(), max.getX()), TYPE6.MathUtils.lerp(normal, min.getY(), max.getY()));
     },
     quadraticBezier: function(p0, p1, p2, t) {
         var tt = t * t;
         var oneMinusT = 1 - t;
         var powerOf2 = Math.pow(oneMinusT, 2);
         var oneMinusTByTwo2ByT = oneMinusT * 2 * t;
-        return this.create(TYPE6JS.Bezier.quadratic(p0.getX(), p1.getX(), p2.getX(), t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT), TYPE6JS.Bezier.quadratic(p0.getY(), p1.getY(), p2.getY(), t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT));
+        return this.create(TYPE6.Bezier.quadratic(p0.getX(), p1.getX(), p2.getX(), t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT), TYPE6.Bezier.quadratic(p0.getY(), p1.getY(), p2.getY(), t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT));
     },
     cubicBezier: function(p0, p1, p2, p3, t) {
         var tt = t * t;
         var oneMinusT = 1 - t;
-        return this.create(TYPE6JS.Bezier.cubic(p0.getX(), p1.getX(), p2.getX(), p3.getX(), t, tt, oneMinusT), TYPE6JS.Bezier.cubic(p0.getY(), p1.getY(), p2.getY(), p3.getY(), t, tt, oneMinusT));
+        return this.create(TYPE6.Bezier.cubic(p0.getX(), p1.getX(), p2.getX(), p3.getX(), t, tt, oneMinusT), TYPE6.Bezier.cubic(p0.getY(), p1.getY(), p2.getY(), p3.getY(), t, tt, oneMinusT));
     },
     quadraticBezierTo: function(p0, p1, p2, t) {
         var tt = t * t;
         var oneMinusT = 1 - t;
         var powerOf2 = Math.pow(oneMinusT, 2);
         var oneMinusTByTwo2ByT = oneMinusT * 2 * t;
-        this.x = TYPE6JS.Bezier.quadratic(p0.getX(), p1.getX(), p2.getX(), t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT);
-        this.y = TYPE6JS.Bezier.quadratic(p0.getY(), p1.getY(), p2.getY(), t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT);
+        this.x = TYPE6.Bezier.quadratic(p0.getX(), p1.getX(), p2.getX(), t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT);
+        this.y = TYPE6.Bezier.quadratic(p0.getY(), p1.getY(), p2.getY(), t, tt, oneMinusT, powerOf2, oneMinusTByTwo2ByT);
     },
     cubicBezierTo: function(p0, p1, p2, p3, t) {
         var tt = t * t;
         var oneMinusT = 1 - t;
-        this.x = TYPE6JS.Bezier.cubic(p0.getX(), p1.getX(), p2.getX(), p3.getX(), t, tt, oneMinusT);
-        this.y = TYPE6JS.Bezier.cubic(p0.getY(), p1.getY(), p2.getY(), p3.getY(), t, tt, oneMinusT);
+        this.x = TYPE6.Bezier.cubic(p0.getX(), p1.getX(), p2.getX(), p3.getX(), t, tt, oneMinusT);
+        this.y = TYPE6.Bezier.cubic(p0.getY(), p1.getY(), p2.getY(), p3.getY(), t, tt, oneMinusT);
     },
     copyTo: function(vector2D) {
         this.x = vector2D.getX();
@@ -396,12 +396,12 @@ TYPE6JS.Vector2D = {
         this.y = -this.y;
     },
     clampTo: function(rectangle) {
-        this.x = TYPE6JS.MathUtils.clamp(this.x, rectangle.topLeftCorner.getX(), rectangle.bottomRightCorner.getX());
-        this.y = TYPE6JS.MathUtils.clamp(this.y, rectangle.topLeftCorner.getY(), rectangle.bottomRightCorner.getY());
+        this.x = TYPE6.MathUtils.clamp(this.x, rectangle.topLeftCorner.getX(), rectangle.bottomRightCorner.getX());
+        this.y = TYPE6.MathUtils.clamp(this.y, rectangle.topLeftCorner.getY(), rectangle.bottomRightCorner.getY());
     },
     lerpTo: function(normal, min, max) {
-        this.x = TYPE6JS.MathUtils.lerp(normal, min.getX(), max.getX());
-        this.y = TYPE6JS.MathUtils.lerp(normal, min.getY(), max.getY());
+        this.x = TYPE6.MathUtils.lerp(normal, min.getX(), max.getX());
+        this.y = TYPE6.MathUtils.lerp(normal, min.getY(), max.getY());
     },
     dotProduct: function(vector2D) {
         return this.x * vector2D.getX() + this.y * vector2D.getY();
@@ -429,9 +429,9 @@ TYPE6JS.Vector2D = {
     }
 };
 
-TYPE6JS.Geometry = {};
+TYPE6.Geometry = {};
 
-TYPE6JS.Geometry.Circle = {
+TYPE6.Geometry.Circle = {
     position: {},
     radius: 0,
     diameter: 0,
@@ -447,13 +447,13 @@ TYPE6JS.Geometry.Circle = {
         return obj;
     },
     init: function() {
-        this.position = TYPE6JS.Vector2D.create();
+        this.position = TYPE6.Vector2D.create();
         this.radius = 0;
         this.diameter = 0;
     },
     initSize: function() {
-        this.size = TYPE6JS.Vector2D.create(this.diameter, this.diameter);
-        this.halfSize = TYPE6JS.Vector2D.create(this.radius, this.radius);
+        this.size = TYPE6.Vector2D.create(this.diameter, this.diameter);
+        this.halfSize = TYPE6.Vector2D.create(this.radius, this.radius);
     },
     copy: function(circle) {
         return this.create(circle.getPositionX(), circle.getPositionY(), circle.getRadius());
@@ -526,7 +526,7 @@ TYPE6JS.Geometry.Circle = {
     }
 };
 
-TYPE6JS.Geometry.Rectangle = {
+TYPE6.Geometry.Rectangle = {
     position: {},
     topLeftCorner: {},
     bottomRightCorner: {},
@@ -540,13 +540,13 @@ TYPE6JS.Geometry.Rectangle = {
         return obj;
     },
     initSize: function(sizeX, sizeY) {
-        this.size = TYPE6JS.Vector2D.create(sizeX, sizeY);
-        this.halfSize = TYPE6JS.Vector2D.create(sizeX * .5, sizeY * .5);
+        this.size = TYPE6.Vector2D.create(sizeX, sizeY);
+        this.halfSize = TYPE6.Vector2D.create(sizeX * .5, sizeY * .5);
     },
     initPosition: function(positionX, positionY) {
-        this.position = TYPE6JS.Vector2D.create(positionX, positionY);
-        this.topLeftCorner = TYPE6JS.Vector2D.create(positionX - this.halfSize.getX(), positionY - this.halfSize.getY());
-        this.bottomRightCorner = TYPE6JS.Vector2D.create(positionX + this.halfSize.getX(), positionY + this.halfSize.getY());
+        this.position = TYPE6.Vector2D.create(positionX, positionY);
+        this.topLeftCorner = TYPE6.Vector2D.create(positionX - this.halfSize.getX(), positionY - this.halfSize.getY());
+        this.bottomRightCorner = TYPE6.Vector2D.create(positionX + this.halfSize.getX(), positionY + this.halfSize.getY());
     },
     copy: function(rectangle) {
         return this.create(rectangle.getPositionX(), rectangle.getPositionY(), rectangle.getSizeX(), rectangle.getSizeY());
@@ -638,10 +638,10 @@ TYPE6JS.Geometry.Rectangle = {
     }
 };
 
-TYPE6JS.Trigonometry = {
-    PI: TYPE6JS.MathUtils.round(Math.PI, 2),
-    TWOPI: TYPE6JS.MathUtils.round(Math.PI * 2, 2),
-    HALFPI: TYPE6JS.MathUtils.round(Math.PI * .5, 2),
+TYPE6.Trigonometry = {
+    PI: TYPE6.MathUtils.round(Math.PI, 2),
+    TWOPI: TYPE6.MathUtils.round(Math.PI * 2, 2),
+    HALFPI: TYPE6.MathUtils.round(Math.PI * .5, 2),
     sineDecimals: 2,
     cosineDecimals: 2,
     arctanDecimals: 2,
@@ -773,7 +773,7 @@ TYPE6JS.Trigonometry = {
             x *= squaredAngle;
             denominator = needFactorial ? this.factorialArray[start] : start;
             result += x / denominator * sign;
-            sign = TYPE6JS.MathUtils.getOppositeSign(sign);
+            sign = TYPE6.MathUtils.getOppositeSign(sign);
         }
         return result;
     },
@@ -794,7 +794,7 @@ TYPE6JS.Trigonometry = {
     }
 };
 
-TYPE6JS.Trigonometry.createFactorialArray();
+TYPE6.Trigonometry.createFactorialArray();
 var BUMP = {
     revision: "0.2.0",
     options: {

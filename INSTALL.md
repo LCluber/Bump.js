@@ -45,3 +45,8 @@ You just cloned Bump.js : git clone https://github.com/LCluber/Bump.js.git
       - Linux / OSX : Run **DEBUG=Bumpjs:* npm start**
     - Go to **http://localhost:3006/** to test the app.
     - Keep in mind running **grunt serve** once will do all this automatically.
+    
+    
+  - Set node environment if needed : 
+    - Run **export NODE_ENV=development**
+    - Or **export NODE_ENV=production**
