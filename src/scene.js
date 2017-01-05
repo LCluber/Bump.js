@@ -8,7 +8,7 @@ BUMP.Scene = {
   bodiesLength : 0,
   
   collision : BUMP.Collision.create(),
-  gravity : TYPE6JS.Vector2D.create( 0, 400 ),
+  gravity : TYPE6.Vector2D.create( 0, 400 ),
   
   create : function() {
     var _this = Object.create( this );

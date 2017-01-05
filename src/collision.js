@@ -1,17 +1,17 @@
 
 BUMP.Collision = {
 
-  delta                  : TYPE6JS.Vector2D.create(),
-  delta2                 : TYPE6JS.Vector2D.create(),
-  penetration            : TYPE6JS.Vector2D.create(),
-  vertex                 : TYPE6JS.Vector2D.create(),
-  relativeVelocity       : TYPE6JS.Vector2D.create(),
-  voronoi                : TYPE6JS.Vector2D.create(),
+  delta                  : TYPE6.Vector2D.create(),
+  delta2                 : TYPE6.Vector2D.create(),
+  penetration            : TYPE6.Vector2D.create(),
+  vertex                 : TYPE6.Vector2D.create(),
+  relativeVelocity       : TYPE6.Vector2D.create(),
+  voronoi                : TYPE6.Vector2D.create(),
 
   deltaVelocity          : 0,
   totalInverseMass       : 0,
   impulse                : 0,
-  impulsePerInverseMass  : TYPE6JS.Vector2D.create(),
+  impulsePerInverseMass  : TYPE6.Vector2D.create(),
 
   create : function() {
     var _this = Object.create( this );

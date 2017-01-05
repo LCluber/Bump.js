@@ -16,9 +16,9 @@
   var particle = {
     create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
       var obj     = Object.create(this);
-      obj.body    = TYPE6JS.Geometry.Circle.create( positionX, positionY, size * 0.5 );
-      obj.physics = BUMP.Physics.create(  TYPE6JS.Vector2D.create( velocityX, velocityY ),
-                                  TYPE6JS.Vector2D.create( size, size ),
+      obj.body    = TYPE6.Geometry.Circle.create( positionX, positionY, size * 0.5 );
+      obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create( velocityX, velocityY ),
+                                  TYPE6.Vector2D.create( size, size ),
                                   weight,
                                   0.9,
                                   0.8
@@ -43,7 +43,7 @@
                     this.body.getPositionY(),
                     this.body.getRadius(),
                     0,
-                    TYPE6JS.Trigonometry.TWOPI,
+                    TYPE6.Trigonometry.TWOPI,
                     false
                   );
       context.fill();
@@ -53,9 +53,9 @@
   var rectangle = {
     create : function( positionX, positionY, sizeX, sizeY ){
       var obj     = Object.create(this);
-      obj.body    = TYPE6JS.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
-      obj.physics = BUMP.Physics.create(  TYPE6JS.Vector2D.create(),
-                                  TYPE6JS.Vector2D.create( sizeX, sizeY ),
+      obj.body    = TYPE6.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
+      obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create(),
+                                  TYPE6.Vector2D.create( sizeX, sizeY ),
                                   0.0,
                                   0.0,
                                   0.2
@@ -93,13 +93,13 @@
 
   function initParticles(){
     for( var i = 0 ; i < particleQty; i++ ){
-      var radius   = TYPE6JS.Random.float( 0, 120 );
-      var angle    = TYPE6JS.Random.float( 0, TYPE6JS.Trigonometry.TWOPI );
+      var radius   = TYPE6.Random.float( 0, 120 );
+      var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.TWOPI );
       particles[i] = particle.create(
                         width * 0.5,
                         height * 0.25,
-                        TYPE6JS.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
-                        TYPE6JS.Trigonometry.sineEquation( radius, angle, 0, 0 ),
+                        TYPE6.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
+                        TYPE6.Trigonometry.sineEquation( radius, angle, 0, 0 ),
                         particleSize,
                         particleWeight,
                         getRandomColor()

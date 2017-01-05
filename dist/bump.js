@@ -20,7 +20,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* http://bump.lcluber.com
+* http://bumpjs.lcluber.com
 */
 /** MIT License
 * 
@@ -803,13 +803,13 @@ var BUMP = {
 };
 
 BUMP.Physics = {
-    translate: TYPE6JS.Vector2D.create(),
-    velocity: TYPE6JS.Vector2D.create(),
-    initialVelocity: TYPE6JS.Vector2D.create(),
-    gravity: TYPE6JS.Vector2D.create(0, 400),
-    force: TYPE6JS.Vector2D.create(),
-    impulse: TYPE6JS.Vector2D.create(),
-    resultingAcc: TYPE6JS.Vector2D.create(),
+    translate: TYPE6.Vector2D.create(),
+    velocity: TYPE6.Vector2D.create(),
+    initialVelocity: TYPE6.Vector2D.create(),
+    gravity: TYPE6.Vector2D.create(0, 400),
+    force: TYPE6.Vector2D.create(),
+    impulse: TYPE6.Vector2D.create(),
+    resultingAcc: TYPE6.Vector2D.create(),
     damping: .9,
     mass: 1,
     inverseMass: 1,
@@ -826,11 +826,11 @@ BUMP.Physics = {
     initVectors: function(velocity) {
         this.velocity = velocity;
         this.initialVelocity = this.velocity.copy();
-        this.translate = TYPE6JS.Vector2D.create();
-        this.gravity = TYPE6JS.Vector2D.create(0, 400);
-        this.force = TYPE6JS.Vector2D.create();
-        this.impulse = TYPE6JS.Vector2D.create();
-        this.resultingAcc = TYPE6JS.Vector2D.create();
+        this.translate = TYPE6.Vector2D.create();
+        this.gravity = TYPE6.Vector2D.create(0, 400);
+        this.force = TYPE6.Vector2D.create();
+        this.impulse = TYPE6.Vector2D.create();
+        this.resultingAcc = TYPE6.Vector2D.create();
     },
     setPosition: function(second) {
         this.translate.setToOrigin();
@@ -854,7 +854,6 @@ BUMP.Physics = {
         this.velocity.addScaledVectorTo(impulsePerInverseMass, this.inverseMass);
     },
     reset: function() {
-        console.log(this.initialVelocity);
         this.velocity.copyTo(this.initialVelocity);
         this.translate.setToOrigin();
         this.force.setToOrigin();
@@ -864,16 +863,16 @@ BUMP.Physics = {
 };
 
 BUMP.Collision = {
-    delta: TYPE6JS.Vector2D.create(),
-    delta2: TYPE6JS.Vector2D.create(),
-    penetration: TYPE6JS.Vector2D.create(),
-    vertex: TYPE6JS.Vector2D.create(),
-    relativeVelocity: TYPE6JS.Vector2D.create(),
-    voronoi: TYPE6JS.Vector2D.create(),
+    delta: TYPE6.Vector2D.create(),
+    delta2: TYPE6.Vector2D.create(),
+    penetration: TYPE6.Vector2D.create(),
+    vertex: TYPE6.Vector2D.create(),
+    relativeVelocity: TYPE6.Vector2D.create(),
+    voronoi: TYPE6.Vector2D.create(),
     deltaVelocity: 0,
     totalInverseMass: 0,
     impulse: 0,
-    impulsePerInverseMass: TYPE6JS.Vector2D.create(),
+    impulsePerInverseMass: TYPE6.Vector2D.create(),
     create: function() {
         var _this = Object.create(this);
         return _this;
@@ -1006,7 +1005,7 @@ BUMP.Scene = {
     bodies: [],
     bodiesLength: 0,
     collision: BUMP.Collision.create(),
-    gravity: TYPE6JS.Vector2D.create(0, 400),
+    gravity: TYPE6.Vector2D.create(0, 400),
     create: function() {
         var _this = Object.create(this);
         return _this;
