@@ -23,6 +23,7 @@
                                   0.9,
                                   0.8
                                 );
+      obj.physics.setGravity( 0, 400 );
       obj.color   = color;
       return obj;
     },

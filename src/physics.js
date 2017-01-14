@@ -7,7 +7,7 @@ BUMP.Physics = {
   translate       : TYPE6.Vector2D.create(),
   velocity        : TYPE6.Vector2D.create(),
   initialVelocity : TYPE6.Vector2D.create(),
-  gravity         : TYPE6.Vector2D.create( 0, 400 ),
+  gravity         : TYPE6.Vector2D.create(),
   force           : TYPE6.Vector2D.create(),
   impulse         : TYPE6.Vector2D.create(),
   resultingAcc    : TYPE6.Vector2D.create(),
@@ -71,14 +71,25 @@ BUMP.Physics = {
     //this.size          = size;
     //this.halfSize      = TYPE6.Vector2D.create();
     this.translate       = TYPE6.Vector2D.create();
-    this.gravity         = TYPE6.Vector2D.create( 0, 400 );
+    this.gravity         = TYPE6.Vector2D.create();
     this.force           = TYPE6.Vector2D.create();
     this.impulse         = TYPE6.Vector2D.create();
     this.resultingAcc    = TYPE6.Vector2D.create();
   },
+  
+  /**
+  * set the gravity.
+  * @since 0.2.1
+  * @method
+  * @param {float} [x = 0.0] x The new value of the x axis.
+  * @param {float} [y = 0.0] y The new value of the y axis.
+  */
+  setGravity : function( x, y ){
+    this.gravity.setXY( x, y );
+  },
 
   /**
-  * setPosition a new physics class.
+  * Update the position.
   * @since 0.2.0
   * @method
   * @param {array} config An array of actions describing the state machine. [{ name: 'action',    from: 'status1',    to: 'status2' }]

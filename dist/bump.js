@@ -796,7 +796,7 @@ TYPE6.Trigonometry = {
 
 TYPE6.Trigonometry.createFactorialArray();
 var BUMP = {
-    revision: "0.2.0",
+    revision: "0.2.1",
     options: {
         space: "2D"
     }
@@ -806,7 +806,7 @@ BUMP.Physics = {
     translate: TYPE6.Vector2D.create(),
     velocity: TYPE6.Vector2D.create(),
     initialVelocity: TYPE6.Vector2D.create(),
-    gravity: TYPE6.Vector2D.create(0, 400),
+    gravity: TYPE6.Vector2D.create(),
     force: TYPE6.Vector2D.create(),
     impulse: TYPE6.Vector2D.create(),
     resultingAcc: TYPE6.Vector2D.create(),
@@ -827,10 +827,13 @@ BUMP.Physics = {
         this.velocity = velocity;
         this.initialVelocity = this.velocity.copy();
         this.translate = TYPE6.Vector2D.create();
-        this.gravity = TYPE6.Vector2D.create(0, 400);
+        this.gravity = TYPE6.Vector2D.create();
         this.force = TYPE6.Vector2D.create();
         this.impulse = TYPE6.Vector2D.create();
         this.resultingAcc = TYPE6.Vector2D.create();
+    },
+    setGravity: function(x, y) {
+        this.gravity.setXY(x, y);
     },
     setPosition: function(second) {
         this.translate.setToOrigin();
