@@ -20,8 +20,8 @@
       obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create( velocityX, velocityY ),
                                   TYPE6.Vector2D.create( size, size ),
                                   weight,
-                                  0.9,
-                                  0.8
+                                  0.8,//0.9
+                                  0.8//0.8
                                 );
       obj.physics.setGravity( 0, 400 );
       obj.color   = color;
@@ -94,7 +94,7 @@
 
   function initParticles(){
     for( var i = 0 ; i < particleQty; i++ ){
-      var radius   = TYPE6.Random.float( 0, 120 );
+      var radius   = TYPE6.Random.float( 0, 120 ); //120
       var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.TWOPI );
       particles[i] = particle.create(
                         width * 0.5,

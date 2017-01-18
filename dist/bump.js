@@ -796,7 +796,7 @@ TYPE6.Trigonometry = {
 
 TYPE6.Trigonometry.createFactorialArray();
 var BUMP = {
-    revision: "0.2.1",
+    revision: "0.2.2",
     options: {
         space: "2D"
     }
@@ -810,7 +810,7 @@ BUMP.Physics = {
     force: TYPE6.Vector2D.create(),
     impulse: TYPE6.Vector2D.create(),
     resultingAcc: TYPE6.Vector2D.create(),
-    damping: .9,
+    damping: .8,
     mass: 1,
     inverseMass: 1,
     elasticity: -1,
@@ -820,6 +820,7 @@ BUMP.Physics = {
         _this.initVectors(velocity, size);
         _this.mass = mass;
         _this.inverseMass = !mass ? 0 : 1 / mass;
+        _this.damping = damping;
         _this.elasticity = -elasticity;
         return _this;
     },
@@ -837,19 +838,21 @@ BUMP.Physics = {
     },
     setPosition: function(second) {
         this.translate.setToOrigin();
-        this.resultingAcc.copyTo(this.gravity);
-        if (this.inverseMass && this.impulse.isNotOrigin()) {
-            this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
-            this.impulse.setToOrigin();
-        }
-        if (this.inverseMass && this.force.isNotOrigin()) {
-            this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
-            this.force.setToOrigin();
-        }
-        if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
-        if (this.velocity.isNotOrigin()) {
-            this.velocity.scaleBy(Math.pow(this.damping, second));
-            this.translate.copyScaledVectorTo(this.velocity, second);
+        if (second > 0) {
+            this.resultingAcc.copyTo(this.gravity);
+            if (this.inverseMass && this.impulse.isNotOrigin()) {
+                this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
+                this.impulse.setToOrigin();
+            }
+            if (this.inverseMass && this.force.isNotOrigin()) {
+                this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
+                this.force.setToOrigin();
+            }
+            if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
+            if (this.velocity.isNotOrigin()) {
+                this.velocity.scaleBy(Math.pow(this.damping, second));
+                this.translate.copyScaledVectorTo(this.velocity, second);
+            }
         }
         return this.translate;
     },

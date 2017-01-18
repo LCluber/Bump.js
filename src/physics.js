@@ -12,7 +12,7 @@ BUMP.Physics = {
   impulse         : TYPE6.Vector2D.create(),
   resultingAcc    : TYPE6.Vector2D.create(),
 
-  damping     : 0.9,
+  damping     : 0.8,
   mass        : 1.0,
   inverseMass : 1.0,
   elasticity  : -1,//-e
@@ -58,6 +58,7 @@ BUMP.Physics = {
     _this.initVectors( velocity, size );
     _this.mass         = mass;
     _this.inverseMass  = !mass ? 0 : 1/mass ;
+    _this.damping      = damping;
     _this.elasticity   = -elasticity;
     //_this.setHalfSize(); 
     //_this.setFrame();
@@ -98,27 +99,30 @@ BUMP.Physics = {
   setPosition : function( second ){
 
     this.translate.setToOrigin();
-    this.resultingAcc.copyTo( this.gravity );
-    //apply impulse from collision directly to velocity
-    if( this.inverseMass && this.impulse.isNotOrigin() ){
-      //add impulse per inverse mass
-      this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );
-      this.impulse.setToOrigin();
-    }
-
-    if( this.inverseMass && this.force.isNotOrigin() ){
-      this.resultingAcc.addScaledVectorTo( this.force, this.inverseMass );
-      this.force.setToOrigin();
-    }
     
-    if(this.resultingAcc.isNotOrigin())
-      this.velocity.addScaledVectorTo( this.resultingAcc, second );
+    if( second > 0 ){  
+      this.resultingAcc.copyTo( this.gravity );
+      //apply impulse from collision directly to velocity
+      if( this.inverseMass && this.impulse.isNotOrigin() ){
+        //add impulse per inverse mass
+        this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );
+        this.impulse.setToOrigin();
+      }
 
-    if(this.velocity.isNotOrigin()){
-      this.velocity.scaleBy( Math.pow( this.damping, second ) );
-      //this.velocity.scaleBy(this.damping);// use if damping just solves numerical problems and other drag forces are applied
-      this.translate.copyScaledVectorTo( this.velocity, second );
-      //moved = true;
+      if( this.inverseMass && this.force.isNotOrigin() ){
+        this.resultingAcc.addScaledVectorTo( this.force, this.inverseMass );
+        this.force.setToOrigin();
+      }
+      
+      if(this.resultingAcc.isNotOrigin())
+        this.velocity.addScaledVectorTo( this.resultingAcc, second );
+
+      if(this.velocity.isNotOrigin()){
+        this.velocity.scaleBy( Math.pow( this.damping, second ) );
+        //this.velocity.scaleBy(this.damping);// use if damping just solves numerical problems and other drag forces are applied
+        this.translate.copyScaledVectorTo( this.velocity, second );
+        //moved = true;
+      }
     }
 
     //if(moved)//if moved

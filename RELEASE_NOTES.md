@@ -1,7 +1,11 @@
 
+Version 0.2.2 (January 18th 2017)
+------------------------------
+ * Fix damping setter on Physics.create() method
+ 
 Version 0.2.1 (January 14th 2017)
 ------------------------------
- * added setGravity() method
+ * Added setGravity() method
 
 Version 0.2.0 (December 22th 2016)
 ------------------------------
