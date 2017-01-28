@@ -17,7 +17,7 @@
     create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
       var obj     = Object.create(this);
       obj.body    = TYPE6.Geometry.Circle.create( positionX, positionY, size * 0.5 );
-      obj.physics = BUMP.Physics.create( TYPE6.Vector2D.create( velocityX, velocityY ),
+      obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create( velocityX, velocityY ),
                                   TYPE6.Vector2D.create( size, size ),
                                   weight,
                                   0.8,//0.9
@@ -29,7 +29,7 @@
     },
 
     update: function(){
-      this.body.position.addTo( this.physics.setPosition( animation.getDelta() ) );
+      this.body.position.addTo( this.physics.setPosition( animation.getDelta().getSecond() ) );
     },
     
     reset: function(){
@@ -145,7 +145,7 @@
     testCollisions();
     clearFrame();
     draw();
-    animation.drawConsole( context );
+    writeConsole();
     animation.newFrame();
   }
 
@@ -161,7 +161,20 @@
     animation.stop();
     clearFrame();
     resetParticles();
-    animation.drawConsole( context ); //draw the console one time to show the reset
+    writeConsole(); //draw the console one time to show the reset
+  }
+  
+  function write(text, posX, posY){
+    context.fillStyle = 'rgba(0, 0, 0, 1)';
+    context.fillText( text, posX, posY );
+  }
+  
+  function writeConsole(){
+    context.font = '20px Georgia';
+    write('Elapsed time : '     + animation.getTotalTime(0) + ' seconds', 20, 40);
+    write('Frame number : '     + animation.getFrameNumber(), 20, 70);
+    write('Frame Per Second : ' + animation.getFramePerSecond(30, 0), 20, 100);
+    write('Frame duration : '   + animation.getRoundedDelta(30, 0).getMillisecond() + ' ms', 20, 130);
   }
   
   function getRandomColor() {
