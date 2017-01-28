@@ -796,7 +796,7 @@ TYPE6.Trigonometry = {
 
 TYPE6.Trigonometry.createFactorialArray();
 var BUMP = {
-    revision: "0.2.2",
+    revision: "0.2.3",
     options: {
         space: "2D"
     }
