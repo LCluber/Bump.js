@@ -38,16 +38,7 @@
     },
     
     draw: function(){
-      context.fillStyle = this.color;
-      context.beginPath();
-      context.arc(  this.body.getPositionX(),
-                    this.body.getPositionY(),
-                    this.body.getRadius(),
-                    0,
-                    TYPE6.Trigonometry.TWOPI,
-                    false
-                  );
-      context.fill();
+      this.body.draw( context, this.color );
     }
   };
   
@@ -65,12 +56,7 @@
     },
     
     draw : function(){
-      context.fillStyle = '#cccccc';
-      context.fillRect( this.body.topLeftCorner.getX(),
-                        this.body.topLeftCorner.getY(),
-                        this.body.size.getX(),
-                        this.body.size.getY()
-                      );
+      this.body.draw( context, '#cccccc' );
     }
     
   };

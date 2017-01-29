@@ -1,4 +1,8 @@
 
+Version 0.2.3 (January 30th 2017)
+------------------------------
+ * Updated Type6.js dependency to version 0.2.3 
+
 Version 0.2.2 (January 18th 2017)
 ------------------------------
  * Fix damping setter on Physics.create() method

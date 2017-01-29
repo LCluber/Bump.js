@@ -47,7 +47,7 @@
 * http://type6js.lcluber.com
 */
 var TYPE6 = {
-    Revision: "0.2.2"
+    Revision: "0.2.3"
 };
 
 TYPE6.MathUtils = {
@@ -523,6 +523,12 @@ TYPE6.Geometry.Circle = {
     },
     getSquaredDistance: function(vector2) {
         return this.position.getSquaredDistance(vector2);
+    },
+    draw: function(context, color) {
+        context.fillStyle = color;
+        context.beginPath();
+        context.arc(this.getPositionX(), this.getPositionY(), this.getRadius(), 0, TYPE6.Trigonometry.TWOPI, false);
+        context.fill();
     }
 };
 
@@ -541,7 +547,7 @@ TYPE6.Geometry.Rectangle = {
     },
     initSize: function(sizeX, sizeY) {
         this.size = TYPE6.Vector2D.create(sizeX, sizeY);
-        this.halfSize = TYPE6.Vector2D.create(sizeX * .5, sizeY * .5);
+        this.halfSize = this.size.halve();
     },
     initPosition: function(positionX, positionY) {
         this.position = TYPE6.Vector2D.create(positionX, positionY);
@@ -635,6 +641,10 @@ TYPE6.Geometry.Rectangle = {
     },
     getHalfSizeY: function() {
         return this.halfSize.getY();
+    },
+    draw: function(context, color) {
+        context.fillStyle = color;
+        context.fillRect(this.topLeftCorner.getX(), this.topLeftCorner.getY(), this.size.getX(), this.size.getY());
     }
 };
 
@@ -796,7 +806,7 @@ TYPE6.Trigonometry = {
 
 TYPE6.Trigonometry.createFactorialArray();
 var BUMP = {
-    revision: "0.2.2",
+    revision: "0.2.3",
     options: {
         space: "2D"
     }
