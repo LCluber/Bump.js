@@ -1,4 +1,9 @@
 
+Version 0.2.4 (February 11th 2017)
+------------------------------
+ * Added testScene() method to test collisions between 2 collision scenes
+ * Updated documentation
+ 
 Version 0.2.3 (January 30th 2017)
 ------------------------------
  * Updated Type6.js dependency to version 0.2.3 

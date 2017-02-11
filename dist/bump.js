@@ -806,7 +806,7 @@ TYPE6.Trigonometry = {
 
 TYPE6.Trigonometry.createFactorialArray();
 var BUMP = {
-    revision: "0.2.3",
+    revision: "0.2.4",
     options: {
         space: "2D"
     }
@@ -825,9 +825,9 @@ BUMP.Physics = {
     inverseMass: 1,
     elasticity: -1,
     collisionSceneId: 0,
-    create: function(velocity, size, mass, damping, elasticity) {
+    create: function(velocity, mass, damping, elasticity) {
         var _this = Object.create(this);
-        _this.initVectors(velocity, size);
+        _this.initVectors(velocity);
         _this.mass = mass;
         _this.inverseMass = !mass ? 0 : 1 / mass;
         _this.damping = damping;
@@ -1024,6 +1024,9 @@ BUMP.Scene = {
     gravity: TYPE6.Vector2D.create(0, 400),
     create: function() {
         var _this = Object.create(this);
+        _this.collision = BUMP.Collision.create();
+        _this.bodies = [];
+        _this.gravity = TYPE6.Vector2D.create(0, 400);
         return _this;
     },
     addBody: function(body) {
@@ -1040,6 +1043,15 @@ BUMP.Scene = {
             for (var j = i + 1; j < this.bodiesLength; j++) {
                 var p1 = this.bodies[i];
                 var p2 = this.bodies[j];
+                this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+            }
+        }
+    },
+    testScene: function(scene) {
+        for (var i = 0; i < this.bodiesLength; i++) {
+            for (var j = 0; j < scene.bodiesLength; j++) {
+                var p1 = this.bodies[i];
+                var p2 = scene.bodies[j];
                 this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
             }
         }

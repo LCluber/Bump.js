@@ -10,12 +10,27 @@ BUMP.Scene = {
   collision : BUMP.Collision.create(),
   gravity : TYPE6.Vector2D.create( 0, 400 ),
   
+  /**
+  * Create a new collision scene.
+  * @since 0.2.0
+  * @method
+  * @returns {Scene}  The new collision Scene
+  */
   create : function() {
     var _this = Object.create( this );
-
+    _this.collision = BUMP.Collision.create();
+    _this.bodies    = [];
+    _this.gravity   = TYPE6.Vector2D.create( 0, 400 );
     return _this;
   },
   
+  /**
+  * Add a body to the collision scene in order to test it during the collision tests phase.
+  * @since 0.2.0
+  * @method
+  * @param {object} body an object containing a Bump.js physics and a Type6.js geometry.
+  * @returns {boolean}  The new finite state machine
+  */
   addBody : function( body ){
 
     if( /*body.hasOwnProperty(body) && body.hasOwnProperty(physics) &&*/ !body.physics.collisionSceneId ){
@@ -33,6 +48,11 @@ BUMP.Scene = {
     
   },
   
+  /**
+  * test collisions between object in the scene.
+  * @since 0.2.0
+  * @method
+  */
   test : function(){
   
     for( var i = 0 ; i < this.bodiesLength ; i++ ){
@@ -40,6 +60,23 @@ BUMP.Scene = {
         var p1 = this.bodies[i];
         var p2 = this.bodies[j];
         this.collision.test( p1.body, p1.physics, p2.body, p2.physics );  
+      }
+    }
+    
+  },
+  
+  /**
+  * test collisions between object in another scene.
+  * @since 0.2.4
+  * @method
+  * @param {object} scene Another collision scene
+  */
+  testScene : function(scene){
+    for( var i = 0 ; i < this.bodiesLength ; i++ ){
+      for( var j = 0 ; j < scene.bodiesLength ; j++ ){
+        var p1 = this.bodies[i];
+        var p2 = scene.bodies[j];
+        this.collision.test( p1.body, p1.physics, p2.body, p2.physics ); 
       }
     }
     
@@ -62,7 +99,7 @@ BUMP.Scene = {
   
   getGravity : function(){
     return this.gravity;
-  },
+  }
   
   
 };

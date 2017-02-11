@@ -4,8 +4,9 @@
   var width          = canvas.width  = window.innerWidth;
   var height         = canvas.height = window.innerHeight;
   var particles      = [];
-  //create collision scene
-  var collisionScene = BUMP.Scene.create();
+  //create collision scenes
+  var collisionScene1= BUMP.Scene.create();
+  var collisionScene2= BUMP.Scene.create();
   //create animation frame
   var animation      = FRAMERAT.create(render);
   var particleQty    = 400;
@@ -18,11 +19,10 @@
       var obj     = Object.create(this);
       obj.body    = TYPE6.Geometry.Circle.create( positionX, positionY, size * 0.5 );
       obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create( velocityX, velocityY ),
-                                  TYPE6.Vector2D.create( size, size ),
-                                  weight,
-                                  0.8,//0.9
-                                  0.8//0.8
-                                );
+                                          weight,
+                                          0.8,//0.9
+                                          0.8//0.8
+                                        );
       obj.physics.setGravity( 0, 400 );
       obj.color   = color;
       return obj;
@@ -47,11 +47,10 @@
       var obj     = Object.create(this);
       obj.body    = TYPE6.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
       obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create(),
-                                  TYPE6.Vector2D.create( sizeX, sizeY ),
-                                  0.0,
-                                  0.0,
-                                  0.2
-                                );
+                                          0.0,
+                                          0.0,
+                                          0.2
+                                        );
       return obj;
     },
     
@@ -74,7 +73,7 @@
                                 '#cccccc'
                               ));
     for ( var i = 0 ; i < floor.length ; i++ )
-      collisionScene.addBody( floor[i] );
+      collisionScene1.addBody( floor[i] );
     
   }
 
@@ -91,7 +90,7 @@
                         particleWeight,
                         getRandomColor()
                      );
-      collisionScene.addBody( particles[i] );
+      collisionScene2.addBody( particles[i] );
     }
   }
   
@@ -119,7 +118,8 @@
   }
 
   function testCollisions(){
-    collisionScene.test();
+    collisionScene2.test();//test collisions between particles
+    collisionScene2.testScene(collisionScene1);//test collisions between floor and particles 
   }
 
   function clearFrame(){

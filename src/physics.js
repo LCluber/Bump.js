@@ -46,16 +46,18 @@ BUMP.Physics = {
   * Create a new physics class.
   * @since 0.2.0
   * @method
-  * @param {array} config An array of actions describing the state machine. [{ name: 'action',    from: 'status1',    to: 'status2' }]
-  * @returns {fsm}  The new finite state machine
+  * @param {vector} velocity an initial velocity vector
+  * @param {float} mass the mass of the body
+  * @param {float} damping the drag force of the object between 0 and 1
+  * @param {float} elasticity the elasticity of the object between 0 and 1
+  * @returns {Physics}  The new physics class
   */
   create : function( velocity,
-                     size,
                      mass,
                      damping,
                      elasticity ){
     var _this = Object.create( this );
-    _this.initVectors( velocity, size );
+    _this.initVectors( velocity );
     _this.mass         = mass;
     _this.inverseMass  = !mass ? 0 : 1/mass ;
     _this.damping      = damping;
@@ -93,8 +95,8 @@ BUMP.Physics = {
   * Update the position.
   * @since 0.2.0
   * @method
-  * @param {array} config An array of actions describing the state machine. [{ name: 'action',    from: 'status1',    to: 'status2' }]
-  * @returns {fsm}  The new finite state machine
+  * @param {float} second The elapsed time between 2 frames in seconds 
+  * @returns {vector}  The translation vector
   */
   setPosition : function( second ){
 
