@@ -21,6 +21,8 @@ module.exports = function(grunt){
                     srcDir + 'scene.js',
                   ];
   
+  var dependencies = ['Type6js/dist/*.js'];
+  
   var banner    = '/** MIT License\n' +
     '* \n' +
     '* Copyright (c) 2011 Ludovic CLUBER \n' +
@@ -57,12 +59,12 @@ module.exports = function(grunt){
       },
       web:{
         src: [  docDir    + '*',
+                zipDir    + '*',
                 webDir    + 'static/*',
+                webDir    + 'sass/build/*',
                 publicDir + 'js/*',
                 publicDir + 'css/*',
-                webDir    + 'sass/build/*',
-                //publicDir + 'fonts/*',
-                zipDir    + '*'
+                publicDir + 'fonts/*'
               ]
       }
     },
@@ -151,7 +153,7 @@ module.exports = function(grunt){
       lib: {
         options: {
           beautify: true,
-          banner: '',
+          banner: banner,
           mangle: false,
           compress:false,
         },
@@ -162,7 +164,7 @@ module.exports = function(grunt){
         options: {
           sourceMap: false,
           sourceMapName: srcDir + 'sourcemap.map',
-          banner: '',
+          banner: banner,
           mangle: {
             except: [projectName.toUpperCase()],
           },
@@ -227,24 +229,6 @@ module.exports = function(grunt){
       }
     },
     concat:{
-      lib: {
-        options: {
-          separator: '\n',
-          stripBanners: false,
-          banner: banner
-        },
-        src: [nodeDir + 'Type6js/dist/type6.js', distDir + projectName.toLowerCase() + '.js'],
-        dest: distDir + projectName.toLowerCase() + '.js'
-      },
-      libmin: {
-        options: {
-          separator: '\n',
-          stripBanners: true,
-          banner: banner
-        },
-        src: [nodeDir + 'Type6js/dist/type6.min.js', distDir + projectName.toLowerCase() + '.min.js'],
-        dest: distDir + projectName.toLowerCase() + '.min.js'
-      },
       webjs: {
         options: {
           separator: '',
@@ -253,7 +237,9 @@ module.exports = function(grunt){
         },
         src: [nodeDir   + 'jquery/dist/jquery.min.js',
               nodeDir   + 'bootstrap/dist/js/bootstrap.min.js',
+              nodeDir   + 'Taipanjs/dist/taipan.min.js',
               nodeDir   + 'FrameRatjs/dist/framerat.min.js',
+              distDir   + 'dependencies/*.min.js',
               distDir   + projectName.toLowerCase() + '.min.js',
               publicDir + 'js/main.min.js'
             ],
@@ -276,6 +262,14 @@ module.exports = function(grunt){
       options: {
         overwrite: false,
         force: false
+      },
+      dependencies:{
+        expand: true,
+        cwd: nodeDir,
+        src: dependencies,
+        dest: distDir + 'dependencies/',
+        flatten: true,
+        filter: 'isFile'
       },
       fonts:{
         expand: true,
@@ -310,13 +304,15 @@ module.exports = function(grunt){
           archive: zipDir + projectName.toLowerCase() + 'js.zip'
         },
         files: [
-          { src: [distDir + '*'], dest: '/', filter: 'isFile'},
-          { src: [docDir + '**'], dest: '/', filter: 'isFile'},
-          { expand: true, cwd: webDir + 'static/', src: '**', dest: '/'},
-          { expand: true, cwd: publicDir, src: '**', dest: '/public'},
-          { src: ['LICENCE.txt'], dest: '/'},
-          { src: ['README.md'], dest: '/'},
-          { src: ['RELEASE_NOTES.md'], dest: '/'},
+          {expand: true, cwd: webDir + 'static/', src: '**', dest: '/'},
+          {expand: true, cwd: publicDir, src: '**', dest: '/public'},
+          {src: [ distDir + '**',
+                  docDir + '**',
+                  'LICENCE.md',
+                  'README.md',
+                  'RELEASE_NOTES.md'
+                ],
+                dest: '/', filter: 'isFile'}
         ]
       }
     },
@@ -386,19 +382,43 @@ module.exports = function(grunt){
   grunt.loadNpmTasks( 'grunt-open' );
   
 
-  grunt.registerTask('default', [ 'jshint', 'clean', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'concat', 'symlink', 'compress' ]); //build all for release
+  grunt.registerTask( 'dist',
+                      'build release distribution for prosuction',
+                      [ 'jshint', 'clean', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'symlink:dependencies', 'symlink:fonts', 'symlink:fontAwesome', 'concat', 'symlink:public', 'symlink:doc', 'htmlmin', 'compress' ]
+                    );
 
-  grunt.registerTask('prod', [ 'clean:web', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify:web', 'concat:webjs', 'concat:webcss', 'htmlmin', 'symlink', 'compress' ]); //build for prod on the server
-  
-  grunt.registerTask('serve', [ 'jshint', 'clean', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'concat', 'symlink', 'compress', 'concurrent' ]); //serve files, open website watch for changes and.
+  grunt.registerTask( 'serve',
+                      'serve files, open website and watch for changes.',
+                      [ 'jshint', 'clean', 'jsdoc', 'sass', 'cssmin', 'pug', 'uglify', 'symlink:dependencies', 'symlink:fonts', 'symlink:fontAwesome', 'concat', 'symlink:public', 'symlink:doc', 'compress', 'concurrent' ]
+                    );
 
-  grunt.registerTask('doc', [ 'jsdoc' ]); //build jsdoc into /doc
-  grunt.registerTask('src', [ 'jshint:lib', 'clean:lib', 'uglify', 'concat:lib', 'concat:libmin', 'concat:webjs' ]); //build library into /dist
-  //website
-  grunt.registerTask('js', [ 'jshint:web', 'uglify:web', 'concat:webjs' ]); //build js into /website/public/js
-  grunt.registerTask('css', [ 'sass', 'csslint', 'cssmin', 'concat:webcss' ]); //build sass into /website/public/css
-  grunt.registerTask('static', [ 'pug', 'htmlmin', 'symlink' ]); //build static website into /website/static
+  grunt.registerTask( 'doc',
+                      'build jsdoc into /doc',
+                      [ 'jsdoc' ]
+                    );
 
-  grunt.registerTask('zip', [ 'compress' ]); //compress the project in a downloadable static package
+  grunt.registerTask( 'src',
+                      'build library into /dist',
+                      [ 'jshint:lib', 'clean:lib', 'uglify', 'symlink:dependencies', 'concat:lib', 'concat:libmin']
+                    );
 
+  grunt.registerTask( 'website:js',
+                      'build necessary js files for website into /website/public/js',
+                      [ 'jshint:web', 'uglify:web', 'symlink:dependencies', 'concat:webjs' ]
+                    );
+
+  grunt.registerTask( 'website:css',
+                      'build sass for website into /website/public/css',
+                      [ 'sass', 'csslint', 'cssmin', 'concat:webcss' ]
+                    );
+
+  grunt.registerTask( 'website:static',
+                      'build static version of the website into /website/static',
+                      [ 'pug', 'htmlmin', 'symlink:fonts', 'symlink:fontAwesome', 'symlink:public', 'symlink:doc' ]
+                    );
+
+  grunt.registerTask( 'zip',
+                      'create the  package',
+                      ['compress']
+                    );
 };

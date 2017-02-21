@@ -29,10 +29,11 @@ You just cloned Bump.js : git clone https://github.com/LCluber/Bump.js.git
 
 
 ### Workflow
-  - Run **grunt** to build the app. 
-  - Run **grunt serve** to serve files, open the website, watch for changes and start working.
+  - Use **grunt --help** to see the list of tasks.
+  - Run **grunt dist** to build the app in production mode.
+  - Run **grunt serve** to serve files in development mode, open the website, watch for changes and start working.
   
-  - You can use those commands if you don't like grunt-watch :
+  - You can use those commands to target specific tasks :
     - **grunt doc** builds the static documentation,
     - **grunt src** builds the library in the dist folder,
     - **grunt js** builds javascript for the website,

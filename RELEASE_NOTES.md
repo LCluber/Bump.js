@@ -1,4 +1,8 @@
 
+Version 0.2.5 (February 21th 2017)
+------------------------------
+ * Type6.js dependency is built separately into the dist/dependencies/ folder instead of being directly inserted into the distribution Bump.js and Bump.min.js files
+
 Version 0.2.4 (February 11th 2017)
 ------------------------------
  * Added testScene() method to test collisions between 2 collision scenes
