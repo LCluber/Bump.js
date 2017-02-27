@@ -5,6 +5,7 @@ BUMP.Collision = {
   delta2                 : TYPE6.Vector2D.create(),
   penetration            : TYPE6.Vector2D.create(),
   contactNormal          : TYPE6.Vector2D.create(),
+  correction             : TYPE6.Vector2D.create(),
   vertex                 : TYPE6.Vector2D.create(),
   relativeVelocity       : TYPE6.Vector2D.create(),
   voronoi                : TYPE6.Vector2D.create(),
@@ -218,14 +219,18 @@ BUMP.Collision = {
 
   separate : function( positionA, imA , positionB, imB ){
     this.totalInverseMass = imA + imB;
+    this.computeContactNormal();
     var k_slop = 0.01; // Penetration allowance
     var percent = 0.2; // Penetration percentage to correct
-    var correction = ( Math.max( this.penetration.getX() - k_slop, 0 ) / this.totalInverseMass) * percent /** normal*/;
+    this.correction.setXY(
+      ( Math.max( this.penetration.getX() - k_slop, 0 ) / this.totalInverseMass ) * percent * this.contactNormal.getX(), 
+      ( Math.max( this.penetration.getY() - k_slop, 0 ) / this.totalInverseMass ) * percent * this.contactNormal.getY()
+    );
  
     if( imA )
-      positionA.addScaledVectorTo( this.penetration, imA / this.totalInverseMass );
+      positionA.addScaledVectorTo( this.correction, imA / this.totalInverseMass );
     if( imB )
-      positionB.subtractScaledVectorFrom( this.penetration, imB / this.totalInverseMass );
+      positionB.subtractScaledVectorFrom( this.correction, imB / this.totalInverseMass );
     
   },
   
@@ -235,7 +240,7 @@ BUMP.Collision = {
       //vel+=1/m*impulse
       //calculate separating velocity with restitution (between 0 and 1)
       //Calculate the new separating velocity
-      var restitution = Math.min( a.elasticity, b.elasticity );
+      var restitution = Math.max( a.elasticity, b.elasticity );
       separatingVelocity = separatingVelocity * restitution - separatingVelocity;
       //this.deltaVelocity = separatingVelocity * restitution - separatingVelocity;
       // Calculate the impulse to apply.
@@ -256,12 +261,11 @@ BUMP.Collision = {
   },
   
   computeSeparatingVelocity:function( av, bv ){
-    this.computeSurfaceNormal();
     this.relativeVelocity.copySubtractFromTo( av, bv );//relative velocity between two objects
     return this.relativeVelocity.dotProduct( this.contactNormal );//component of velocity parallel to contact normal //the dot product of the relative velocity and the normal
   },
   
-  computeSurfaceNormal:function(){
+  computeContactNormal:function(){
     this.contactNormal.copyTo(this.penetration);
     this.contactNormal.normalizeTo();//is now surfaceNormal //unit length vector perpendicular to the surface between the two objects || contactnormal
   }

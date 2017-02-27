@@ -50,7 +50,7 @@ BUMP.Physics = {
         _this.mass = mass;
         _this.inverseMass = !mass ? 0 : 1 / mass;
         _this.damping = damping;
-        _this.elasticity = elasticity;
+        _this.elasticity = -elasticity;
         return _this;
     },
     initVectors: function(velocity) {
@@ -117,6 +117,7 @@ BUMP.Collision = {
     delta2: TYPE6.Vector2D.create(),
     penetration: TYPE6.Vector2D.create(),
     contactNormal: TYPE6.Vector2D.create(),
+    correction: TYPE6.Vector2D.create(),
     vertex: TYPE6.Vector2D.create(),
     relativeVelocity: TYPE6.Vector2D.create(),
     voronoi: TYPE6.Vector2D.create(),
@@ -231,16 +232,17 @@ BUMP.Collision = {
     },
     separate: function(positionA, imA, positionB, imB) {
         this.totalInverseMass = imA + imB;
+        this.computeContactNormal();
         var k_slop = .01;
         var percent = .2;
-        var correction = Math.max(this.penetration.getX() - k_slop, 0) / this.totalInverseMass * percent;
-        if (imA) positionA.addScaledVectorTo(this.penetration, imA / this.totalInverseMass);
-        if (imB) positionB.subtractScaledVectorFrom(this.penetration, imB / this.totalInverseMass);
+        this.correction.setXY(Math.max(this.penetration.getX() - k_slop, 0) / this.totalInverseMass * percent * this.contactNormal.getX(), Math.max(this.penetration.getY() - k_slop, 0) / this.totalInverseMass * percent * this.contactNormal.getY());
+        if (imA) positionA.addScaledVectorTo(this.correction, imA / this.totalInverseMass);
+        if (imB) positionB.subtractScaledVectorFrom(this.correction, imB / this.totalInverseMass);
     },
     computeImpulseVectors: function(a, b) {
         var separatingVelocity = this.computeSeparatingVelocity(a.velocity, b.velocity);
         if (separatingVelocity < 0) {
-            var restitution = Math.min(a.elasticity, b.elasticity);
+            var restitution = Math.max(a.elasticity, b.elasticity);
             separatingVelocity = separatingVelocity * restitution - separatingVelocity;
             this.impulse = separatingVelocity / this.totalInverseMass;
             this.impulsePerInverseMass.copyScaledVectorTo(this.contactNormal, this.impulse);
@@ -250,11 +252,10 @@ BUMP.Collision = {
         }
     },
     computeSeparatingVelocity: function(av, bv) {
-        this.computeSurfaceNormal();
         this.relativeVelocity.copySubtractFromTo(av, bv);
         return this.relativeVelocity.dotProduct(this.contactNormal);
     },
-    computeSurfaceNormal: function() {
+    computeContactNormal: function() {
         this.contactNormal.copyTo(this.penetration);
         this.contactNormal.normalizeTo();
     }
