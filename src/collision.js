@@ -238,10 +238,12 @@ BUMP.Collision = {
       this.impulsePerInverseMass.copyScaledVectorTo( this.penetration, this.impulse );
       // Apply impulses: they are applied in the direction of the contact,
       // and are proportional to the inverse mass.
-      a.impulse.copyTo( this.impulsePerInverseMass );
+      a.collision( this.impulsePerInverseMass, b );
+      //a.impulse.copyTo( this.impulsePerInverseMass );
       //a.velocity.addScaledVectorTo( this.impulsePerInverseMass, a.inverseMass );
-      this.impulsePerInverseMass.oppositeTo();
-      b.impulse.copyTo( this.impulsePerInverseMass );
+      //this.impulsePerInverseMass.oppositeTo();
+      b.collision( this.impulsePerInverseMass.oppositeTo(), a );
+      //b.impulse.copyTo( this.impulsePerInverseMass );
       //b.velocity.addScaledVectorTo( this.impulsePerInverseMass, b.inverseMass );
     }
   },

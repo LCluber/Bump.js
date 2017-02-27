@@ -27,7 +27,9 @@ BUMP.Physics = {
   //               ],
                 
   collisionSceneId : 0,
-      
+    
+  damageTaken : 0,
+  damageDealt : 1,  
   // materials              
   // Rock       Density : 0.6  Restitution : 0.1
   // Wood       Density : 0.3  Restitution : 0.2
@@ -138,8 +140,27 @@ BUMP.Physics = {
     return this.translate;
 	},
   
+  setDamageDealt : function( damageDealt ){
+    this.damageDealt = damageDealt; 
+  },
+  
   applyImpulse : function( impulsePerInverseMass ){
-      this.velocity.addScaledVectorTo( impulsePerInverseMass, this.inverseMass );//add impulse vector to velocity
+    this.velocity.addScaledVectorTo( impulsePerInverseMass, this.inverseMass );//add impulse vector to velocity
+  },
+  
+  applyDamage : function(){
+    if( this.damageTaken ){
+      var dmg = this.damageTaken;
+      this.damageTaken = 0;
+      return dmg;
+    }
+    return false;
+  },
+  
+  collision: function( impulsePerInverseMass, object ){
+    this.impulse.copyTo( impulsePerInverseMass );
+    if( !this.damageTaken )
+      this.damageTaken = object.damageDealt;
   },
   
   reset : function(){

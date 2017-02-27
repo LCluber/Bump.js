@@ -10,11 +10,11 @@
   //create animation frame
   var animation      = FRAMERAT.create(render);
   var particleQty    = 400;
-  var particleSize   = 6;
   var particleWeight = 1.0;
   var floor          = [];
 
   var particle = {
+    life : 1,
     create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
       var obj     = Object.create(this);
       obj.body    = TYPE6.Geometry.Circle.create( positionX, positionY, size * 0.5 );
@@ -32,7 +32,17 @@
       this.body.position.addTo( this.physics.setPosition( animation.getDelta() ) );
     },
     
+    collision: function(damage){
+      //console.log(damage);
+      if(damage){
+        //this.life -= damage;
+        this.color = getRandomColor();
+        //this.body.setRadius(this.body.getRadius() + 1);
+      }
+    },
+    
     reset: function(){
+      //this.life = 1;
       this.body.position.setXY( width * 0.5, height * 0.25 );
       this.physics.reset();
     },
@@ -81,13 +91,14 @@
     for( var i = 0 ; i < particleQty; i++ ){
       var radius   = TYPE6.Random.float( 0, 120 ); //120
       var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.TWOPI );
+      var particleRadius = TYPE6.Random.integer( 6, 12 );
       particles[i] = particle.create(
                         width * 0.5,
                         height * 0.25,
                         TYPE6.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
                         TYPE6.Trigonometry.sineEquation( radius, angle, 0, 0 ),
-                        particleSize,
-                        particleWeight,
+                        particleRadius,
+                        particleRadius*0.5,
                         getRandomColor()
                      );
       collisionScene2.addBody( particles[i] );
@@ -121,6 +132,12 @@
     collisionScene2.test();//test collisions between particles
     collisionScene2.testScene(collisionScene1);//test collisions between floor and particles 
   }
+  
+  function applyDamage(){
+    for( var i = 0 ; i < particleQty ; i++ ){
+      particles[i].collision( particles[i].physics.applyDamage() );
+    }  
+  }
 
   function clearFrame(){
     context.clearRect( 0, 0, width, height );
@@ -129,6 +146,7 @@
   function render(){
     updatePositions();
     testCollisions();
+    applyDamage();
     clearFrame();
     draw();
     animation.drawConsole( context );

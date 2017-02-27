@@ -42,6 +42,8 @@ BUMP.Physics = {
     inverseMass: 1,
     elasticity: -1,
     collisionSceneId: 0,
+    damageTaken: 0,
+    damageDealt: 1,
     create: function(velocity, mass, damping, elasticity) {
         var _this = Object.create(this);
         _this.initVectors(velocity);
@@ -83,8 +85,23 @@ BUMP.Physics = {
         }
         return this.translate;
     },
+    setDamageDealt: function(damageDealt) {
+        this.damageDealt = damageDealt;
+    },
     applyImpulse: function(impulsePerInverseMass) {
         this.velocity.addScaledVectorTo(impulsePerInverseMass, this.inverseMass);
+    },
+    applyDamage: function() {
+        if (this.damageTaken) {
+            var dmg = this.damageTaken;
+            this.damageTaken = 0;
+            return dmg;
+        }
+        return false;
+    },
+    collision: function(impulsePerInverseMass, object) {
+        this.impulse.copyTo(impulsePerInverseMass);
+        if (!this.damageTaken) this.damageTaken = object.damageDealt;
     },
     reset: function() {
         this.velocity.copyTo(this.initialVelocity);
@@ -222,9 +239,8 @@ BUMP.Collision = {
             this.deltaVelocity = separatingVelocity * a.elasticity - separatingVelocity;
             this.impulse = this.deltaVelocity / this.totalInverseMass;
             this.impulsePerInverseMass.copyScaledVectorTo(this.penetration, this.impulse);
-            a.impulse.copyTo(this.impulsePerInverseMass);
-            this.impulsePerInverseMass.oppositeTo();
-            b.impulse.copyTo(this.impulsePerInverseMass);
+            a.collision(this.impulsePerInverseMass, b);
+            b.collision(this.impulsePerInverseMass.oppositeTo(), a);
         }
     },
     separatingVel: function(av, bv) {
