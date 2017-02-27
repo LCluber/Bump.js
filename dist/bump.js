@@ -50,7 +50,7 @@ BUMP.Physics = {
         _this.mass = mass;
         _this.inverseMass = !mass ? 0 : 1 / mass;
         _this.damping = damping;
-        _this.elasticity = -elasticity;
+        _this.elasticity = elasticity;
         return _this;
     },
     initVectors: function(velocity) {
@@ -116,6 +116,7 @@ BUMP.Collision = {
     delta: TYPE6.Vector2D.create(),
     delta2: TYPE6.Vector2D.create(),
     penetration: TYPE6.Vector2D.create(),
+    contactNormal: TYPE6.Vector2D.create(),
     vertex: TYPE6.Vector2D.create(),
     relativeVelocity: TYPE6.Vector2D.create(),
     voronoi: TYPE6.Vector2D.create(),
@@ -230,23 +231,32 @@ BUMP.Collision = {
     },
     separate: function(positionA, imA, positionB, imB) {
         this.totalInverseMass = imA + imB;
+        var k_slop = .01;
+        var percent = .2;
+        var correction = Math.max(this.penetration.getX() - k_slop, 0) / this.totalInverseMass * percent;
         if (imA) positionA.addScaledVectorTo(this.penetration, imA / this.totalInverseMass);
         if (imB) positionB.subtractScaledVectorFrom(this.penetration, imB / this.totalInverseMass);
     },
     computeImpulseVectors: function(a, b) {
-        var separatingVelocity = this.separatingVel(a.velocity, b.velocity);
+        var separatingVelocity = this.computeSeparatingVelocity(a.velocity, b.velocity);
         if (separatingVelocity < 0) {
-            this.deltaVelocity = separatingVelocity * a.elasticity - separatingVelocity;
-            this.impulse = this.deltaVelocity / this.totalInverseMass;
-            this.impulsePerInverseMass.copyScaledVectorTo(this.penetration, this.impulse);
+            var restitution = Math.min(a.elasticity, b.elasticity);
+            separatingVelocity = separatingVelocity * restitution - separatingVelocity;
+            this.impulse = separatingVelocity / this.totalInverseMass;
+            this.impulsePerInverseMass.copyScaledVectorTo(this.contactNormal, this.impulse);
             a.collision(this.impulsePerInverseMass, b);
-            b.collision(this.impulsePerInverseMass.oppositeTo(), a);
+            this.impulsePerInverseMass.oppositeTo();
+            b.collision(this.impulsePerInverseMass, a);
         }
     },
-    separatingVel: function(av, bv) {
-        this.penetration.normalizeTo();
+    computeSeparatingVelocity: function(av, bv) {
+        this.computeSurfaceNormal();
         this.relativeVelocity.copySubtractFromTo(av, bv);
-        return this.relativeVelocity.dotProduct(this.penetration);
+        return this.relativeVelocity.dotProduct(this.contactNormal);
+    },
+    computeSurfaceNormal: function() {
+        this.contactNormal.copyTo(this.penetration);
+        this.contactNormal.normalizeTo();
     }
 };
 

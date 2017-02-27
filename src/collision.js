@@ -4,6 +4,7 @@ BUMP.Collision = {
   delta                  : TYPE6.Vector2D.create(),
   delta2                 : TYPE6.Vector2D.create(),
   penetration            : TYPE6.Vector2D.create(),
+  contactNormal          : TYPE6.Vector2D.create(),
   vertex                 : TYPE6.Vector2D.create(),
   relativeVelocity       : TYPE6.Vector2D.create(),
   voronoi                : TYPE6.Vector2D.create(),
@@ -217,6 +218,10 @@ BUMP.Collision = {
 
   separate : function( positionA, imA , positionB, imB ){
     this.totalInverseMass = imA + imB;
+    var k_slop = 0.01; // Penetration allowance
+    var percent = 0.2; // Penetration percentage to correct
+    var correction = ( Math.max( this.penetration.getX() - k_slop, 0 ) / this.totalInverseMass) * percent /** normal*/;
+ 
     if( imA )
       positionA.addScaledVectorTo( this.penetration, imA / this.totalInverseMass );
     if( imB )
@@ -225,33 +230,40 @@ BUMP.Collision = {
   },
   
   computeImpulseVectors : function( a, b ){
-    var separatingVelocity = this.separatingVel( a.velocity, b.velocity );
+    var separatingVelocity = this.computeSeparatingVelocity( a.velocity, b.velocity );
     if( separatingVelocity < 0 ){//apply collision response forces only if objects are travelling in each other
       //vel+=1/m*impulse
       //calculate separating velocity with restitution (between 0 and 1)
       //Calculate the new separating velocity
-      this.deltaVelocity = separatingVelocity * a.elasticity - separatingVelocity;
+      var restitution = Math.min( a.elasticity, b.elasticity );
+      separatingVelocity = separatingVelocity * restitution - separatingVelocity;
+      //this.deltaVelocity = separatingVelocity * restitution - separatingVelocity;
       // Calculate the impulse to apply.
-      this.impulse = this.deltaVelocity / this.totalInverseMass;
+      this.impulse = separatingVelocity / this.totalInverseMass;
       // Find the amount of impulse per unit of inverse mass.
       //Vector3 impulsePerIMass = contactNormal * impulse;
-      this.impulsePerInverseMass.copyScaledVectorTo( this.penetration, this.impulse );
+      this.impulsePerInverseMass.copyScaledVectorTo( this.contactNormal, this.impulse );
       // Apply impulses: they are applied in the direction of the contact,
       // and are proportional to the inverse mass.
       a.collision( this.impulsePerInverseMass, b );
       //a.impulse.copyTo( this.impulsePerInverseMass );
       //a.velocity.addScaledVectorTo( this.impulsePerInverseMass, a.inverseMass );
-      //this.impulsePerInverseMass.oppositeTo();
-      b.collision( this.impulsePerInverseMass.oppositeTo(), a );
+      this.impulsePerInverseMass.oppositeTo();
+      b.collision( this.impulsePerInverseMass, a );
       //b.impulse.copyTo( this.impulsePerInverseMass );
       //b.velocity.addScaledVectorTo( this.impulsePerInverseMass, b.inverseMass );
     }
   },
   
-  separatingVel:function(av,bv){
-    this.penetration.normalizeTo();//is now surfaceNormal //unit length vector perpendicular to the surface between the two objects || contactnormal
-    this.relativeVelocity.copySubtractFromTo( av, bv );//relative velocity between two object
-    return this.relativeVelocity.dotProduct( this.penetration );//component of velocity parallel to contact normal //the dot product of the relative velocity and the normal
+  computeSeparatingVelocity:function( av, bv ){
+    this.computeSurfaceNormal();
+    this.relativeVelocity.copySubtractFromTo( av, bv );//relative velocity between two objects
+    return this.relativeVelocity.dotProduct( this.contactNormal );//component of velocity parallel to contact normal //the dot product of the relative velocity and the normal
+  },
+  
+  computeSurfaceNormal:function(){
+    this.contactNormal.copyTo(this.penetration);
+    this.contactNormal.normalizeTo();//is now surfaceNormal //unit length vector perpendicular to the surface between the two objects || contactnormal
   }
 
 };

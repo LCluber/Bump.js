@@ -63,7 +63,7 @@ BUMP.Physics = {
     _this.mass         = mass;
     _this.inverseMass  = !mass ? 0 : 1/mass ;
     _this.damping      = damping;
-    _this.elasticity   = -elasticity;
+    _this.elasticity   = elasticity;
     //_this.setHalfSize(); 
     //_this.setFrame();
     return _this;
