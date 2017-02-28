@@ -129,8 +129,8 @@
   }
 
   function testCollisions(){
-    collisionScene2.test();//test collisions between particles
-    collisionScene2.testScene(collisionScene1);//test collisions between floor and particles 
+      collisionScene2.test();//test collisions between particles
+      collisionScene2.testScene(collisionScene1);//test collisions between floor and particles 
   }
   
   function applyDamage(){

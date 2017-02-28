@@ -1,4 +1,10 @@
 
+Version 0.2.6 (February 28th 2017)
+------------------------------
+ * Added damage handling. an Object 
+ * Added a Penetration Resolution correction in collision.js to improve the engine behavior.
+ * Added setIteration() and getIteration() to Scene class. This allows to iterate several times through all collisions and improve greatly the engine behavior.
+ 
 Version 0.2.5 (February 21th 2017)
 ------------------------------
  * Type6.js dependency is built separately into the dist/dependencies/ folder instead of being directly inserted into the distribution Bump.js and Bump.min.js files

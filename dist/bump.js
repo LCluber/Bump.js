@@ -23,7 +23,7 @@
 * http://bumpjs.lcluber.com
 */
 var BUMP = {
-    revision: "0.2.5",
+    revision: "0.2.6",
     options: {
         space: "2D"
     }
@@ -132,8 +132,7 @@ BUMP.Collision = {
     test: function(bodyA, physicsA, bodyB, physicsB) {
         this.setDelta(bodyA.getPosition(), bodyB.getPosition());
         if (this.getPenetration(bodyA, bodyB)) {
-            this.separate(bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass);
-            this.computeImpulseVectors(physicsA, physicsB);
+            if (this.separate(bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass)) this.computeImpulseVectors(physicsA, physicsB);
         }
     },
     setDelta: function(positionA, positionB) {
@@ -234,10 +233,14 @@ BUMP.Collision = {
         this.totalInverseMass = imA + imB;
         this.computeContactNormal();
         var k_slop = .01;
-        var percent = .2;
-        this.correction.setXY(Math.max(this.penetration.getX() - k_slop, 0) / this.totalInverseMass * percent * this.contactNormal.getX(), Math.max(this.penetration.getY() - k_slop, 0) / this.totalInverseMass * percent * this.contactNormal.getY());
-        if (imA) positionA.addScaledVectorTo(this.correction, imA / this.totalInverseMass);
-        if (imB) positionB.subtractScaledVectorFrom(this.correction, imB / this.totalInverseMass);
+        var percent = .8;
+        this.correction.setXY(Math.max(Math.abs(this.penetration.getX()) - k_slop, 0) / this.totalInverseMass * percent * this.contactNormal.getX(), Math.max(Math.abs(this.penetration.getY()) - k_slop, 0) / this.totalInverseMass * percent * this.contactNormal.getY());
+        if (this.correction.isNotOrigin()) {
+            if (imA) positionA.addScaledVectorTo(this.correction, imA);
+            if (imB) positionB.subtractScaledVectorFrom(this.correction, imB);
+            return true;
+        }
+        return false;
     },
     computeImpulseVectors: function(a, b) {
         var separatingVelocity = this.computeSeparatingVelocity(a.velocity, b.velocity);
@@ -266,6 +269,7 @@ BUMP.Scene = {
     bodiesLength: 0,
     collision: BUMP.Collision.create(),
     gravity: TYPE6.Vector2D.create(0, 400),
+    iteration: 2,
     create: function() {
         var _this = Object.create(this);
         _this.collision = BUMP.Collision.create();
@@ -283,22 +287,32 @@ BUMP.Scene = {
     },
     removeBody: function() {},
     test: function() {
-        for (var i = 0; i < this.bodiesLength; i++) {
-            for (var j = i + 1; j < this.bodiesLength; j++) {
-                var p1 = this.bodies[i];
-                var p2 = this.bodies[j];
-                this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+        for (var k = 0; k < this.iteration; k++) {
+            for (var i = 0; i < this.bodiesLength; i++) {
+                for (var j = i + 1; j < this.bodiesLength; j++) {
+                    var p1 = this.bodies[i];
+                    var p2 = this.bodies[j];
+                    this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+                }
             }
         }
     },
     testScene: function(scene) {
-        for (var i = 0; i < this.bodiesLength; i++) {
-            for (var j = 0; j < scene.bodiesLength; j++) {
-                var p1 = this.bodies[i];
-                var p2 = scene.bodies[j];
-                this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+        for (var k = 0; k < this.iteration; k++) {
+            for (var i = 0; i < this.bodiesLength; i++) {
+                for (var j = 0; j < scene.bodiesLength; j++) {
+                    var p1 = this.bodies[i];
+                    var p2 = scene.bodies[j];
+                    this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+                }
             }
         }
+    },
+    setIteration: function(iteration) {
+        this.iteration = iteration;
+    },
+    getIteration: function() {
+        return this.iteration;
     },
     setGravity: function() {},
     getGravity: function() {

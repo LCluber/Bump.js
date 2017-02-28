@@ -27,8 +27,8 @@ BUMP.Collision = {
         this.setDelta( bodyA.getPosition(), bodyB.getPosition() );
         
         if( this.getPenetration( bodyA, bodyB )){
-          this.separate( bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass );
-          this.computeImpulseVectors( physicsA, physicsB );
+          if ( this.separate( bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass ) )
+            this.computeImpulseVectors( physicsA, physicsB );
         }
       //}
     //}
@@ -221,16 +221,21 @@ BUMP.Collision = {
     this.totalInverseMass = imA + imB;
     this.computeContactNormal();
     var k_slop = 0.01; // Penetration allowance
-    var percent = 0.2; // Penetration percentage to correct
+    var percent = 0.8; // Penetration percentage to correct
+    // console.log( this.penetration.toString() );
     this.correction.setXY(
-      ( Math.max( this.penetration.getX() - k_slop, 0 ) / this.totalInverseMass ) * percent * this.contactNormal.getX(), 
-      ( Math.max( this.penetration.getY() - k_slop, 0 ) / this.totalInverseMass ) * percent * this.contactNormal.getY()
+      ( Math.max( Math.abs( this.penetration.getX() ) - k_slop, 0 ) / this.totalInverseMass ) * percent * this.contactNormal.getX(), 
+      ( Math.max( Math.abs( this.penetration.getY() ) - k_slop, 0 ) / this.totalInverseMass ) * percent * this.contactNormal.getY()
     );
  
-    if( imA )
-      positionA.addScaledVectorTo( this.correction, imA / this.totalInverseMass );
-    if( imB )
-      positionB.subtractScaledVectorFrom( this.correction, imB / this.totalInverseMass );
+    if(this.correction.isNotOrigin()){
+      if( imA )
+        positionA.addScaledVectorTo( this.correction, imA /*/ this.totalInverseMass*/ );
+      if( imB )
+        positionB.subtractScaledVectorFrom( this.correction, imB /*/ this.totalInverseMass*/ );
+      return true;
+    }
+    return false;
     
   },
   
