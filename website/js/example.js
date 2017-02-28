@@ -7,9 +7,11 @@
   //create collision scenes
   var collisionScene1= BUMP.Scene.create();
   var collisionScene2= BUMP.Scene.create();
+  collisionScene1.setIteration(3);
+  collisionScene2.setIteration(3);
   //create animation frame
   var animation      = FRAMERAT.create(render);
-  var particleQty    = 400;
+  var particleQty    = 300;
   var particleWeight = 1.0;
   var floor          = [];
 
@@ -36,7 +38,7 @@
       //console.log(damage);
       if(damage){
         //this.life -= damage;
-        this.color = getRandomColor();
+        //this.color = getRandomColor();
         //this.body.setRadius(this.body.getRadius() + 1);
       }
     },
@@ -89,7 +91,7 @@
 
   function initParticles(){
     for( var i = 0 ; i < particleQty; i++ ){
-      var radius   = TYPE6.Random.float( 0, 120 ); //120
+      var radius   = TYPE6.Random.float( 0, 140 ); //120
       var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.TWOPI );
       var particleRadius = TYPE6.Random.integer( 6, 12 );
       particles[i] = particle.create(
