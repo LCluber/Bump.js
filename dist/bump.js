@@ -68,28 +68,36 @@ BUMP.Physics = {
     setPosition: function(second) {
         this.translate.setToOrigin();
         if (second > 0) {
-            this.resultingAcc.copyTo(this.gravity);
-            if (this.inverseMass && this.impulse.isNotOrigin()) {
-                this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
-                this.impulse.setToOrigin();
+            if (this.inverseMass) {
+                this.applyImpulse();
+                this.applyForces(second);
             }
-            if (this.inverseMass && this.force.isNotOrigin()) {
-                this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
-                this.force.setToOrigin();
-            }
-            if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
-            if (this.velocity.isNotOrigin()) {
-                this.velocity.scaleBy(Math.pow(this.damping, second));
-                this.translate.copyScaledVectorTo(this.velocity, second);
-            }
+            this.applyVelocity(second);
         }
         return this.translate;
     },
     setDamageDealt: function(damageDealt) {
         this.damageDealt = damageDealt;
     },
-    applyImpulse: function(impulsePerInverseMass) {
-        this.velocity.addScaledVectorTo(impulsePerInverseMass, this.inverseMass);
+    applyForces: function(second) {
+        this.resultingAcc.copyTo(this.gravity);
+        if (this.force.isNotOrigin()) {
+            this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
+            this.force.setToOrigin();
+        }
+        if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
+    },
+    applyImpulse: function() {
+        if (this.impulse.isNotOrigin()) {
+            this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
+            this.impulse.setToOrigin();
+        }
+    },
+    applyVelocity: function(second) {
+        if (this.velocity.isNotOrigin()) {
+            this.velocity.scaleBy(Math.pow(this.damping, second));
+            this.translate.copyScaledVectorTo(this.velocity, second);
+        }
     },
     applyDamage: function() {
         if (this.damageTaken) {
@@ -269,7 +277,7 @@ BUMP.Scene = {
     bodiesLength: 0,
     collision: BUMP.Collision.create(),
     gravity: TYPE6.Vector2D.create(0, 400),
-    iteration: 2,
+    iteration: 1,
     create: function() {
         var _this = Object.create(this);
         _this.collision = BUMP.Collision.create();

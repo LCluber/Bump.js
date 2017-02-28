@@ -101,32 +101,13 @@ BUMP.Physics = {
   * @returns {vector}  The translation vector
   */
   setPosition : function( second ){
-
     this.translate.setToOrigin();
-    
     if( second > 0 ){  
-      this.resultingAcc.copyTo( this.gravity );
-      //apply impulse from collision directly to velocity
-      if( this.inverseMass && this.impulse.isNotOrigin() ){
-        //add impulse per inverse mass
-        this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );
-        this.impulse.setToOrigin();
-      }
-
-      if( this.inverseMass && this.force.isNotOrigin() ){
-        this.resultingAcc.addScaledVectorTo( this.force, this.inverseMass );
-        this.force.setToOrigin();
-      }
-      
-      if(this.resultingAcc.isNotOrigin())
-        this.velocity.addScaledVectorTo( this.resultingAcc, second );
-
-      if(this.velocity.isNotOrigin()){
-        this.velocity.scaleBy( Math.pow( this.damping, second ) );
-        //this.velocity.scaleBy(this.damping);// use if damping just solves numerical problems and other drag forces are applied
-        this.translate.copyScaledVectorTo( this.velocity, second );
-        //moved = true;
-      }
+      if( this.inverseMass ){
+        this.applyImpulse();
+        this.applyForces( second );
+      }  
+      this.applyVelocity( second );
     }
 
     //if(moved)//if moved
@@ -144,8 +125,31 @@ BUMP.Physics = {
     this.damageDealt = damageDealt; 
   },
   
-  applyImpulse : function( impulsePerInverseMass ){
-    this.velocity.addScaledVectorTo( impulsePerInverseMass, this.inverseMass );//add impulse vector to velocity
+  applyForces : function( second ){
+    this.resultingAcc.copyTo( this.gravity );// initialize resulting acceleration for this frame
+    if( this.force.isNotOrigin() ){
+      this.resultingAcc.addScaledVectorTo( this.force, this.inverseMass );
+      this.force.setToOrigin();
+    }
+    if( this.resultingAcc.isNotOrigin() )
+      this.velocity.addScaledVectorTo( this.resultingAcc, second );
+  },
+  
+  applyImpulse : function(){
+    //apply impulse from collision directly to velocity
+    if( this.impulse.isNotOrigin() ){
+      this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );//add impulse vector to velocity
+      this.impulse.setToOrigin();
+    }
+  },
+  
+  applyVelocity : function( second ){
+    if(this.velocity.isNotOrigin()){
+      this.velocity.scaleBy( Math.pow( this.damping, second ) );
+      //this.velocity.scaleBy(this.damping);// use if damping just solves numerical problems and other drag forces are applied
+      this.translate.copyScaledVectorTo( this.velocity, second );
+      //moved = true;
+    }
   },
   
   applyDamage : function(){

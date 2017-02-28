@@ -9,7 +9,7 @@ BUMP.Scene = {
   
   collision : BUMP.Collision.create(),
   gravity : TYPE6.Vector2D.create( 0, 400 ),
-  iteration : 2,
+  iteration : 1,
   /**
   * Create a new collision scene.
   * @since 0.2.0
