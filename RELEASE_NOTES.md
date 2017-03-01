@@ -1,5 +1,5 @@
 
-Version 0.2.6 (February 28th 2017)
+Version 0.3.0 (February 28th 2017)
 ------------------------------
  * Added damage handling. an Object 
  * Added a Penetration Resolution correction in collision.js to improve the engine behavior.
