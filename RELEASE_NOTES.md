@@ -1,7 +1,7 @@
 
 Version 0.3.0 (February 28th 2017)
 ------------------------------
- * Added damage handling. an Object 
+ * Added damage handling. Physics class can hold damage information to apply to another object on collision.
  * Added a Penetration Resolution correction in collision.js to improve the engine behavior.
  * Added setIteration() and getIteration() to Scene class. This allows to iterate several times through all collisions and improve greatly the engine behavior.
  
