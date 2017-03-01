@@ -223,9 +223,16 @@ BUMP.Collision = {
     var k_slop = 0.01; // Penetration allowance
     var percent = 0.8; // Penetration percentage to correct
     // console.log( this.penetration.toString() );
+    // this.correction.copyTo(this.penetration);
+    // this.correction.absoluteTo();
+    // this.correction.subtractScalarFrom( k_slop);
+    // 
+    // this.correction.divideBy( this.totalInverseMass );
+    // this.correction.multiplyScaledVectorBy(this.contactNormal, percent);
+    
     this.correction.setXY(
-      ( Math.max( Math.abs( this.penetration.getX() ) - k_slop, 0 ) / this.totalInverseMass ) * percent * this.contactNormal.getX(), 
-      ( Math.max( Math.abs( this.penetration.getY() ) - k_slop, 0 ) / this.totalInverseMass ) * percent * this.contactNormal.getY()
+      Math.max( Math.abs(this.penetration.getX()) - k_slop, 0 ) / this.totalInverseMass * percent * this.contactNormal.getX(), 
+      Math.max( Math.abs(this.penetration.getY()) - k_slop, 0 ) / this.totalInverseMass * percent * this.contactNormal.getY()
     );
  
     if(this.correction.isNotOrigin()){
