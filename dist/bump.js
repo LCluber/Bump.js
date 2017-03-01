@@ -133,6 +133,8 @@ BUMP.Collision = {
     totalInverseMass: 0,
     impulse: 0,
     impulsePerInverseMass: TYPE6.Vector2D.create(),
+    k_slop: .01,
+    percent: .8,
     create: function() {
         var _this = Object.create(this);
         return _this;
@@ -240,15 +242,20 @@ BUMP.Collision = {
     separate: function(positionA, imA, positionB, imB) {
         this.totalInverseMass = imA + imB;
         this.computeContactNormal();
-        var k_slop = .01;
-        var percent = .8;
-        this.correction.setXY(Math.max(Math.abs(this.penetration.getX()) - k_slop, 0) / this.totalInverseMass * percent * this.contactNormal.getX(), Math.max(Math.abs(this.penetration.getY()) - k_slop, 0) / this.totalInverseMass * percent * this.contactNormal.getY());
+        this.computeCorrection();
         if (this.correction.isNotOrigin()) {
             if (imA) positionA.addScaledVectorTo(this.correction, imA);
             if (imB) positionB.subtractScaledVectorFrom(this.correction, imB);
             return true;
         }
         return false;
+    },
+    computeCorrection: function() {
+        this.correction.copyTo(this.penetration);
+        this.correction.absoluteTo();
+        this.correction.subtractScalarFrom(this.k_slop);
+        this.correction.maxScalarTo(0);
+        this.correction.divideScaledVectorBy(this.contactNormal, this.totalInverseMass * this.percent);
     },
     computeImpulseVectors: function(a, b) {
         var separatingVelocity = this.computeSeparatingVelocity(a.velocity, b.velocity);

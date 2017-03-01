@@ -14,6 +14,8 @@ BUMP.Collision = {
   totalInverseMass       : 0,
   impulse                : 0,
   impulsePerInverseMass  : TYPE6.Vector2D.create(),
+  k_slop                 : 0.01, // Penetration allowance
+  percent                : 0.8, // Penetration percentage to correct
 
   create : function() {
     var _this = Object.create( this );
@@ -220,20 +222,13 @@ BUMP.Collision = {
   separate : function( positionA, imA , positionB, imB ){
     this.totalInverseMass = imA + imB;
     this.computeContactNormal();
-    var k_slop = 0.01; // Penetration allowance
-    var percent = 0.8; // Penetration percentage to correct
+    this.computeCorrection();
     // console.log( this.penetration.toString() );
-    // this.correction.copyTo(this.penetration);
-    // this.correction.absoluteTo();
-    // this.correction.subtractScalarFrom( k_slop);
-    // 
-    // this.correction.divideBy( this.totalInverseMass );
-    // this.correction.multiplyScaledVectorBy(this.contactNormal, percent);
     
-    this.correction.setXY(
-      Math.max( Math.abs(this.penetration.getX()) - k_slop, 0 ) / this.totalInverseMass * percent * this.contactNormal.getX(), 
-      Math.max( Math.abs(this.penetration.getY()) - k_slop, 0 ) / this.totalInverseMass * percent * this.contactNormal.getY()
-    );
+    // this.correction.setXY(
+    //   Math.max( Math.abs(this.penetration.getX()) - this.k_slop, 0 ) / this.totalInverseMass * this.percent * this.contactNormal.getX(), 
+    //   Math.max( Math.abs(this.penetration.getY()) - this.k_slop, 0 ) / this.totalInverseMass * this.percent * this.contactNormal.getY()
+    // );
  
     if(this.correction.isNotOrigin()){
       if( imA )
@@ -244,6 +239,14 @@ BUMP.Collision = {
     }
     return false;
     
+  },
+  
+  computeCorrection : function(){
+    this.correction.copyTo( this.penetration );
+    this.correction.absoluteTo();
+    this.correction.subtractScalarFrom( this.k_slop );
+    this.correction.maxScalarTo( 0 );
+    this.correction.divideScaledVectorBy( this.contactNormal, this.totalInverseMass * this.percent );
   },
   
   computeImpulseVectors : function( a, b ){
