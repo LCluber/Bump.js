@@ -255,7 +255,8 @@ BUMP.Collision = {
         this.correction.absoluteTo();
         this.correction.subtractScalarFrom(this.k_slop);
         this.correction.maxScalarTo(0);
-        this.correction.divideScaledVectorBy(this.contactNormal, this.totalInverseMass * this.percent);
+        this.correction.scaleBy(this.percent / this.totalInverseMass);
+        this.correction.multiplyBy(this.contactNormal);
     },
     computeImpulseVectors: function(a, b) {
         var separatingVelocity = this.computeSeparatingVelocity(a.velocity, b.velocity);
