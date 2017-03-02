@@ -23,7 +23,7 @@
 * http://bumpjs.lcluber.com
 */
 var BUMP = {
-    revision: "0.2.5",
+    revision: "0.2.6",
     options: {
         space: "2D"
     }
@@ -42,6 +42,8 @@ BUMP.Physics = {
     inverseMass: 1,
     elasticity: -1,
     collisionSceneId: 0,
+    damageTaken: 0,
+    damageDealt: 1,
     create: function(velocity, mass, damping, elasticity) {
         var _this = Object.create(this);
         _this.initVectors(velocity);
@@ -66,25 +68,48 @@ BUMP.Physics = {
     setPosition: function(second) {
         this.translate.setToOrigin();
         if (second > 0) {
-            this.resultingAcc.copyTo(this.gravity);
-            if (this.inverseMass && this.impulse.isNotOrigin()) {
-                this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
-                this.impulse.setToOrigin();
+            if (this.inverseMass) {
+                this.applyImpulse();
+                this.applyForces(second);
             }
-            if (this.inverseMass && this.force.isNotOrigin()) {
-                this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
-                this.force.setToOrigin();
-            }
-            if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
-            if (this.velocity.isNotOrigin()) {
-                this.velocity.scaleBy(Math.pow(this.damping, second));
-                this.translate.copyScaledVectorTo(this.velocity, second);
-            }
+            this.applyVelocity(second);
         }
         return this.translate;
     },
-    applyImpulse: function(impulsePerInverseMass) {
-        this.velocity.addScaledVectorTo(impulsePerInverseMass, this.inverseMass);
+    setDamageDealt: function(damageDealt) {
+        this.damageDealt = damageDealt;
+    },
+    applyForces: function(second) {
+        this.resultingAcc.copyTo(this.gravity);
+        if (this.force.isNotOrigin()) {
+            this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
+            this.force.setToOrigin();
+        }
+        if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
+    },
+    applyImpulse: function() {
+        if (this.impulse.isNotOrigin()) {
+            this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
+            this.impulse.setToOrigin();
+        }
+    },
+    applyVelocity: function(second) {
+        if (this.velocity.isNotOrigin()) {
+            this.velocity.scaleBy(Math.pow(this.damping, second));
+            this.translate.copyScaledVectorTo(this.velocity, second);
+        }
+    },
+    applyDamage: function() {
+        if (this.damageTaken) {
+            var dmg = this.damageTaken;
+            this.damageTaken = 0;
+            return dmg;
+        }
+        return false;
+    },
+    collision: function(impulsePerInverseMass, object) {
+        this.impulse.copyTo(impulsePerInverseMass);
+        if (!this.damageTaken) this.damageTaken = object.damageDealt;
     },
     reset: function() {
         this.velocity.copyTo(this.initialVelocity);
@@ -99,6 +124,8 @@ BUMP.Collision = {
     delta: TYPE6.Vector2D.create(),
     delta2: TYPE6.Vector2D.create(),
     penetration: TYPE6.Vector2D.create(),
+    contactNormal: TYPE6.Vector2D.create(),
+    correction: TYPE6.Vector2D.create(),
     vertex: TYPE6.Vector2D.create(),
     relativeVelocity: TYPE6.Vector2D.create(),
     voronoi: TYPE6.Vector2D.create(),
@@ -106,6 +133,8 @@ BUMP.Collision = {
     totalInverseMass: 0,
     impulse: 0,
     impulsePerInverseMass: TYPE6.Vector2D.create(),
+    k_slop: .01,
+    percent: .8,
     create: function() {
         var _this = Object.create(this);
         return _this;
@@ -113,8 +142,7 @@ BUMP.Collision = {
     test: function(bodyA, physicsA, bodyB, physicsB) {
         this.setDelta(bodyA.getPosition(), bodyB.getPosition());
         if (this.getPenetration(bodyA, bodyB)) {
-            this.separate(bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass);
-            this.computeImpulseVectors(physicsA, physicsB);
+            if (this.separate(bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass)) this.computeImpulseVectors(physicsA, physicsB);
         }
     },
     setDelta: function(positionA, positionB) {
@@ -213,24 +241,42 @@ BUMP.Collision = {
     },
     separate: function(positionA, imA, positionB, imB) {
         this.totalInverseMass = imA + imB;
-        if (imA) positionA.addScaledVectorTo(this.penetration, imA / this.totalInverseMass);
-        if (imB) positionB.subtractScaledVectorFrom(this.penetration, imB / this.totalInverseMass);
+        this.computeContactNormal();
+        this.computeCorrection();
+        if (this.correction.isNotOrigin()) {
+            if (imA) positionA.addScaledVectorTo(this.correction, imA);
+            if (imB) positionB.subtractScaledVectorFrom(this.correction, imB);
+            return true;
+        }
+        return false;
+    },
+    computeCorrection: function() {
+        this.correction.copyTo(this.penetration);
+        this.correction.absoluteTo();
+        this.correction.subtractScalarFrom(this.k_slop);
+        this.correction.maxScalarTo(0);
+        this.correction.scaleBy(this.percent / this.totalInverseMass);
+        this.correction.multiplyBy(this.contactNormal);
     },
     computeImpulseVectors: function(a, b) {
-        var separatingVelocity = this.separatingVel(a.velocity, b.velocity);
+        var separatingVelocity = this.computeSeparatingVelocity(a.velocity, b.velocity);
         if (separatingVelocity < 0) {
-            this.deltaVelocity = separatingVelocity * a.elasticity - separatingVelocity;
-            this.impulse = this.deltaVelocity / this.totalInverseMass;
-            this.impulsePerInverseMass.copyScaledVectorTo(this.penetration, this.impulse);
-            a.impulse.copyTo(this.impulsePerInverseMass);
+            var restitution = Math.max(a.elasticity, b.elasticity);
+            separatingVelocity = separatingVelocity * restitution - separatingVelocity;
+            this.impulse = separatingVelocity / this.totalInverseMass;
+            this.impulsePerInverseMass.copyScaledVectorTo(this.contactNormal, this.impulse);
+            a.collision(this.impulsePerInverseMass, b);
             this.impulsePerInverseMass.oppositeTo();
-            b.impulse.copyTo(this.impulsePerInverseMass);
+            b.collision(this.impulsePerInverseMass, a);
         }
     },
-    separatingVel: function(av, bv) {
-        this.penetration.normalizeTo();
+    computeSeparatingVelocity: function(av, bv) {
         this.relativeVelocity.copySubtractFromTo(av, bv);
-        return this.relativeVelocity.dotProduct(this.penetration);
+        return this.relativeVelocity.dotProduct(this.contactNormal);
+    },
+    computeContactNormal: function() {
+        this.contactNormal.copyTo(this.penetration);
+        this.contactNormal.normalizeTo();
     }
 };
 
@@ -239,6 +285,7 @@ BUMP.Scene = {
     bodiesLength: 0,
     collision: BUMP.Collision.create(),
     gravity: TYPE6.Vector2D.create(0, 400),
+    iteration: 1,
     create: function() {
         var _this = Object.create(this);
         _this.collision = BUMP.Collision.create();
@@ -256,22 +303,32 @@ BUMP.Scene = {
     },
     removeBody: function() {},
     test: function() {
-        for (var i = 0; i < this.bodiesLength; i++) {
-            for (var j = i + 1; j < this.bodiesLength; j++) {
-                var p1 = this.bodies[i];
-                var p2 = this.bodies[j];
-                this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+        for (var k = 0; k < this.iteration; k++) {
+            for (var i = 0; i < this.bodiesLength; i++) {
+                for (var j = i + 1; j < this.bodiesLength; j++) {
+                    var p1 = this.bodies[i];
+                    var p2 = this.bodies[j];
+                    this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+                }
             }
         }
     },
     testScene: function(scene) {
-        for (var i = 0; i < this.bodiesLength; i++) {
-            for (var j = 0; j < scene.bodiesLength; j++) {
-                var p1 = this.bodies[i];
-                var p2 = scene.bodies[j];
-                this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+        for (var k = 0; k < this.iteration; k++) {
+            for (var i = 0; i < this.bodiesLength; i++) {
+                for (var j = 0; j < scene.bodiesLength; j++) {
+                    var p1 = this.bodies[i];
+                    var p2 = scene.bodies[j];
+                    this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+                }
             }
         }
+    },
+    setIteration: function(iteration) {
+        this.iteration = iteration;
+    },
+    getIteration: function() {
+        return this.iteration;
     },
     setGravity: function() {},
     getGravity: function() {

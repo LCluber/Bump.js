@@ -9,7 +9,7 @@ BUMP.Scene = {
   
   collision : BUMP.Collision.create(),
   gravity : TYPE6.Vector2D.create( 0, 400 ),
-  
+  iteration : 1,
   /**
   * Create a new collision scene.
   * @since 0.2.0
@@ -54,15 +54,15 @@ BUMP.Scene = {
   * @method
   */
   test : function(){
-  
-    for( var i = 0 ; i < this.bodiesLength ; i++ ){
-      for( var j = i + 1 ; j < this.bodiesLength ; j++ ){
-        var p1 = this.bodies[i];
-        var p2 = this.bodies[j];
-        this.collision.test( p1.body, p1.physics, p2.body, p2.physics );  
+    for( var k = 0 ; k < this.iteration ; k++ ){
+      for( var i = 0 ; i < this.bodiesLength ; i++ ){
+        for( var j = i + 1 ; j < this.bodiesLength ; j++ ){
+          var p1 = this.bodies[i];
+          var p2 = this.bodies[j];
+          this.collision.test( p1.body, p1.physics, p2.body, p2.physics );  
+        }
       }
     }
-    
   },
   
   /**
@@ -72,14 +72,23 @@ BUMP.Scene = {
   * @param {object} scene Another collision scene
   */
   testScene : function(scene){
-    for( var i = 0 ; i < this.bodiesLength ; i++ ){
-      for( var j = 0 ; j < scene.bodiesLength ; j++ ){
-        var p1 = this.bodies[i];
-        var p2 = scene.bodies[j];
-        this.collision.test( p1.body, p1.physics, p2.body, p2.physics ); 
+    for( var k = 0 ; k < this.iteration ; k++ ){
+      for( var i = 0 ; i < this.bodiesLength ; i++ ){
+        for( var j = 0 ; j < scene.bodiesLength ; j++ ){
+          var p1 = this.bodies[i];
+          var p2 = scene.bodies[j];
+          this.collision.test( p1.body, p1.physics, p2.body, p2.physics ); 
+        }
       }
     }
-    
+  },
+  
+  setIteration : function( iteration ){
+    this.iteration = iteration;
+  },
+  
+  getIteration : function(){
+    return this.iteration;
   },
   
   // checkPairs : function(){
