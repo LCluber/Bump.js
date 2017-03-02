@@ -34,9 +34,10 @@
       this.body.position.addTo( this.physics.setPosition( animation.getDelta() ) );
     },
     
-    collision: function(damage){
+    collision: function(){
       //console.log(damage);
-      if(damage){
+      var dmg = this.physics.applyDamage();
+      if (dmg) {
         //this.life -= damage;
         //this.color = getRandomColor();
         //this.body.setRadius(this.body.getRadius() + 1);
@@ -137,7 +138,7 @@
   
   function applyDamage(){
     for( var i = 0 ; i < particleQty ; i++ ){
-      particles[i].collision( particles[i].physics.applyDamage() );
+      particles[i].collision();
     }  
   }
 
