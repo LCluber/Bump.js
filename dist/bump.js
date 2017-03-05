@@ -23,7 +23,7 @@
 * http://bumpjs.lcluber.com
 */
 var BUMP = {
-    revision: "0.2.6",
+    revision: "0.4.0",
     options: {
         space: "2D"
     }
@@ -41,17 +41,34 @@ BUMP.Physics = {
     mass: 1,
     inverseMass: 1,
     elasticity: -1,
+    body: {},
     collisionSceneId: 0,
+    active: true,
     damageTaken: 0,
     damageDealt: 1,
-    create: function(velocity, mass, damping, elasticity) {
+    create: function(velocity, mass, damping, elasticity, type, positionX, positionY, sizeX, sizeY) {
         var _this = Object.create(this);
         _this.initVectors(velocity);
         _this.mass = mass;
         _this.inverseMass = !mass ? 0 : 1 / mass;
         _this.damping = damping;
         _this.elasticity = -elasticity;
+        _this.createBody(type, positionX, positionY, sizeX, sizeY);
         return _this;
+    },
+    createBody: function(type, positionX, positionY, sizeX, sizeY) {
+        switch (type) {
+          case "circle":
+            this.body = TYPE6.Geometry.Circle.create(positionX, positionY, sizeX);
+            break;
+
+          case "rectangle":
+            this.body = TYPE6.Geometry.Rectangle.create(positionX, positionY, sizeX, sizeY);
+            break;
+
+          default:
+            return false;
+        }
     },
     initVectors: function(velocity) {
         this.velocity = velocity;
@@ -62,19 +79,74 @@ BUMP.Physics = {
         this.impulse = TYPE6.Vector2D.create();
         this.resultingAcc = TYPE6.Vector2D.create();
     },
-    setGravity: function(x, y) {
-        this.gravity.setXY(x, y);
+    setActive: function() {
+        this.active = true;
     },
-    setPosition: function(second) {
+    setInactive: function() {
+        this.active = false;
+    },
+    toggleActive: function() {
+        this.active = !this.active;
+        return this.active;
+    },
+    isActive: function() {
+        return this.active;
+    },
+    updatePosition: function(second) {
         this.translate.setToOrigin();
-        if (second > 0) {
+        if (this.active && second > 0) {
             if (this.inverseMass) {
                 this.applyImpulse();
                 this.applyForces(second);
             }
             this.applyVelocity(second);
         }
+        return this.getPosition();
+    },
+    setPosition: function(x, y) {
+        this.body.setPositionXY(x, y);
+    },
+    setGravity: function(x, y) {
+        this.gravity.setXY(x, y);
+    },
+    getPosition: function() {
+        return this.body.position;
+    },
+    getPositionX: function() {
+        return this.body.getPositionX();
+    },
+    getPositionY: function() {
+        return this.body.getPositionY();
+    },
+    getTranslate: function() {
         return this.translate;
+    },
+    getVelocity: function() {
+        return this.velocity;
+    },
+    getForce: function() {
+        return this.force;
+    },
+    getResultingAcceleration: function() {
+        return this.resultingAcc;
+    },
+    getGravity: function() {
+        return this.gravity;
+    },
+    getImpulse: function() {
+        return this.impulse;
+    },
+    getRestitution: function() {
+        return this.elasticity;
+    },
+    getDamping: function() {
+        return this.damping;
+    },
+    getMass: function() {
+        return this.mass;
+    },
+    getInverseMass: function() {
+        return this.inverseMass;
     },
     setDamageDealt: function(damageDealt) {
         this.damageDealt = damageDealt;
@@ -97,10 +169,11 @@ BUMP.Physics = {
         if (this.velocity.isNotOrigin()) {
             this.velocity.scaleBy(Math.pow(this.damping, second));
             this.translate.copyScaledVectorTo(this.velocity, second);
+            this.body.position.addTo(this.translate);
         }
     },
     applyDamage: function() {
-        if (this.damageTaken) {
+        if (this.active && this.damageTaken) {
             var dmg = this.damageTaken;
             this.damageTaken = 0;
             return dmg;
@@ -108,7 +181,7 @@ BUMP.Physics = {
         return false;
     },
     collision: function(impulsePerInverseMass, object) {
-        this.impulse.copyTo(impulsePerInverseMass);
+        if (this.inverseMass) this.impulse.copyTo(impulsePerInverseMass);
         if (!this.damageTaken) this.damageTaken = object.damageDealt;
     },
     reset: function() {
@@ -117,6 +190,9 @@ BUMP.Physics = {
         this.force.setToOrigin();
         this.impulse.setToOrigin();
         this.resultingAcc.setToOrigin();
+    },
+    drawBody: function(context, fillColor, strokeColor, strokeWidth) {
+        this.body.draw(context, fillColor, strokeColor, strokeWidth);
     }
 };
 
@@ -139,10 +215,10 @@ BUMP.Collision = {
         var _this = Object.create(this);
         return _this;
     },
-    test: function(bodyA, physicsA, bodyB, physicsB) {
-        this.setDelta(bodyA.getPosition(), bodyB.getPosition());
-        if (this.getPenetration(bodyA, bodyB)) {
-            if (this.separate(bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass)) this.computeImpulseVectors(physicsA, physicsB);
+    test: function(a, b) {
+        this.setDelta(a.getPosition(), b.getPosition());
+        if (this.getPenetration(a.body, b.body)) {
+            if (this.separate(a.getPosition(), a.getInverseMass(), b.getPosition(), b.getInverseMass())) this.computeImpulseVectors(a, b);
         }
     },
     setDelta: function(positionA, positionB) {
@@ -160,11 +236,11 @@ BUMP.Collision = {
         if (this.aabbVSaabbHit(halfSizeA, halfSizeB)) return this.circleVSaabbProjection(positionA, radiusA, positionB, halfSizeB);
         return false;
     },
-    getPenetration: function(bodyA, bodyB) {
-        if (bodyA.shape === "circle") {
-            if (bodyB.shape === "circle") return this.circleVScircle(bodyA.getRadius() + bodyB.getRadius()); else if (bodyB.shape === "aabb") return this.circleVSaabb(bodyA.getPosition(), bodyA.getHalfSize(), bodyA.getRadius(), bodyB.getPosition(), bodyB.getHalfSize());
-        } else if (bodyA.shape === "aabb") {
-            if (bodyB.shape === "circle") return this.circleVSaabb(bodyB.getPosition(), bodyB.getHalfSize(), bodyB.getRadius(), bodyA.getPosition(), bodyA.getHalfSize()); else if (bodyB.shape === "aabb") return this.aabbVSaabb(bodyA.getHalfSize(), bodyB.getHalfSize());
+    getPenetration: function(a, b) {
+        if (a.shape === "circle") {
+            if (b.shape === "circle") return this.circleVScircle(a.getRadius() + b.getRadius()); else if (b.shape === "aabb") return this.circleVSaabb(a.getPosition(), a.getHalfSize(), a.getRadius(), b.getPosition(), b.getHalfSize());
+        } else if (a.shape === "aabb") {
+            if (b.shape === "circle") return this.circleVSaabb(b.getPosition(), b.getHalfSize(), b.getRadius(), a.getPosition(), a.getHalfSize()); else if (b.shape === "aabb") return this.aabbVSaabb(a.getHalfSize(), b.getHalfSize());
         }
         return false;
     },
@@ -259,9 +335,9 @@ BUMP.Collision = {
         this.correction.multiplyBy(this.contactNormal);
     },
     computeImpulseVectors: function(a, b) {
-        var separatingVelocity = this.computeSeparatingVelocity(a.velocity, b.velocity);
+        var separatingVelocity = this.computeSeparatingVelocity(a.getVelocity(), b.getVelocity());
         if (separatingVelocity < 0) {
-            var restitution = Math.max(a.elasticity, b.elasticity);
+            var restitution = Math.max(a.getRestitution(), b.getRestitution());
             separatingVelocity = separatingVelocity * restitution - separatingVelocity;
             this.impulse = separatingVelocity / this.totalInverseMass;
             this.impulsePerInverseMass.copyScaledVectorTo(this.contactNormal, this.impulse);
@@ -305,10 +381,14 @@ BUMP.Scene = {
     test: function() {
         for (var k = 0; k < this.iteration; k++) {
             for (var i = 0; i < this.bodiesLength; i++) {
-                for (var j = i + 1; j < this.bodiesLength; j++) {
-                    var p1 = this.bodies[i];
-                    var p2 = this.bodies[j];
-                    this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+                var p1 = this.bodies[i];
+                if (p1.physics.isActive()) {
+                    for (var j = i + 1; j < this.bodiesLength; j++) {
+                        var p2 = this.bodies[j];
+                        if (p2.physics.isActive()) {
+                            this.collision.test(p1.physics, p2.physics);
+                        }
+                    }
                 }
             }
         }
@@ -316,10 +396,14 @@ BUMP.Scene = {
     testScene: function(scene) {
         for (var k = 0; k < this.iteration; k++) {
             for (var i = 0; i < this.bodiesLength; i++) {
-                for (var j = 0; j < scene.bodiesLength; j++) {
-                    var p1 = this.bodies[i];
-                    var p2 = scene.bodies[j];
-                    this.collision.test(p1.body, p1.physics, p2.body, p2.physics);
+                var p1 = this.bodies[i];
+                if (p1.physics.isActive()) {
+                    for (var j = 0; j < scene.bodiesLength; j++) {
+                        var p2 = scene.bodies[j];
+                        if (p2.physics.isActive()) {
+                            this.collision.test(p1.physics, p2.physics);
+                        }
+                    }
                 }
             }
         }

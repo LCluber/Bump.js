@@ -1,9 +1,17 @@
 
+Version 0.4.0 (March 5th 2017)
+------------------------------
+ * Included the body directly into the physics class. Holding the TYPE6.Geometry mask for collision tests.
+ * Added drawBody() method to draw the collision mask of an object.
+ * setPosition() method in Physics class becomes updatePosition(). setPosition now sets the position directly without computing forces and velocity. 
+ * Added setActive(), setInactive(), toggleActive() and isActive() methods to physics class. this allows to set inactive bodies as inactive in the collision scene. In order for them to not be checked for collision.
+ * Added missing getters for every parameters in Physics class.
+
 Version 0.3.0 (March 2nd 2017)
 ------------------------------
  * Added damage handling. Physics class can hold damage information to apply to another object on collision.
  * Added a Penetration Resolution correction in collision.js to improve the engine behavior.
- * Added setIteration() and getIteration() to Scene class. This allows to iterate several times through all collisions and improve greatly the engine behavior.
+ * Added setIteration() and getIteration() methods to Scene class. This allows to iterate several times through all collisions and improve greatly the engine behavior.
  
 Version 0.2.5 (February 21th 2017)
 ------------------------------

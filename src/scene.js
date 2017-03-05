@@ -56,10 +56,14 @@ BUMP.Scene = {
   test : function(){
     for( var k = 0 ; k < this.iteration ; k++ ){
       for( var i = 0 ; i < this.bodiesLength ; i++ ){
-        for( var j = i + 1 ; j < this.bodiesLength ; j++ ){
-          var p1 = this.bodies[i];
-          var p2 = this.bodies[j];
-          this.collision.test( p1.body, p1.physics, p2.body, p2.physics );  
+        var p1 = this.bodies[i];
+        if (p1.physics.isActive()) {
+          for( var j = i + 1 ; j < this.bodiesLength ; j++ ){
+            var p2 = this.bodies[j];
+            if (p2.physics.isActive()) {
+              this.collision.test( p1.physics, p2.physics );
+            } 
+          }
         }
       }
     }
@@ -74,10 +78,14 @@ BUMP.Scene = {
   testScene : function(scene){
     for( var k = 0 ; k < this.iteration ; k++ ){
       for( var i = 0 ; i < this.bodiesLength ; i++ ){
-        for( var j = 0 ; j < scene.bodiesLength ; j++ ){
-          var p1 = this.bodies[i];
-          var p2 = scene.bodies[j];
-          this.collision.test( p1.body, p1.physics, p2.body, p2.physics ); 
+        var p1 = this.bodies[i];
+        if (p1.physics.isActive()) {
+          for( var j = 0 ; j < scene.bodiesLength ; j++ ){
+            var p2 = scene.bodies[j];
+            if (p2.physics.isActive()) {
+              this.collision.test( p1.physics, p2.physics ); 
+            }
+          }
         }
       }
     }

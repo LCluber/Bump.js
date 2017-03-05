@@ -23,14 +23,14 @@ BUMP.Collision = {
     return _this;
   },
 
-  test : function( bodyA, physicsA, bodyB, physicsB ) {
+  test : function( a, b ) {
     //if( a.onScreen() ){
       //if( this.cellTest( physicsA.cells, physicsB.cells ) ){
-        this.setDelta( bodyA.getPosition(), bodyB.getPosition() );
+        this.setDelta( a.getPosition(), b.getPosition() );
         
-        if( this.getPenetration( bodyA, bodyB )){
-          if ( this.separate( bodyA.getPosition(), physicsA.inverseMass, bodyB.getPosition(), physicsB.inverseMass ) )
-            this.computeImpulseVectors( physicsA, physicsB );
+        if( this.getPenetration( a.body, b.body )){
+          if ( this.separate( a.getPosition(), a.getInverseMass(), b.getPosition(), b.getInverseMass() ) )
+            this.computeImpulseVectors( a, b );
         }
       //}
     //}
@@ -60,23 +60,23 @@ BUMP.Collision = {
     return false;
   },
   
-  getPenetration : function( bodyA, bodyB ){
+  getPenetration : function( a, b ){
     
-    if( bodyA.shape === 'circle' ){//circle
+    if( a.shape === 'circle' ){//circle
       
-      if( bodyB.shape === 'circle' )
-        return this.circleVScircle( bodyA.getRadius() + bodyB.getRadius() );
-      else if( bodyB.shape === 'aabb' )
-        return this.circleVSaabb( bodyA.getPosition(), bodyA.getHalfSize(), bodyA.getRadius(),
-                                  bodyB.getPosition(), bodyB.getHalfSize() );
+      if( b.shape === 'circle' )
+        return this.circleVScircle( a.getRadius() + b.getRadius() );
+      else if( b.shape === 'aabb' )
+        return this.circleVSaabb( a.getPosition(), a.getHalfSize(), a.getRadius(),
+                                  b.getPosition(), b.getHalfSize() );
       
-    }else if( bodyA.shape === 'aabb' ){//aabb
+    }else if( a.shape === 'aabb' ){//aabb
       
-      if( bodyB.shape === 'circle' )
-        return this.circleVSaabb( bodyB.getPosition(), bodyB.getHalfSize(), bodyB.getRadius(),
-                                  bodyA.getPosition(), bodyA.getHalfSize() );
-      else if( bodyB.shape === 'aabb' )
-        return this.aabbVSaabb( bodyA.getHalfSize(), bodyB.getHalfSize() );
+      if( b.shape === 'circle' )
+        return this.circleVSaabb( b.getPosition(), b.getHalfSize(), b.getRadius(),
+                                  a.getPosition(), a.getHalfSize() );
+      else if( b.shape === 'aabb' )
+        return this.aabbVSaabb( a.getHalfSize(), b.getHalfSize() );
             
     }
     return false;
@@ -251,12 +251,12 @@ BUMP.Collision = {
   },
   
   computeImpulseVectors : function( a, b ){
-    var separatingVelocity = this.computeSeparatingVelocity( a.velocity, b.velocity );
+    var separatingVelocity = this.computeSeparatingVelocity( a.getVelocity(), b.getVelocity() );
     if( separatingVelocity < 0 ){//apply collision response forces only if objects are travelling in each other
       //vel+=1/m*impulse
       //calculate separating velocity with restitution (between 0 and 1)
       //Calculate the new separating velocity
-      var restitution = Math.max( a.elasticity, b.elasticity );
+      var restitution = Math.max( a.getRestitution(), b.getRestitution() );
       separatingVelocity = separatingVelocity * restitution - separatingVelocity;
       //this.deltaVelocity = separatingVelocity * restitution - separatingVelocity;
       // Calculate the impulse to apply.

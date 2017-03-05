@@ -19,19 +19,22 @@
     life : 1,
     create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
       var obj     = Object.create(this);
-      obj.body    = TYPE6.Geometry.Circle.create( positionX, positionY, size * 0.5 );
       obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create( velocityX, velocityY ),
                                           weight,
                                           0.8,//0.9
-                                          0.8//0.8
+                                          0.8,//0.8
+                                          'circle', positionX, positionY, size, size
                                         );
       obj.physics.setGravity( 0, 400 );
-      obj.color   = color;
+      obj.color = color;
       return obj;
     },
 
     update: function(){
-      this.body.position.addTo( this.physics.setPosition( animation.getDelta() ) );
+      this.physics.updatePosition( animation.getDelta() );
+      if(this.physics.isActive() && this.physics.getPositionY() > height + this.physics.body.getRadius()){
+        this.physics.toggleActive();
+      }
     },
     
     collision: function(){
@@ -46,29 +49,30 @@
     
     reset: function(){
       //this.life = 1;
-      this.body.position.setXY( width * 0.5, height * 0.25 );
+      this.physics.setPosition( width * 0.5, height * 0.25 );
       this.physics.reset();
+      this.physics.setActive();
     },
     
     draw: function(){
-      this.body.draw( context, this.color );
+      this.physics.drawBody( context, this.color, null, null );
     }
   };
   
   var rectangle = {
     create : function( positionX, positionY, sizeX, sizeY ){
       var obj     = Object.create(this);
-      obj.body    = TYPE6.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
       obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create(),
                                           0.0,
                                           0.0,
-                                          0.2
+                                          0.2,
+                                          'rectangle', positionX, positionY, sizeX, sizeY 
                                         );
       return obj;
     },
     
     draw : function(){
-      this.body.draw( context, '#cccccc' );
+      this.physics.drawBody( context, '#cccccc', null, null );
     }
     
   };
@@ -81,7 +85,7 @@
                                 height * 0.86,
                                 0,
                                 0,
-                                width * 0.2,
+                                width * 0.1,
                                 0,
                                 '#cccccc'
                               ));
@@ -94,14 +98,14 @@
     for( var i = 0 ; i < particleQty; i++ ){
       var radius   = TYPE6.Random.float( 0, 140 ); //120
       var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.TWOPI );
-      var particleRadius = TYPE6.Random.integer( 6, 12 );
+      var particleRadius = TYPE6.Random.integer( 3, 6 );
       particles[i] = particle.create(
                         width * 0.5,
                         height * 0.25,
                         TYPE6.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
                         TYPE6.Trigonometry.sineEquation( radius, angle, 0, 0 ),
                         particleRadius,
-                        particleRadius*0.5,
+                        particleRadius,
                         getRandomColor()
                      );
       collisionScene2.addBody( particles[i] );

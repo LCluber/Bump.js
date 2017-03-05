@@ -5,56 +5,66 @@ section( id='source' class='container content-section text-center' )
       
       h3 Javascript (main.js)
       
-      p Instantiate a collision scene to handle collisions between rigid bodies .
+      p Instantiate a HTML5 canvas
       pre.
-        //create collision scene
-        var collisionScene = BUMP.Scene.create();
+        var canvas    = document.getElementById("canvas");
+        var context   = canvas.getContext("2d");
+        var width     = canvas.width  = window.innerWidth;
+        var height    = canvas.height = window.innerHeight;
+        var animation = FRAMERAT.create(render); // instantiate animation loop
+      
+      p Instantiate 2 collision scenes to handle collisions between rigid bodies .
+      pre.
+        //create collision scenes
+        var collisionScene1 = BUMP.Scene.create();
+        var collisionScene2 = BUMP.Scene.create();
+        collisionScene1.setIteration(3);
+        collisionScene2.setIteration(3);
       
       p Create few particles
       pre.
         var particleQty    = 400;
-        var particleSize   = 6;
-        var particleWeight = 1.0;
         // class for a particle
         var particle = {
           create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
             var obj     = Object.create(this);
-            obj.body    = TYPE6JS.Geometry.Circle.create( positionX, positionY, size * 0.5 );
             obj.physics = BUMP.Physics.create(  
                                         TYPE6JS.Vector2D.create( velocityX, velocityY ),
                                         TYPE6JS.Vector2D.create( size, size ),
                                         weight,
-                                        0.9,
-                                        0.8
+                                        0.8,
+                                        0.8,
+                                        positionX, positionY, size, size
                                       );
             obj.color   = color;
             return obj;
           },
           // compute the position of a particle at each frame
           update: function(){
-            this.body.position.addTo( this.physics.setPosition( animation.getDelta().getSecond() ) );
+            this.physics.updatePosition( animation.getDelta() );
           },
           
           draw: function(){
-            //draw
+            this.physics.drawBody( context, this.color, null, null );
           }
         };
         
         // create a bunch of particles
+        var particles = [];
         for( var i = 0 ; i &lt; particleQty; i++ ){
-          var radius   = TYPE6JS.Random.float( 0, 120 );
-          var angle    = TYPE6JS.Random.float( 0, TYPE6JS.Trigonometry.TWOPI );
+          var radius   = TYPE6.Random.float( 0, 140 ); //120
+          var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.TWOPI );
+          var particleRadius = TYPE6.Random.integer( 3, 6 );
           particles[i] = particle.create(
                             width * 0.5,
                             height * 0.25,
-                            TYPE6JS.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
-                            TYPE6JS.Trigonometry.sineEquation( radius, angle, 0, 0 ),
-                            particleSize,
-                            particleWeight,
-                            '#000000'
+                            TYPE6.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
+                            TYPE6.Trigonometry.sineEquation( radius, angle, 0, 0 ),
+                            particleRadius,
+                            particleRadius,
+                            '#555555'
                          );
-          // add each particle to the collision scene
-          collisionScene.addBody( particles[i] );
+          collisionScene2.addBody( particles[i] );
         }
       
       p Create floor
@@ -63,37 +73,55 @@ section( id='source' class='container content-section text-center' )
         var rectangle = {
           create : function( positionX, positionY, sizeX, sizeY ){
             var obj     = Object.create(this);
-            obj.body    = TYPE6JS.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
-            obj.physics = BUMP.Physics.create(  TYPE6JS.Vector2D.create(),
-                                        TYPE6JS.Vector2D.create( sizeX, sizeY ),
-                                        0.0,
-                                        0.0,
-                                        0.2
-                                      );
+            //obj.body    = TYPE6.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
+            obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create(),
+                                                0.0,
+                                                0.0,
+                                                0.2,
+                                                'rectangle', positionX, positionY, sizeX, sizeY 
+                                              );
             return obj;
           },
           
           draw : function(){
-            //draw
+            this.physics.drawBody( context, '#cccccc', null, null );
           }
           
         };
         // create the floor
         var floor = rectangle.create( width * 0.5, height, width * 0.5, 200 );
         // add the floor to the collision scene
-        collisionScene.addBody( floor );
+        collisionScene1.addBody( floor );
         
       p Animation
       pre.
+        function draw() {
+          floor.draw();
+          
+          for( i = 0 ; i &lt; particleQty ; i++ )
+            particles[i].draw();
+          
+        }
+        
         function updatePositions(){
           for( var i = 0 ; i &lt; particleQty ; i++ )
             particles[i].update();
         }
+
+        function testCollisions(){
+            collisionScene2.test();//test collisions between particles
+            collisionScene2.testScene(collisionScene1);//test collisions between floor and particles 
+        }
+        
+        function clearFrame(){
+          context.clearRect( 0, 0, width, height );
+        }
         
         function render(){
           updatePositions();
-          collisionScene.test();
+          testCollisions();
           clearFrame();
           draw();
+          animation.drawConsole( context );
           animation.newFrame();
         }
