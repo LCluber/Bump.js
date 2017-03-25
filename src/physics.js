@@ -197,7 +197,7 @@ BUMP.Physics = {
       if (this.inverseMass) {
         this.applyImpulse();
         this.applyForces( second );
-      }  
+      }
       this.applyVelocity( second );
     }
     //if(moved)//if moved
@@ -212,6 +212,36 @@ BUMP.Physics = {
     //this.translate;
 	},
   
+  applyForces : function( second ){
+    this.resultingAcc.copyTo( this.gravity );// initialize resulting acceleration for this frame
+    if( this.force.isNotOrigin() ){
+      this.resultingAcc.addScaledVectorTo( this.force, this.inverseMass );
+      this.force.setToOrigin();
+    }
+    if( this.resultingAcc.isNotOrigin() )
+      this.velocity.addScaledVectorTo( this.resultingAcc, second );
+  },
+  
+  applyImpulse : function(){
+    //apply impulse from collision directly to velocity
+    if( this.impulse.isNotOrigin() ){
+      this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );//add impulse vector to velocity
+      this.impulse.setToOrigin();
+    }
+  },
+  
+  applyVelocity : function( second ){
+    if(this.velocity.isNotOrigin()){
+      if(this.damping < 1){
+        this.velocity.scaleBy( Math.pow( this.damping, second ) );
+      }
+      //this.velocity.scaleBy(this.damping);// use if damping just solves numerical problems and other drag forces are applied
+      this.translate.copyScaledVectorTo( this.velocity, second );
+      this.body.position.addTo(this.translate);
+      //moved = true;
+    }
+  },
+  
   /**
   * set the position.
   * @since 0.4.0
@@ -221,6 +251,17 @@ BUMP.Physics = {
   */
   setPosition : function( x, y ){
     this.body.setPositionXY( x, y );
+  },
+  
+  /**
+  * set the velocity.
+  * @since 0.4.1
+  * @method
+  * @param {float} [x = 0.0] x The new value of the x axis.
+  * @param {float} [y = 0.0] y The new value of the y axis.
+  */
+  setVelocity : function( x, y ){
+    this.velocity.setXY( x, y );
   },
   
   /**
@@ -282,6 +323,26 @@ BUMP.Physics = {
   */
   getVelocity : function(){
     return this.velocity;
+  },
+  
+  /**
+  * Get the x component of the velocity vector.
+  * @since 0.4.1
+  * @method 
+  * @returns {float}  The x component of the velocity vector
+  */
+  getVelocityX : function(){
+    return this.velocity.getX();
+  },
+  
+  /**
+  * Get the y component of the velocity vector.
+  * @since 0.4.1
+  * @method 
+  * @returns {float}  The y component of the velocity vector
+  */
+  getVelocityY : function(){
+    return this.velocity.getY();
   },
   
   /**
@@ -366,34 +427,6 @@ BUMP.Physics = {
   
   setDamageDealt : function( damageDealt ){
     this.damageDealt = damageDealt; 
-  },
-  
-  applyForces : function( second ){
-    this.resultingAcc.copyTo( this.gravity );// initialize resulting acceleration for this frame
-    if( this.force.isNotOrigin() ){
-      this.resultingAcc.addScaledVectorTo( this.force, this.inverseMass );
-      this.force.setToOrigin();
-    }
-    if( this.resultingAcc.isNotOrigin() )
-      this.velocity.addScaledVectorTo( this.resultingAcc, second );
-  },
-  
-  applyImpulse : function(){
-    //apply impulse from collision directly to velocity
-    if( this.impulse.isNotOrigin() ){
-      this.velocity.addScaledVectorTo( this.impulse, this.inverseMass );//add impulse vector to velocity
-      this.impulse.setToOrigin();
-    }
-  },
-  
-  applyVelocity : function( second ){
-    if(this.velocity.isNotOrigin()){
-      this.velocity.scaleBy( Math.pow( this.damping, second ) );
-      //this.velocity.scaleBy(this.damping);// use if damping just solves numerical problems and other drag forces are applied
-      this.translate.copyScaledVectorTo( this.velocity, second );
-      this.body.position.addTo(this.translate);
-      //moved = true;
-    }
   },
   
   applyDamage : function(){

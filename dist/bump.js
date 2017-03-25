@@ -23,7 +23,7 @@
 * http://bumpjs.lcluber.com
 */
 var BUMP = {
-    revision: "0.4.0",
+    revision: "0.4.1",
     options: {
         space: "2D"
     }
@@ -103,8 +103,34 @@ BUMP.Physics = {
         }
         return this.getPosition();
     },
+    applyForces: function(second) {
+        this.resultingAcc.copyTo(this.gravity);
+        if (this.force.isNotOrigin()) {
+            this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
+            this.force.setToOrigin();
+        }
+        if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
+    },
+    applyImpulse: function() {
+        if (this.impulse.isNotOrigin()) {
+            this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
+            this.impulse.setToOrigin();
+        }
+    },
+    applyVelocity: function(second) {
+        if (this.velocity.isNotOrigin()) {
+            if (this.damping < 1) {
+                this.velocity.scaleBy(Math.pow(this.damping, second));
+            }
+            this.translate.copyScaledVectorTo(this.velocity, second);
+            this.body.position.addTo(this.translate);
+        }
+    },
     setPosition: function(x, y) {
         this.body.setPositionXY(x, y);
+    },
+    setVelocity: function(x, y) {
+        this.velocity.setXY(x, y);
     },
     setGravity: function(x, y) {
         this.gravity.setXY(x, y);
@@ -123,6 +149,12 @@ BUMP.Physics = {
     },
     getVelocity: function() {
         return this.velocity;
+    },
+    getVelocityX: function() {
+        return this.velocity.getX();
+    },
+    getVelocityY: function() {
+        return this.velocity.getY();
     },
     getForce: function() {
         return this.force;
@@ -150,27 +182,6 @@ BUMP.Physics = {
     },
     setDamageDealt: function(damageDealt) {
         this.damageDealt = damageDealt;
-    },
-    applyForces: function(second) {
-        this.resultingAcc.copyTo(this.gravity);
-        if (this.force.isNotOrigin()) {
-            this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
-            this.force.setToOrigin();
-        }
-        if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
-    },
-    applyImpulse: function() {
-        if (this.impulse.isNotOrigin()) {
-            this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
-            this.impulse.setToOrigin();
-        }
-    },
-    applyVelocity: function(second) {
-        if (this.velocity.isNotOrigin()) {
-            this.velocity.scaleBy(Math.pow(this.damping, second));
-            this.translate.copyScaledVectorTo(this.velocity, second);
-            this.body.position.addTo(this.translate);
-        }
     },
     applyDamage: function() {
         if (this.active && this.damageTaken) {

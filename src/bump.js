@@ -6,7 +6,7 @@ var BUMP = {
   /**
   * @author Ludovic Cluber <http://www.lcluber.com/contact>
   * @file physics engine library.
-  * @version 0.4.0
+  * @version 0.4.1
   * @copyright (c) 2011 Ludovic Cluber
 
   * @license
@@ -32,7 +32,7 @@ var BUMP = {
   *
   */
   
-  revision : '0.4.0',
+  revision : '0.4.1',
   options :{
     space : '2D'
   }

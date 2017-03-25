@@ -1,4 +1,10 @@
 
+Version 0.4.1 (March 11th 2017)
+------------------------------
+ * Added setVelocity() method to physics class.
+ * Added getVelocityX() and getVelocityY() methods to physics class.
+ * optimized applyVelocity() method in physics class. 
+
 Version 0.4.0 (March 5th 2017)
 ------------------------------
  * Included the body directly into the physics class. Holding the TYPE6.Geometry mask for collision tests.
