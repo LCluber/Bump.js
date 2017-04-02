@@ -31,7 +31,7 @@
     },
 
     update: function(){
-      this.physics.updatePosition( animation.getDelta() );
+      this.physics.updatePosition( animation.getDelta().getSecond() );
       if(this.physics.isActive() && this.physics.getPositionY() > height + this.physics.body.getRadius()){
         this.physics.toggleActive();
       }
