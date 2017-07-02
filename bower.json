@@ -1,0 +1,13 @@
+{
+  "author": "Ludovic Cluber",
+  "name": "bumpjs",
+  "main": [
+    "dist/bump.js"
+  ],
+  "description": "2D physics engine",
+  "version": "0.4.1",
+  "dependencies": {
+    "Type6js": "git+https://github.com/LCluber/Type6.js.git#0.3.0",
+    "FrameRatjs" : "git+https://github.com/LCluber/FrameRat.js.git#0.2.8"
+  }
+}

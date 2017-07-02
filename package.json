@@ -29,26 +29,25 @@
     "express":                      "4.14.1",
     "pug":                          "2.0.0-beta11",
     "morgan":                       "1.8.1",
-    "serve-favicon":                "2.4.0",
-    "Taipanjs":                     "git+https://github.com/LCluber/Taipan.js.git",
-    "FrameRatjs":                   "git+https://github.com/LCluber/FrameRat.js.git"
+    "serve-favicon":                "2.4.0"
   },
   "devDependencies": {
     "bootstrap":                    "3.3.7",
     "font-awesome":                 "4.7.0",
-    "jquery":                       "3.1.1",
+    "jquery":                       "3.2.1",
     "jquery-easing":                "0.0.1",
     "connect-livereload":           "0.6.0",
     "grunt":                        "1.0.1",
-    "grunt-contrib-clean":          "1.0.0",
-    "grunt-contrib-uglify":         "2.1.0",
-    "grunt-contrib-cssmin":         "2.0.0",
+    "grunt-bower-concat":           "1.0.0",
+    "grunt-contrib-clean":          "1.1.0",
+    "grunt-contrib-uglify":         "3.0.1",
+    "grunt-contrib-cssmin":         "2.2.0",
     "grunt-contrib-concat":         "1.0.1",
     "grunt-contrib-pug":            "1.0.0",
     "grunt-contrib-sass":           "1.0.0",
-    "grunt-contrib-htmlmin":        "2.2.0",
+    "grunt-contrib-htmlmin":        "2.4.0",
     "grunt-contrib-symlink":        "1.0.0",
-    "grunt-contrib-compress":       "1.4.1",
+    "grunt-contrib-compress":       "1.4.3",
     "grunt-contrib-jshint":         "1.1.0",
     "grunt-contrib-csslint":        "2.0.0",
     "grunt-jsdoc":                  "2.1.0",
@@ -56,7 +55,6 @@
     "grunt-concurrent":             "2.3.1",
     "grunt-nodemon":                "0.4.2",
     "grunt-open":                   "0.2.3",
-    "time-grunt":                   "1.4.0",
-    "Type6js":                      "git+https://github.com/LCluber/Type6.js.git"
+    "time-grunt":                   "1.4.0"
   }
 }

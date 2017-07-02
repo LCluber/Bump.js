@@ -22,6 +22,7 @@
 *
 * http://bumpjs.lcluber.com
 */
+
 var BUMP = {
     revision: "0.4.1",
     options: {

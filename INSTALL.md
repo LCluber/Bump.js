@@ -25,7 +25,8 @@ You just cloned Bump.js : git clone https://github.com/LCluber/Bump.js.git
 
 
 ### Install project dependencies
-  - Run **npm install** in your project directory
+- Run **npm install** from your project directory
+- Run **bower install** from your project directory
 
 
 ### Workflow
