@@ -23,411 +23,402 @@
 * http://bumpjs.lcluber.com
 */
 
-var BUMP = {
-    revision: "0.4.1",
-    options: {
-        space: "2D"
-    }
-};
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('../../bower_components/Type6js/dist/type6.js')) :
+    typeof define === 'function' && define.amd ? define(['exports', '../../bower_components/Type6js/dist/type6.js'], factory) :
+    (factory((global.BUMP = {}),global.TYPE6));
+}(this, (function (exports,TYPE6) { 'use strict';
 
-BUMP.Physics = {
-    translate: TYPE6.Vector2D.create(),
-    velocity: TYPE6.Vector2D.create(),
-    initialVelocity: TYPE6.Vector2D.create(),
-    gravity: TYPE6.Vector2D.create(),
-    force: TYPE6.Vector2D.create(),
-    impulse: TYPE6.Vector2D.create(),
-    resultingAcc: TYPE6.Vector2D.create(),
-    damping: .8,
-    mass: 1,
-    inverseMass: 1,
-    elasticity: -1,
-    body: {},
-    collisionSceneId: 0,
-    active: true,
-    damageTaken: 0,
-    damageDealt: 1,
-    create: function(velocity, mass, damping, elasticity, type, positionX, positionY, sizeX, sizeY) {
-        var _this = Object.create(this);
-        _this.initVectors(velocity);
-        _this.mass = mass;
-        _this.inverseMass = !mass ? 0 : 1 / mass;
-        _this.damping = damping;
-        _this.elasticity = -elasticity;
-        _this.createBody(type, positionX, positionY, sizeX, sizeY);
-        return _this;
-    },
-    createBody: function(type, positionX, positionY, sizeX, sizeY) {
-        switch (type) {
-          case "circle":
-            this.body = TYPE6.Geometry.Circle.create(positionX, positionY, sizeX);
-            break;
+    var CircleVSCircle = (function () {
+        function CircleVSCircle() {
+        }
+        CircleVSCircle.detect = function (apos, radiusA, bpos, radiusB) {
+            this.ab.subtractVectors(apos, bpos);
+            var rr = radiusA + radiusB;
+            if (rr * rr - this.ab.getSquaredMagnitude() > 0) {
+                return this.getPenetration(rr);
+            }
+            return this.ab.origin();
+        };
+        CircleVSCircle.getPenetration = function (rr) {
+            var len = this.ab.getMagnitude();
+            return this.ab.scale((rr - len) / len);
+        };
+        CircleVSCircle.ab = new TYPE6.Vector2();
+        return CircleVSCircle;
+    }());
 
-          case "rectangle":
-            this.body = TYPE6.Geometry.Rectangle.create(positionX, positionY, sizeX, sizeY);
-            break;
+    var AabbVSAabb = (function () {
+        function AabbVSAabb() {
+        }
+        AabbVSAabb.detect = function (apos, ahs, bpos, bhs) {
+            this.ab.subtractVectors(apos, bpos);
+            if (this.penetration.absoluteVector(this.ab)
+                .opposite()
+                .add(ahs)
+                .add(bhs)
+                .isPositive()) {
+                return this.getPenetration();
+            }
+            return this.penetration.origin();
+        };
+        AabbVSAabb.getPenetration = function () {
+            var minAxis = this.penetration.minAxis();
+            this.penetration.setOppositeAxis(minAxis, 0.0);
+            if (this.ab[minAxis] < 0) {
+                this.penetration[minAxis] = -this.penetration[minAxis];
+            }
+            return this.penetration;
+        };
+        AabbVSAabb.ab = new TYPE6.Vector2();
+        AabbVSAabb.penetration = new TYPE6.Vector2();
+        return AabbVSAabb;
+    }());
 
-          default:
+    var CircleVSAabb = (function () {
+        function CircleVSAabb() {
+        }
+        CircleVSAabb.detect = function (apos, radiusA, bpos, bhs) {
+            this.ab.subtractVectors(apos, bpos);
+            if (this.penetration.absoluteVector(this.ab)
+                .opposite()
+                .addScalar(radiusA)
+                .add(bhs)
+                .isPositive()) {
+                if (this.diagonalHit(apos, radiusA, bpos, bhs)) {
+                    return this.getPenetration(radiusA);
+                }
+            }
+            return this.penetration.origin();
+        };
+        CircleVSAabb.diagonalHit = function (apos, radiusA, bpos, bhs) {
+            this.setVoronoiRegion(bhs);
+            if (this.voronoi.x === 0) {
+                if (this.voronoi.y === 0) {
+                    this.projectionAxis = this.penetration.minAxis();
+                }
+                else {
+                    this.projectionAxis = 'y';
+                }
+                return true;
+            }
+            else if (this.voronoi.y === 0) {
+                this.projectionAxis = 'x';
+                return true;
+            }
+            else {
+                this.avertex.multiplyVectors(this.voronoi, bhs)
+                    .add(bpos)
+                    .subtractVectors(apos, this.avertex);
+                var len = this.avertex.getSquaredMagnitude();
+                if (radiusA * radiusA - len > 0) {
+                    this.projectionAxis = 'diag';
+                    return true;
+                }
+                return false;
+            }
+        };
+        CircleVSAabb.setVoronoiRegion = function (bhs) {
+            this.voronoi.origin();
+            if (this.ab.x < -bhs.x) {
+                this.voronoi.x = -1;
+            }
+            else if (this.ab.x > bhs.x) {
+                this.voronoi.x = 1;
+            }
+            if (this.ab.y < -bhs.y) {
+                this.voronoi.y = -1;
+            }
+            else if (this.ab.y > bhs.y) {
+                this.voronoi.y = 1;
+            }
+        };
+        CircleVSAabb.getPenetration = function (radiusA) {
+            if (this.projectionAxis != 'diag') {
+                this.penetration.setOppositeAxis(this.projectionAxis, 0.0);
+                if (this.ab[this.projectionAxis] < 0) {
+                    this.penetration[this.projectionAxis] = -this.penetration[this.projectionAxis];
+                }
+            }
+            else {
+                var len = this.avertex.getMagnitude();
+                var pen = radiusA - len;
+                if (len === 0) {
+                    this.penetration.scaleVector(this.voronoi, pen / 1.41);
+                }
+                else {
+                    this.penetration.scaleVector(this.avertex, pen / len);
+                }
+            }
+            return this.penetration;
+        };
+        CircleVSAabb.ab = new TYPE6.Vector2();
+        CircleVSAabb.penetration = new TYPE6.Vector2();
+        CircleVSAabb.voronoi = new TYPE6.Vector2();
+        CircleVSAabb.avertex = new TYPE6.Vector2();
+        CircleVSAabb.vertex = new TYPE6.Vector2();
+        CircleVSAabb.projectionAxis = 'x';
+        return CircleVSAabb;
+    }());
+
+    var CollisionDetection = (function () {
+        function CollisionDetection() {
+        }
+        CollisionDetection.test = function (a, b) {
+            this.invert = false;
+            this.detect(a.body, b.body);
+            if (this.penetration.isNotOrigin()) {
+                if (this.resolve(a, b)) {
+                    this.computeImpulse(a, b);
+                }
+                return true;
+            }
             return false;
-        }
-    },
-    initVectors: function(velocity) {
-        this.velocity = velocity;
-        this.initialVelocity = this.velocity.copy();
-        this.translate = TYPE6.Vector2D.create();
-        this.gravity = TYPE6.Vector2D.create();
-        this.force = TYPE6.Vector2D.create();
-        this.impulse = TYPE6.Vector2D.create();
-        this.resultingAcc = TYPE6.Vector2D.create();
-    },
-    setActive: function() {
-        this.active = true;
-    },
-    setInactive: function() {
-        this.active = false;
-    },
-    toggleActive: function() {
-        this.active = !this.active;
-        return this.active;
-    },
-    isActive: function() {
-        return this.active;
-    },
-    updatePosition: function(second) {
-        this.translate.setToOrigin();
-        if (this.active && second > 0) {
-            if (this.inverseMass) {
-                this.applyImpulse();
-                this.applyForces(second);
+        };
+        CollisionDetection.detect = function (a, b) {
+            if (a.shape === 'circle') {
+                if (b.shape === 'circle') {
+                    this.penetration = CircleVSCircle.detect(a.position, a.radius, b.position, b.radius);
+                }
+                else if (b.shape === 'aabb') {
+                    this.penetration = CircleVSAabb.detect(a.position, a.radius, b.position, b.halfSize);
+                }
             }
-            this.applyVelocity(second);
-        }
-        return this.getPosition();
-    },
-    applyForces: function(second) {
-        this.resultingAcc.copyTo(this.gravity);
-        if (this.force.isNotOrigin()) {
-            this.resultingAcc.addScaledVectorTo(this.force, this.inverseMass);
-            this.force.setToOrigin();
-        }
-        if (this.resultingAcc.isNotOrigin()) this.velocity.addScaledVectorTo(this.resultingAcc, second);
-    },
-    applyImpulse: function() {
-        if (this.impulse.isNotOrigin()) {
-            this.velocity.addScaledVectorTo(this.impulse, this.inverseMass);
-            this.impulse.setToOrigin();
-        }
-    },
-    applyVelocity: function(second) {
-        if (this.velocity.isNotOrigin()) {
-            if (this.damping < 1) {
-                this.velocity.scaleBy(Math.pow(this.damping, second));
+            else if (a.shape === 'aabb') {
+                if (b.shape === 'circle') {
+                    this.penetration = CircleVSAabb.detect(b.position, b.radius, a.position, a.halfSize);
+                    this.invert = true;
+                }
+                else if (b.shape === 'aabb') {
+                    this.penetration = AabbVSAabb.detect(a.position, a.halfSize, b.position, b.halfSize);
+                }
             }
-            this.translate.copyScaledVectorTo(this.velocity, second);
-            this.body.position.addTo(this.translate);
+        };
+        CollisionDetection.resolve = function (a, b) {
+            this.totalInverseMass = a.inverseMass + b.inverseMass;
+            this.correction.copy(this.penetration)
+                .scale(this.percent / this.totalInverseMass);
+            if (this.correction.isNotOrigin()) {
+                if (this.invert) {
+                    b.correctPosition(this.correction);
+                    a.correctPosition(this.correction.opposite());
+                }
+                else {
+                    a.correctPosition(this.correction);
+                    b.correctPosition(this.correction.opposite());
+                }
+                return true;
+            }
+            return false;
+        };
+        CollisionDetection.computeImpulse = function (a, b) {
+            this.contactNormal.normalizeVector(this.penetration);
+            var separatingVelocity = this.relativeVelocity.subtractVectors(a.velocity, b.velocity)
+                .dotProduct(this.contactNormal);
+            if (separatingVelocity < 0) {
+                var restitution = Math.max(a.restitution, b.restitution);
+                separatingVelocity = separatingVelocity * restitution - separatingVelocity;
+                this.impulse = separatingVelocity / this.totalInverseMass;
+                this.impulsePerInverseMass.copy(this.contactNormal).scale(this.impulse);
+                a.collision(this.impulsePerInverseMass, b);
+                this.impulsePerInverseMass.opposite();
+                b.collision(this.impulsePerInverseMass, a);
+            }
+        };
+        CollisionDetection.penetration = new TYPE6.Vector2();
+        CollisionDetection.contactNormal = new TYPE6.Vector2();
+        CollisionDetection.correction = new TYPE6.Vector2();
+        CollisionDetection.relativeVelocity = new TYPE6.Vector2();
+        CollisionDetection.impulsePerInverseMass = new TYPE6.Vector2();
+        CollisionDetection.totalInverseMass = 0;
+        CollisionDetection.impulse = 0;
+        CollisionDetection.k_slop = 0.01;
+        CollisionDetection.percent = 0.99;
+        return CollisionDetection;
+    }());
+
+    var Scene = (function () {
+        function Scene() {
+            this.bodies = [];
+            this.bodiesLength = 0;
+            this.iterations = 1;
+            this.gravity = new TYPE6.Vector2(0, 400);
         }
-    },
-    setPosition: function(x, y) {
-        this.body.setPositionXY(x, y);
-    },
-    setVelocity: function(x, y) {
-        this.velocity.setXY(x, y);
-    },
-    setGravity: function(x, y) {
-        this.gravity.setXY(x, y);
-    },
-    getPosition: function() {
-        return this.body.position;
-    },
-    getPositionX: function() {
-        return this.body.getPositionX();
-    },
-    getPositionY: function() {
-        return this.body.getPositionY();
-    },
-    getTranslate: function() {
-        return this.translate;
-    },
-    getVelocity: function() {
-        return this.velocity;
-    },
-    getVelocityX: function() {
-        return this.velocity.getX();
-    },
-    getVelocityY: function() {
-        return this.velocity.getY();
-    },
-    getForce: function() {
-        return this.force;
-    },
-    getResultingAcceleration: function() {
-        return this.resultingAcc;
-    },
-    getGravity: function() {
-        return this.gravity;
-    },
-    getImpulse: function() {
-        return this.impulse;
-    },
-    getRestitution: function() {
-        return this.elasticity;
-    },
-    getDamping: function() {
-        return this.damping;
-    },
-    getMass: function() {
-        return this.mass;
-    },
-    getInverseMass: function() {
-        return this.inverseMass;
-    },
-    setDamageDealt: function(damageDealt) {
-        this.damageDealt = damageDealt;
-    },
-    applyDamage: function() {
-        if (this.active && this.damageTaken) {
-            var dmg = this.damageTaken;
+        Scene.prototype.addBody = function (body) {
+            if (!body.collisionSceneId) {
+                this.bodiesLength++;
+                body.collisionSceneId = this.bodiesLength;
+                this.bodies.push(body);
+                return true;
+            }
+            return false;
+        };
+        Scene.prototype.test = function () {
+            for (var k = 0; k < this.iterations; k++) {
+                for (var i = 0; i < this.bodiesLength; i++) {
+                    var body1 = this.bodies[i];
+                    if (body1.isActive()) {
+                        for (var j = i + 1; j < this.bodiesLength; j++) {
+                            var body2 = this.bodies[j];
+                            if (body2.isActive()) {
+                                if (CollisionDetection.test(body1, body2)) {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        Scene.prototype.testScene = function (scene) {
+            for (var k = 0; k < this.iterations; k++) {
+                for (var _i = 0, _a = this.bodies; _i < _a.length; _i++) {
+                    var body1 = _a[_i];
+                    if (body1.isActive()) {
+                        for (var _b = 0, _c = scene.bodies; _b < _c.length; _b++) {
+                            var body2 = _c[_b];
+                            if (body2.isActive()) {
+                                if (CollisionDetection.test(body1, body2)) {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        Scene.prototype.setIteration = function (iterations) {
+            this.iterations = iterations;
+        };
+        return Scene;
+    }());
+
+    var Physics = (function () {
+        function Physics(positionX, positionY, velocityX, velocityY, sizeX, sizeY, mass, damping, restitution, type) {
+            this.damping = 0.8;
+            this.mass = 1.0;
+            this.inverseMass = 1.0;
+            this.restitution = -1;
+            this.collisionSceneId = 0;
+            this.active = true;
             this.damageTaken = 0;
-            return dmg;
-        }
-        return false;
-    },
-    collision: function(impulsePerInverseMass, object) {
-        if (this.inverseMass) this.impulse.copyTo(impulsePerInverseMass);
-        if (!this.damageTaken) this.damageTaken = object.damageDealt;
-    },
-    reset: function() {
-        this.velocity.copyTo(this.initialVelocity);
-        this.translate.setToOrigin();
-        this.force.setToOrigin();
-        this.impulse.setToOrigin();
-        this.resultingAcc.setToOrigin();
-    },
-    drawBody: function(context, fillColor, strokeColor, strokeWidth) {
-        this.body.draw(context, fillColor, strokeColor, strokeWidth);
-    }
-};
-
-BUMP.Collision = {
-    delta: TYPE6.Vector2D.create(),
-    delta2: TYPE6.Vector2D.create(),
-    penetration: TYPE6.Vector2D.create(),
-    contactNormal: TYPE6.Vector2D.create(),
-    correction: TYPE6.Vector2D.create(),
-    vertex: TYPE6.Vector2D.create(),
-    relativeVelocity: TYPE6.Vector2D.create(),
-    voronoi: TYPE6.Vector2D.create(),
-    deltaVelocity: 0,
-    totalInverseMass: 0,
-    impulse: 0,
-    impulsePerInverseMass: TYPE6.Vector2D.create(),
-    k_slop: .01,
-    percent: .8,
-    create: function() {
-        var _this = Object.create(this);
-        return _this;
-    },
-    test: function(a, b) {
-        this.setDelta(a.getPosition(), b.getPosition());
-        if (this.getPenetration(a.body, b.body)) {
-            if (this.separate(a.getPosition(), a.getInverseMass(), b.getPosition(), b.getInverseMass())) this.computeImpulseVectors(a, b);
-        }
-    },
-    setDelta: function(positionA, positionB) {
-        this.delta.copySubtractFromTo(positionA, positionB);
-    },
-    circleVScircle: function(radius) {
-        if (this.circleVScircleHit(radius)) return this.circleVScircleProjection(radius);
-        return false;
-    },
-    aabbVSaabb: function(halfSizeA, halfSizeB) {
-        if (this.aabbVSaabbHit(halfSizeA, halfSizeB)) return this.aabbVSaabbProjection();
-        return false;
-    },
-    circleVSaabb: function(positionA, halfSizeA, radiusA, positionB, halfSizeB) {
-        if (this.aabbVSaabbHit(halfSizeA, halfSizeB)) return this.circleVSaabbProjection(positionA, radiusA, positionB, halfSizeB);
-        return false;
-    },
-    getPenetration: function(a, b) {
-        if (a.shape === "circle") {
-            if (b.shape === "circle") return this.circleVScircle(a.getRadius() + b.getRadius()); else if (b.shape === "aabb") return this.circleVSaabb(a.getPosition(), a.getHalfSize(), a.getRadius(), b.getPosition(), b.getHalfSize());
-        } else if (a.shape === "aabb") {
-            if (b.shape === "circle") return this.circleVSaabb(b.getPosition(), b.getHalfSize(), b.getRadius(), a.getPosition(), a.getHalfSize()); else if (b.shape === "aabb") return this.aabbVSaabb(a.getHalfSize(), b.getHalfSize());
-        }
-        return false;
-    },
-    aabbVSaabbHit: function(ahs, bhs) {
-        this.penetration.copyTo(this.delta);
-        this.penetration.absoluteTo();
-        this.penetration.oppositeTo();
-        this.penetration.addTo(ahs);
-        this.penetration.addTo(bhs);
-        if (this.penetration.isPositive()) return true;
-        return false;
-    },
-    aabbVSaabbProjection: function() {
-        if (this.penetration.getX() < this.penetration.getY()) this.projectOnX(); else this.projectOnY();
-    },
-    circleVScircleHit: function(radius) {
-        var squaredLen = this.delta.getSquaredMagnitude();
-        var squaredRad = radius * radius;
-        if (squaredRad - squaredLen > 0) return true;
-        return false;
-    },
-    circleVScircleProjection: function(radius) {
-        var len = this.delta.getMagnitude(), pen = radius - len;
-        this.penetration.copyScaledVectorTo(this.delta, pen / len);
-        return true;
-    },
-    setVoronoiRegion: function(bhs) {
-        this.voronoi.setToOrigin();
-        var dx = this.delta.getX();
-        var dy = this.delta.getY();
-        var bhsX = bhs.getX();
-        var bhsY = bhs.getY();
-        if (dx < -bhsX) this.voronoi.setX(-1); else if (dx > bhsX) this.voronoi.setX(1);
-        if (dy < -bhsY) this.voronoi.setY(-1); else if (dy > bhsY) this.voronoi.setY(1);
-    },
-    circleVSaabbProjection: function(apos, radiusA, bpos, bhs) {
-        this.setVoronoiRegion(bhs);
-        if (this.voronoi.getX() === 0) {
-            if (this.voronoi.getY() === 0) {
-                if (this.penetration.getX() < this.penetration.getY()) this.projectOnX(); else this.projectOnY();
-                return true;
-            } else return this.projectOnY();
-        } else if (this.voronoi.getY() === 0) return this.projectOnX(); else {
-            this.vertex.copyTo(this.voronoi);
-            this.vertex.multiplyBy(bhs);
-            this.vertex.addTo(bpos);
-            this.delta2.copySubtractFromTo(apos, this.vertex);
-            var len = this.delta2.getSquaredMagnitude();
-            var pen = radiusA * radiusA - len;
-            if (pen > 0) {
-                len = this.delta2.getMagnitude();
-                pen = radiusA - len;
-                if (len === 0) this.penetration.copyScaledVectorTo(this.voronoi, pen / 1.41); else this.penetration.copyScaledVectorTo(this.delta2, pen / len);
-                return true;
+            this.damageDealt = 1;
+            this.velocity = new TYPE6.Vector2(velocityX, velocityY);
+            this.initialVelocity = this.velocity.clone();
+            this.translate = new TYPE6.Vector2();
+            this.gravity = new TYPE6.Vector2();
+            this.force = new TYPE6.Vector2();
+            this.impulse = new TYPE6.Vector2();
+            this.resultingAcc = new TYPE6.Vector2();
+            this.mass = mass;
+            this.inverseMass = !mass ? 0 : 1 / mass;
+            this.damping = damping;
+            this.restitution = -restitution;
+            switch (type) {
+                case 'rectangle':
+                    this.body = new TYPE6.Rectangle(positionX, positionY, sizeX, sizeY);
+                    break;
+                default:
+                    this.body = new TYPE6.Circle(positionX, positionY, sizeX);
             }
+            this.position = this.body.position;
         }
-        return false;
-    },
-    projectOnX: function() {
-        this.penetration.setYToOrigin();
-        if (this.delta.getX() < 0) {
-            this.penetration.oppositeXTo();
-            return true;
-        }
-        return false;
-    },
-    projectOnY: function() {
-        this.penetration.setXToOrigin();
-        if (this.delta.getY() < 0) {
-            this.penetration.oppositeYTo();
-            return true;
-        }
-        return false;
-    },
-    separate: function(positionA, imA, positionB, imB) {
-        this.totalInverseMass = imA + imB;
-        this.computeContactNormal();
-        this.computeCorrection();
-        if (this.correction.isNotOrigin()) {
-            if (imA) positionA.addScaledVectorTo(this.correction, imA);
-            if (imB) positionB.subtractScaledVectorFrom(this.correction, imB);
-            return true;
-        }
-        return false;
-    },
-    computeCorrection: function() {
-        this.correction.copyTo(this.penetration);
-        this.correction.absoluteTo();
-        this.correction.subtractScalarFrom(this.k_slop);
-        this.correction.maxScalarTo(0);
-        this.correction.scaleBy(this.percent / this.totalInverseMass);
-        this.correction.multiplyBy(this.contactNormal);
-    },
-    computeImpulseVectors: function(a, b) {
-        var separatingVelocity = this.computeSeparatingVelocity(a.getVelocity(), b.getVelocity());
-        if (separatingVelocity < 0) {
-            var restitution = Math.max(a.getRestitution(), b.getRestitution());
-            separatingVelocity = separatingVelocity * restitution - separatingVelocity;
-            this.impulse = separatingVelocity / this.totalInverseMass;
-            this.impulsePerInverseMass.copyScaledVectorTo(this.contactNormal, this.impulse);
-            a.collision(this.impulsePerInverseMass, b);
-            this.impulsePerInverseMass.oppositeTo();
-            b.collision(this.impulsePerInverseMass, a);
-        }
-    },
-    computeSeparatingVelocity: function(av, bv) {
-        this.relativeVelocity.copySubtractFromTo(av, bv);
-        return this.relativeVelocity.dotProduct(this.contactNormal);
-    },
-    computeContactNormal: function() {
-        this.contactNormal.copyTo(this.penetration);
-        this.contactNormal.normalizeTo();
-    }
-};
-
-BUMP.Scene = {
-    bodies: [],
-    bodiesLength: 0,
-    collision: BUMP.Collision.create(),
-    gravity: TYPE6.Vector2D.create(0, 400),
-    iteration: 1,
-    create: function() {
-        var _this = Object.create(this);
-        _this.collision = BUMP.Collision.create();
-        _this.bodies = [];
-        _this.gravity = TYPE6.Vector2D.create(0, 400);
-        return _this;
-    },
-    addBody: function(body) {
-        if (!body.physics.collisionSceneId) {
-            this.bodiesLength++;
-            body.physics.collisionSceneId = this.bodiesLength;
-            this.bodies.push(body);
-            return true;
-        } else return false;
-    },
-    removeBody: function() {},
-    test: function() {
-        for (var k = 0; k < this.iteration; k++) {
-            for (var i = 0; i < this.bodiesLength; i++) {
-                var p1 = this.bodies[i];
-                if (p1.physics.isActive()) {
-                    for (var j = i + 1; j < this.bodiesLength; j++) {
-                        var p2 = this.bodies[j];
-                        if (p2.physics.isActive()) {
-                            this.collision.test(p1.physics, p2.physics);
-                        }
-                    }
+        Physics.prototype.setActive = function () {
+            this.active = true;
+        };
+        Physics.prototype.setInactive = function () {
+            this.active = false;
+        };
+        Physics.prototype.toggleActive = function () {
+            return this.active = !this.active;
+        };
+        Physics.prototype.isActive = function () {
+            return this.active;
+        };
+        Physics.prototype.updatePosition = function (second) {
+            this.translate.origin();
+            if (this.active && second > 0) {
+                if (this.inverseMass) {
+                    this.applyImpulse();
+                    this.applyForces(second);
                 }
+                this.applyVelocity(second);
             }
-        }
-    },
-    testScene: function(scene) {
-        for (var k = 0; k < this.iteration; k++) {
-            for (var i = 0; i < this.bodiesLength; i++) {
-                var p1 = this.bodies[i];
-                if (p1.physics.isActive()) {
-                    for (var j = 0; j < scene.bodiesLength; j++) {
-                        var p2 = scene.bodies[j];
-                        if (p2.physics.isActive()) {
-                            this.collision.test(p1.physics, p2.physics);
-                        }
-                    }
+            return this.position;
+        };
+        Physics.prototype.applyForces = function (second) {
+            this.resultingAcc.copy(this.gravity);
+            if (this.force.isNotOrigin()) {
+                this.resultingAcc.addScaledVector(this.force, this.inverseMass);
+                this.force.origin();
+            }
+            if (this.resultingAcc.isNotOrigin()) {
+                this.velocity.addScaledVector(this.resultingAcc, second);
+            }
+        };
+        Physics.prototype.applyImpulse = function () {
+            if (this.impulse.isNotOrigin()) {
+                this.velocity.addScaledVector(this.impulse, this.inverseMass);
+                this.impulse.origin();
+            }
+        };
+        Physics.prototype.applyVelocity = function (second) {
+            if (this.velocity.isNotOrigin()) {
+                if (this.damping < 1) {
+                    this.velocity.scale(Math.pow(this.damping, second));
                 }
+                this.translate.copy(this.velocity).scale(second);
+                this.position.add(this.translate);
             }
-        }
-    },
-    setIteration: function(iteration) {
-        this.iteration = iteration;
-    },
-    getIteration: function() {
-        return this.iteration;
-    },
-    setGravity: function() {},
-    getGravity: function() {
-        return this.gravity;
-    }
-};
+        };
+        Physics.prototype.correctPosition = function (correction) {
+            if (this.inverseMass) {
+                this.position.addScaledVector(correction, this.inverseMass);
+                this.body.setPositionFromVector(this.position);
+            }
+        };
+        Physics.prototype.setPosition = function (x, y) {
+            this.body.setPositionXY(x, y);
+        };
+        Physics.prototype.setPositionFromVector = function (position) {
+            this.body.setPositionFromVector(position);
+        };
+        Physics.prototype.setGravity = function (x, y) {
+            this.gravity.set(x, y);
+        };
+        Physics.prototype.setDamageDealt = function (damageDealt) {
+            this.damageDealt = damageDealt;
+        };
+        Physics.prototype.applyDamage = function () {
+            if (this.active && this.damageTaken) {
+                var dmg = this.damageTaken;
+                this.damageTaken = 0;
+                return dmg;
+            }
+            return false;
+        };
+        Physics.prototype.collision = function (impulsePerInverseMass, object) {
+            if (this.inverseMass) {
+                this.impulse.copy(impulsePerInverseMass);
+            }
+            if (!this.damageTaken) {
+                this.damageTaken = object.damageDealt;
+            }
+        };
+        Physics.prototype.reset = function () {
+            this.velocity.copy(this.initialVelocity);
+            this.translate.origin();
+            this.force.origin();
+            this.impulse.origin();
+            this.resultingAcc.origin();
+        };
+        Physics.prototype.draw = function (context, fillColor, strokeColor, strokeWidth) {
+            this.body.draw(context, fillColor, strokeColor, strokeWidth);
+        };
+        return Physics;
+    }());
+
+    exports.Scene = Scene;
+    exports.Physics = Physics;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
+})));

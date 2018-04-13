@@ -7,45 +7,47 @@ section( id='source' class='container content-section text-center' )
       
       p Instantiate a HTML5 canvas
       pre.
-        var canvas    = document.getElementById("canvas");
-        var context   = canvas.getContext("2d");
-        var width     = canvas.width  = window.innerWidth;
-        var height    = canvas.height = window.innerHeight;
-        var animation = FRAMERAT.create(render); // instantiate animation loop
+        var playButton = findById('play');
+        var canvas     = document.getElementById("canvas");
+        var context    = canvas.getContext("2d");
+        var width      = canvas.width  = window.innerWidth;
+        var height     = canvas.height = window.innerHeight;
+        var animation  = new FRAMERAT.Player(render); // instantiate animation loop
       
       p Instantiate 2 collision scenes to handle collisions between rigid bodies .
       pre.
         //create collision scenes
-        var collisionScene1 = BUMP.Scene.create();
-        var collisionScene2 = BUMP.Scene.create();
+        var collisionScene1 = new BUMP.Scene();
+        var collisionScene2 = new BUMP.Scene();
         collisionScene1.setIteration(3);
         collisionScene2.setIteration(3);
       
       p Create few particles
       pre.
-        var particleQty    = 400;
+        var particleQty    = 300;
         // class for a particle
         var particle = {
           create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
             var obj     = Object.create(this);
-            obj.physics = BUMP.Physics.create(  
-                                        TYPE6JS.Vector2D.create( velocityX, velocityY ),
-                                        TYPE6JS.Vector2D.create( size, size ),
-                                        weight,
-                                        0.8,
-                                        0.8,
-                                        positionX, positionY, size, size
-                                      );
+            obj.physics = new BUMP.Physics( positionX, positionY,
+                                            velocityX, velocityY,
+                                            size, size,
+                                            weight,
+                                            0.8,//0.9
+                                            0.7,//0.8
+                                            'circle'
+                                          );
+            obj.physics.setGravity( 0, 400 );
             obj.color   = color;
             return obj;
           },
           // compute the position of a particle at each frame
           update: function(){
-            this.physics.updatePosition( animation.getDelta() );
+            this.physics.updatePosition( TYPE6.Time.millisecondToSecond(animation.clock.delta) );
           },
           
           draw: function(){
-            this.physics.drawBody( context, this.color, null, null );
+            this.physics.draw( context, this.color, null, null );
           }
         };
         
@@ -53,7 +55,7 @@ section( id='source' class='container content-section text-center' )
         var particles = [];
         for( var i = 0 ; i &lt; particleQty; i++ ){
           var radius   = TYPE6.Random.float( 0, 140 ); //120
-          var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.TWOPI );
+          var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.twopi );
           var particleRadius = TYPE6.Random.integer( 3, 6 );
           particles[i] = particle.create(
                             width * 0.5,
@@ -64,7 +66,7 @@ section( id='source' class='container content-section text-center' )
                             particleRadius,
                             '#555555'
                          );
-          collisionScene2.addBody( particles[i] );
+          collisionScene2.addBody( particles[i].physics );
         }
       
       p Create floor
@@ -73,18 +75,18 @@ section( id='source' class='container content-section text-center' )
         var rectangle = {
           create : function( positionX, positionY, sizeX, sizeY ){
             var obj     = Object.create(this);
-            //obj.body    = TYPE6.Geometry.Rectangle.create( positionX, positionY, sizeX, sizeY );
-            obj.physics = BUMP.Physics.create(  TYPE6.Vector2D.create(),
-                                                0.0,
-                                                0.0,
-                                                0.2,
-                                                'rectangle', positionX, positionY, sizeX, sizeY 
-                                              );
+            obj.physics = new BUMP.Physics( positionX, positionY,
+                                            0.0, 0.0,
+                                            sizeX, sizeY,
+                                            0.0,
+                                            0.0,
+                                            0.7,
+                                            'rectangle');
             return obj;
           },
           
           draw : function(){
-            this.physics.drawBody( context, '#cccccc', null, null );
+            this.physics.draw( context, '#cccccc', null, null );
           }
           
         };
@@ -122,6 +124,5 @@ section( id='source' class='container content-section text-center' )
           testCollisions();
           clearFrame();
           draw();
-          animation.drawConsole( context );
           animation.newFrame();
         }

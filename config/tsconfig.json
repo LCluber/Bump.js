@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "module": "es2015",
+        "target": "es5",
+        "sourceMap": true,
+        "fast": "always",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors":true
+    },
+    "exclude": [
+      "node_modules",
+      "config/typings"
+    ]
+}
