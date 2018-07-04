@@ -1,6 +1,6 @@
 {
   "name": "Bumpjs",
-  "version": "0.4.1",
+  "version": "0.5.1",
   "description": "javascript library",
   "keywords": [
     "animation frame"
@@ -40,31 +40,29 @@
     "jquery": "3.2.1",
     "jquery-easing": "0.0.1",
     "connect-livereload": "0.6.0",
-    "grunt": "1.0.1",
+    "grunt": "1.0.2",
     "grunt-bower-concat": "1.0.0",
     "grunt-contrib-clean": "1.1.0",
     "grunt-contrib-uglify": "3.0.1",
     "grunt-contrib-cssmin": "2.2.0",
     "grunt-contrib-concat": "1.0.1",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-pug": "1.0.0",
+    "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-sass": "1.0.0",
     "grunt-contrib-htmlmin": "2.4.0",
-    "grunt-contrib-symlink": "1.0.0",
-    "grunt-contrib-compress": "1.4.3",
     "grunt-contrib-jshint": "1.1.0",
     "grunt-contrib-csslint": "2.0.0",
-    "grunt-strip-code": "^1.0.6",
-    "grunt-jsdoc": "2.1.0",
+    "grunt-strip-code": "1.0.6",
     "grunt-contrib-watch": "1.0.0",
     "grunt-concurrent": "2.3.1",
     "grunt-nodemon": "0.4.2",
     "grunt-open": "0.2.3",
-    "grunt-ts": "5.5.1",
+    "grunt-ts": "6.0.0-beta.19",
+    "grunt-typedoc": "0.2.4",
     "grunt-tslint": "5.0.1",
-    "grunt-rollup": "4.0.0",
+    "grunt-rollup": "9.0.0",
     "time-grunt": "1.4.0",
-    "tslint": "5.8.0",
-    "typescript": "2.6.1"
+    "tslint": "5.9.1",
+    "typedoc": "0.11.1",
+    "typescript": "2.9.2"
   }
 }

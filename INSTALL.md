@@ -28,6 +28,10 @@ You just cloned Bump.js : git clone https://github.com/LCluber/Bump.js.git
   - Run **npm install -g grunt-cli**
 
 
+### Install typescript :
+  - Run **npm install -g typescript**
+
+
 ### Install project dependencies
 - Run **npm install** from your project directory
 - Run **bower install** from your project directory
@@ -37,7 +41,7 @@ You just cloned Bump.js : git clone https://github.com/LCluber/Bump.js.git
   - Use **grunt --help** to see the list of tasks.
   - Run **grunt dist** to build the app in production mode.
   - Run **grunt serve** to serve files in development mode, open the website, watch for changes and start working.
-  
+
   - You can use those commands to target specific tasks :
     - **grunt doc** builds the static documentation,
     - **grunt src** builds the library in the dist folder,
@@ -51,8 +55,8 @@ You just cloned Bump.js : git clone https://github.com/LCluber/Bump.js.git
       - Linux / OSX : Run **DEBUG=Bumpjs:* npm start**
     - Go to **http://localhost:3006/** to test the app.
     - Keep in mind running **grunt serve** once will do all this automatically.
-    
-    
-  - Set node environment if needed : 
+
+
+  - Set node environment if needed :
     - Run **export NODE_ENV=development**
     - Or **export NODE_ENV=production**

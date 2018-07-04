@@ -5,6 +5,8 @@ import {CircleVSCircle} from './collisions/circlevscircle';
 import {AabbVSAabb} from './collisions/aabbvsaabb';
 import {CircleVSAabb} from './collisions/circlevsaabb';
 
+enum Shape { circle = 'circle', aabb = 'aabb' };
+
 export class CollisionDetection {
 
   //static ab                     : TYPE6.Vector2 = new TYPE6.Vector2();
@@ -43,17 +45,17 @@ export class CollisionDetection {
   // }
 
   private static detect( a: TYPE6.Circle|TYPE6.Rectangle, b: TYPE6.Circle|TYPE6.Rectangle ): void {
-    if( a.shape === 'circle' ) {//circle
-      if( b.shape === 'circle' ) {
+    if( a.shape === Shape.circle ) {//circle
+      if( b.shape === Shape.circle ) {
         this.penetration = CircleVSCircle.detect( a.position, a.radius, b.position, b.radius );
-      }else if( b.shape === 'aabb' ) {
+      }else if( b.shape === Shape.aabb ) {
         this.penetration = CircleVSAabb.detect( a.position, a.radius, b.position, b.halfSize );
       }
-    }else if( a.shape === 'aabb' ) {//aabb
-      if( b.shape === 'circle' ) {
+    }else if( a.shape === Shape.aabb ) {//aabb
+      if( b.shape === Shape.circle ) {
         this.penetration = CircleVSAabb.detect( b.position, b.radius, a.position, a.halfSize );
         this.invert = true;
-      }else if( b.shape === 'aabb' ) {
+      }else if( b.shape === Shape.aabb ) {
         this.penetration = AabbVSAabb.detect( a.position, a.halfSize, b.position, b.halfSize );
       }
     }

@@ -6,7 +6,7 @@
     "dist/bump.js"
   ],
   "description": "2D physics engine",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "dependencies": {
     "Type6js": "git+https://github.com/LCluber/Type6.js.git#0.4.4",
     "FrameRatjs" : "git+https://github.com/LCluber/FrameRat.js.git"

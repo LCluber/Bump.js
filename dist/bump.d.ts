@@ -38,35 +38,37 @@ export declare class CollisionDetection {
     static percent: number;
     static invert: boolean;
     static test(a: Physics, b: Physics): boolean;
-    private static detect(a, b);
-    private static resolve(a, b);
-    private static computeImpulse(a, b);
+    private static detect;
+    private static resolve;
+    private static computeImpulse;
 }
 
 export declare class AabbVSAabb {
     static ab: TYPE6.Vector2;
     static penetration: TYPE6.Vector2;
     static detect(apos: TYPE6.Vector2, ahs: TYPE6.Vector2, bpos: TYPE6.Vector2, bhs: TYPE6.Vector2): TYPE6.Vector2;
-    private static getPenetration();
+    private static getPenetration;
 }
 
+declare type ProjectionAxis = 'x' | 'y' | 'diag';
 export declare class CircleVSAabb {
     static ab: TYPE6.Vector2;
     static penetration: TYPE6.Vector2;
     static voronoi: TYPE6.Vector2;
     static avertex: TYPE6.Vector2;
     static vertex: TYPE6.Vector2;
-    static projectionAxis: 'x' | 'y' | 'diag';
+    static projectionAxis: ProjectionAxis;
     static detect(apos: TYPE6.Vector2, radiusA: number, bpos: TYPE6.Vector2, bhs: TYPE6.Vector2): TYPE6.Vector2;
-    private static diagonalHit(apos, radiusA, bpos, bhs);
-    private static setVoronoiRegion(bhs);
-    private static getPenetration(radiusA);
+    private static diagonalHit;
+    private static setVoronoiRegion;
+    private static getPenetration;
 }
+export {};
 
 export declare class CircleVSCircle {
     static ab: TYPE6.Vector2;
     static detect(apos: TYPE6.Vector2, radiusA: number, bpos: TYPE6.Vector2, radiusB: number): TYPE6.Vector2;
-    private static getPenetration(rr);
+    private static getPenetration;
 }
 
 export declare class Physics {
@@ -94,8 +96,8 @@ export declare class Physics {
     isActive(): boolean;
     updatePosition(second: number): TYPE6.Vector2;
     applyForces(second: number): void;
-    private applyImpulse();
-    private applyVelocity(second);
+    private applyImpulse;
+    private applyVelocity;
     correctPosition(correction: TYPE6.Vector2): void;
     setPosition(x: number, y: number): void;
     setPositionFromVector(position: TYPE6.Vector2): void;
@@ -103,7 +105,7 @@ export declare class Physics {
     setDamageDealt(damageDealt: number): void;
     applyDamage(): number | false;
     collision(impulsePerInverseMass: TYPE6.Vector2, object: Physics): void;
-    private reset();
+    private reset;
     draw(context: CanvasRenderingContext2D, fillColor: string, strokeColor: string, strokeWidth: number): void;
 }
 

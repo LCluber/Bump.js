@@ -1,6 +1,8 @@
 
 import * as TYPE6 from '../../../bower_components/Type6js/dist/type6';
 
+type ProjectionAxis = 'x' | 'y' | 'diag';
+
 export class CircleVSAabb {
 
   static ab             : TYPE6.Vector2 = new TYPE6.Vector2();
@@ -9,7 +11,7 @@ export class CircleVSAabb {
   static avertex        : TYPE6.Vector2 = new TYPE6.Vector2();
   static vertex         : TYPE6.Vector2 = new TYPE6.Vector2();
   //static radiusA        : number = 0.0;
-  static projectionAxis : 'x'|'y'|'diag' = 'x';
+  static projectionAxis : ProjectionAxis = 'x';
 
   static detect( apos: TYPE6.Vector2, radiusA: number, bpos: TYPE6.Vector2, bhs: TYPE6.Vector2): TYPE6.Vector2 {
     this.ab.subtractVectors(apos,bpos);
@@ -29,7 +31,7 @@ export class CircleVSAabb {
     this.setVoronoiRegion(bhs);
     if( this.voronoi.x === 0 ) {
       if( this.voronoi.y === 0 ) { //circle is in the aabb
-        this.projectionAxis = this.penetration.minAxis();
+        this.projectionAxis = this.penetration.minAxis() as ProjectionAxis;
       } else { //project on y axis
         this.projectionAxis = 'y';
       }

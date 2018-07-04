@@ -15,8 +15,7 @@ module.exports = function(grunt){
   var publicDir       = webDir + 'public/';
   var nodeDir         = 'node_modules/';
   var bowerDir        = 'bower_components/';
-  //var docDir          = 'doc/';
-  //var zipDir          = 'zip/';
+  var docDir          = 'doc/';
 
   var banner    = '/** MIT License\n' +
     '* \n' +
@@ -43,16 +42,7 @@ module.exports = function(grunt){
     '* http://' + projectName.toLowerCase() + 'js.lcluber.com\n' +
     '*/\n';
 
-  //i18n configuration for static website translations
-  var i18n = require('i18next');
-  i18n.init({
-    lng: 'en',
-    resources: {
-      en: {
-        translation: grunt.file.readJSON( webDir + 'locales/en/translation.json' )
-      }
-    }
-  });
+
   grunt.option('stack', true);
 
   // Project configuration.
@@ -62,6 +52,10 @@ module.exports = function(grunt){
       lib:{
         src: [  distDir + '*',
                 compiledSrcDir + '*'
+              ]
+      },
+      doc:{
+        src: [  docDir + '*'
               ]
       },
       web:{
@@ -78,11 +72,21 @@ module.exports = function(grunt){
         ]
       }
     },
+    typedoc: {
+  		build: {
+  			options: {
+  				out: docDir,
+  				target: 'es6',
+          name: projectName + '.js - Documentation'
+  			},
+  			src: [srcDir + 'ts/*.ts']
+  		}
+  	},
     jshint: {
       options: {
-        jshintrc: 'config/.jshintrc'
+        // jshintrc: 'config/.jshintrc'
       },
-      lib: [ 'Gruntfile.js', srcDir + '**/*.js'],
+      // lib: [ 'Gruntfile.js'],
       web: [ webDir + 'js/*.js'],
     },
     sass: {
@@ -117,38 +121,6 @@ module.exports = function(grunt){
           src: webDir  + 'sass/build/**/*.css',
           dest: publicDir + 'css/style.min.css'
         }]
-      }
-    },
-    // jsdoc: {
-    //   dist : {
-    //     src: src,
-    //     config: 'config/jsdoc-conf.json'
-    //   }
-    // },
-    pug: {
-      compile: {
-        options: {
-          namespace   : 'JST',
-          separator   : '\n\n',
-          amd         : false,
-          client      : false,
-          pretty      : true,
-          self        : false,
-          debug       : false,
-          compileDebug: true,
-          data: function() {
-            return {
-              t: i18n.t.bind(i18n)
-            };
-          }
-        },
-        files: [ {
-          cwd: webDir + 'views',
-          src: ['**/*.pug', '!**/_*.pug'],
-          dest: webDir + 'static',
-          expand: true,
-          ext: '.htm'
-        } ]
       }
     },
     htmlmin: {
@@ -390,12 +362,6 @@ module.exports = function(grunt){
         src: ['*.htm'],
         dest: webDir + 'views/',
         filter: 'isFile'
-      }
-    },
-    symlink: {
-      options: {
-        overwrite: false,
-        force: false
       },
       fonts:{
         expand: true,
@@ -410,38 +376,8 @@ module.exports = function(grunt){
         src: ['fonts/**/*'],
         dest: publicDir,
         filter: 'isFile'
-      }//,
-      // public: {
-      //   expand: true,
-      //   cwd: publicDir,
-      //   src: ['**/*'],
-      //   dest: webDir + 'static/public/'
-      // }//,
-      // doc: {
-      //   expand: true,
-      //   cwd: docDir,
-      //   src: ['**/*'],
-      //   dest: webDir + 'static/' + docDir
-      // }
+      }
     },
-    // compress: {
-    //   main: {
-    //     options: {
-    //       archive: zipDir + projectNameLC + 'js.zip'
-    //     },
-    //     files: [
-    //       {expand: true, cwd: webDir + 'static/', src: '**', dest: '/'},
-    //       {expand: true, cwd: publicDir, src: '**', dest: '/public'},
-    //       {src: [ distDir + '**',
-    //               docDir + '**',
-    //               'LICENCE.md',
-    //               'README.md',
-    //               'RELEASE_NOTES.md'
-    //             ],
-    //             dest: '/', filter: 'isFile'}
-    //     ]
-    //   }
-    // },
     nodemon: {
       dev: {
         script: 'bin/www',
@@ -498,20 +434,17 @@ module.exports = function(grunt){
   grunt.loadNpmTasks( 'grunt-contrib-csslint' );
   grunt.loadNpmTasks( 'grunt-contrib-cssmin' );
   grunt.loadNpmTasks( 'grunt-contrib-concat' );
-  //grunt.loadNpmTasks( 'grunt-contrib-pug' );
   grunt.loadNpmTasks( 'grunt-contrib-sass' );
   grunt.loadNpmTasks( 'grunt-contrib-htmlmin' );
-  grunt.loadNpmTasks( 'grunt-contrib-symlink' );
-  //grunt.loadNpmTasks( 'grunt-contrib-compress' );
   grunt.loadNpmTasks( 'grunt-contrib-watch' );
   grunt.loadNpmTasks( 'grunt-strip-code' );
-  //grunt.loadNpmTasks( 'grunt-jsdoc' );
   grunt.loadNpmTasks( 'grunt-concurrent' );
   grunt.loadNpmTasks( 'grunt-nodemon' );
   grunt.loadNpmTasks( 'grunt-open' );
   grunt.loadNpmTasks( 'grunt-tslint' );
   grunt.loadNpmTasks( 'grunt-ts' );
   grunt.loadNpmTasks( 'grunt-rollup' );
+  grunt.loadNpmTasks( 'grunt-typedoc' );
 
   grunt.registerTask( 'lib',
                       'build the library in the dist/ folder',
@@ -522,13 +455,14 @@ module.exports = function(grunt){
                         'uglify:libmin',
                         'concat:declaration',
                         'strip_code:declaration'
-                        //'jsdoc'
                       ]
                     );
 
   grunt.registerTask( 'doc',
-                      'build jsdoc in the doc/ folder',
-                      [ 'jsdoc' ]
+                      'Compile lib documentation',
+                      [ 'clean:doc',
+                        'typedoc'
+                       ]
                     );
 
   // grunt.registerTask( 'static',
@@ -561,7 +495,7 @@ module.exports = function(grunt){
                         //css
                           'sass',
                           'cssmin',
-                          'symlink:fonts', 'symlink:fontAwesome',
+                          'copy:fonts', 'copy:fontAwesome',
                           'copy:mouette',
                           'concat:webcss',
                         //static
@@ -579,6 +513,8 @@ module.exports = function(grunt){
                         grunt.task.run('lib');
                         //build site
                         grunt.task.run('website');
+                        //build documentation
+                        grunt.task.run('doc');
                       }
                     );
 

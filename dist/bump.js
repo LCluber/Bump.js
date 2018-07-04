@@ -161,6 +161,12 @@
         return CircleVSAabb;
     }());
 
+    var Shape;
+    (function (Shape) {
+        Shape["circle"] = "circle";
+        Shape["aabb"] = "aabb";
+    })(Shape || (Shape = {}));
+
     var CollisionDetection = (function () {
         function CollisionDetection() {
         }
@@ -176,20 +182,20 @@
             return false;
         };
         CollisionDetection.detect = function (a, b) {
-            if (a.shape === 'circle') {
-                if (b.shape === 'circle') {
+            if (a.shape === Shape.circle) {
+                if (b.shape === Shape.circle) {
                     this.penetration = CircleVSCircle.detect(a.position, a.radius, b.position, b.radius);
                 }
-                else if (b.shape === 'aabb') {
+                else if (b.shape === Shape.aabb) {
                     this.penetration = CircleVSAabb.detect(a.position, a.radius, b.position, b.halfSize);
                 }
             }
-            else if (a.shape === 'aabb') {
-                if (b.shape === 'circle') {
+            else if (a.shape === Shape.aabb) {
+                if (b.shape === Shape.circle) {
                     this.penetration = CircleVSAabb.detect(b.position, b.radius, a.position, a.halfSize);
                     this.invert = true;
                 }
-                else if (b.shape === 'aabb') {
+                else if (b.shape === Shape.aabb) {
                     this.penetration = AabbVSAabb.detect(a.position, a.halfSize, b.position, b.halfSize);
                 }
             }

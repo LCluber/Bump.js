@@ -1,3 +1,9 @@
+Version 0.5.1 (July 04th 2018)
+-----------------------------
+ * Documentation automatically generated in /doc folder
+ * Typedoc and grunt-typedoc added in devDependencies
+ * New "typedoc" task in Gruntfile.js
+ * Typescript upgraded to version 2.9.2
 
 Version 0.5.0 (April 13th 2018)
 ------------------------------

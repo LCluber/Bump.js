@@ -1,14 +1,11 @@
 
 import * as TYPE6 from '../../bower_components/Type6js/dist/type6';
 
-/**
-* @class
-* @classdesc A class that represents a rigid body.
-*/
+
 export class Physics {
 
   //correction      : TYPE6.Vector2;
-  position        : TYPE6.Vector2;
+  public position : TYPE6.Vector2;
   translate       : TYPE6.Vector2;
   velocity        : TYPE6.Vector2;
   initialVelocity : TYPE6.Vector2;
