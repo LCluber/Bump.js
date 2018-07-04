@@ -1,6 +1,6 @@
 {
   "name": "Bumpjs",
-  "version": "0.4.1",
+  "version": "0.5.1",
   "description": "javascript library",
   "keywords": [
     "animation frame"
@@ -62,9 +62,11 @@
     "grunt-open": "0.2.3",
     "grunt-ts": "5.5.1",
     "grunt-tslint": "5.0.1",
+    "grunt-typedoc": "0.2.4",
     "grunt-rollup": "4.0.0",
     "time-grunt": "1.4.0",
     "tslint": "5.8.0",
-    "typescript": "2.6.1"
+    "typedoc": "0.11.1",
+    "typescript": "2.9.2"
   }
 }
