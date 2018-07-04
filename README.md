@@ -25,7 +25,7 @@ No tests to run yet
 ## Contributors
 
 There is still a lot of work to do on this project and I would be glad to get all the help you can provide.
-To contribute you can clone the project on **[GitHub](https://github.com/LCluber/Bump.js)** and see  **INSTALL.md** for detailed installation walkthrough of the project.
+To contribute you can clone the project on **[GitHub](https://github.com/LCluber/Bump.js)** and see  **NOTICE.md** for detailed installation walkthrough of the project.
 
 ## License
 
