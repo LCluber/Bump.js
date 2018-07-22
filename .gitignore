@@ -1,9 +1,8 @@
 
-bower_components/
 node_modules/
 website/sass/build/
 website/js/build/
-src/build/
+build/
 .sass-cache/
 .tscache/
 npm-debug.log

@@ -1,33 +1,33 @@
 
-import * as TYPE6 from '../../bower_components/Type6js/dist/type6';
+import {Vector2,Circle,Rectangle} from 'type6js';
 
 
 export class Physics {
 
-  //correction      : TYPE6.Vector2;
-  public position : TYPE6.Vector2;
-  translate       : TYPE6.Vector2;
-  velocity        : TYPE6.Vector2;
-  initialVelocity : TYPE6.Vector2;
-  gravity         : TYPE6.Vector2;
-  force           : TYPE6.Vector2;
-  impulse         : TYPE6.Vector2;
-  resultingAcc    : TYPE6.Vector2;
+  //correction      : Vector2;
+  public position : Vector2;
+  translate       : Vector2;
+  velocity        : Vector2;
+  initialVelocity : Vector2;
+  gravity         : Vector2;
+  force           : Vector2;
+  impulse         : Vector2;
+  resultingAcc    : Vector2;
 
   damping     : number = 0.8;
   mass        : number = 1.0;
   inverseMass : number = 1.0;
   restitution : number = -1;//-e elasticity
 
-  body        : TYPE6.Rectangle | TYPE6.Circle;
+  body        : Rectangle | Circle;
 
-  //size        : TYPE6.Vector2.create();
-  //halfSize    : TYPE6.Vector2.create();
+  //size        : Vector2.create();
+  //halfSize    : Vector2.create();
   // cells       : [ 0, 0, 0, 0 ],
-  // frame       : [ TYPE6.Vector2.create(),
-  //                 TYPE6.Vector2.create(),
-  //                 TYPE6.Vector2.create(),
-  //                 TYPE6.Vector2.create()
+  // frame       : [ Vector2.create(),
+  //                 Vector2.create(),
+  //                 Vector2.create(),
+  //                 Vector2.create()
   //               ],
 
   collisionSceneId : number = 0;
@@ -36,7 +36,7 @@ export class Physics {
   damageDealt : number = 1;
 
   // deactivationTresholdActive : false,
-  // deactivationTreshold       : TYPE6.Vector2.create(),
+  // deactivationTreshold       : Vector2.create(),
 
   // materials
   // Rock       Density : 0.6  Restitution : 0.1
@@ -48,7 +48,7 @@ export class Physics {
   // Static     Density : 0.0  Restitution : 0.4
 //margin=[-halfSize.y,ROOSTR.Screen.size.x+halfSize.x,ROOSTR.Screen.size.y+halfSize.y,-halfSize.x];
 
-  //impulsePerInverseMass : TYPE6.Vector2.create(),
+  //impulsePerInverseMass : Vector2.create(),
 
   constructor(  positionX: number, positionY: number,
                 velocityX: number, velocityY: number,
@@ -58,15 +58,15 @@ export class Physics {
                 restitution: number,
                 type: string ) {
 
-    this.velocity        = new TYPE6.Vector2( velocityX, velocityY );
+    this.velocity        = new Vector2( velocityX, velocityY );
     this.initialVelocity = this.velocity.clone();
 
-    //this.correction      = new TYPE6.Vector2();
-    this.translate       = new TYPE6.Vector2();
-    this.gravity         = new TYPE6.Vector2();
-    this.force           = new TYPE6.Vector2();
-    this.impulse         = new TYPE6.Vector2();
-    this.resultingAcc    = new TYPE6.Vector2();
+    //this.correction      = new Vector2();
+    this.translate       = new Vector2();
+    this.gravity         = new Vector2();
+    this.force           = new Vector2();
+    this.impulse         = new Vector2();
+    this.resultingAcc    = new Vector2();
 
     this.mass         = mass;
     this.inverseMass  = !mass ? 0 : 1/mass ;
@@ -75,10 +75,10 @@ export class Physics {
 
     switch (type) {
       case 'rectangle':
-        this.body = new TYPE6.Rectangle( positionX, positionY, sizeX, sizeY );
+        this.body = new Rectangle( positionX, positionY, sizeX, sizeY );
         break;
       default:
-        this.body = new TYPE6.Circle( positionX, positionY, sizeX );
+        this.body = new Circle( positionX, positionY, sizeX );
     }
     this.position = this.body.position;
     //_this.setFrame();
@@ -147,7 +147,7 @@ export class Physics {
   //   return this.deactivationTreshold;
   // },
 
-  public updatePosition( second: number ): TYPE6.Vector2 {
+  public updatePosition( second: number ): Vector2 {
     this.translate.origin();
     if (this.active && second > 0) {
       if (this.inverseMass) {
@@ -199,7 +199,7 @@ export class Physics {
     }
   }
 
-  public correctPosition(correction: TYPE6.Vector2): void {
+  public correctPosition(correction: Vector2): void {
     if (this.inverseMass) {
       this.position.addScaledVector(correction, this.inverseMass);
       this.body.setPositionFromVector(this.position);
@@ -210,7 +210,7 @@ export class Physics {
     this.body.setPositionXY( x, y );
   }
 
-  public setPositionFromVector( position: TYPE6.Vector2 ): void {
+  public setPositionFromVector( position: Vector2 ): void {
     this.body.setPositionFromVector( position );
   }
 
@@ -254,7 +254,7 @@ export class Physics {
     return false;
   }
 
-  public collision (impulsePerInverseMass: TYPE6.Vector2, object: Physics): void {
+  public collision (impulsePerInverseMass: Vector2, object: Physics): void {
     //if (this.active) {
     if(this.inverseMass) {
       this.impulse.copy(impulsePerInverseMass);
@@ -267,7 +267,7 @@ export class Physics {
   private reset(): void {
     this.velocity.copy(this.initialVelocity);
     //this.size          = size;
-    //this.halfSize      = TYPE6.Vector2.create();
+    //this.halfSize      = Vector2.create();
     this.translate.origin();
     //this.gravity;
     this.force.origin();

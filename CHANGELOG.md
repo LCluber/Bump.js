@@ -1,3 +1,8 @@
+Version 0.5.2 (July 22th 2018)
+------------------------------
+ * Library exported as ES6 and IIFE modules instead of UMD.
+ * BUMP namespace becomes Bump
+
 Version 0.5.1 (July 4th 2018)
 ------------------------------
  * Documentation automatically generated in /doc folder

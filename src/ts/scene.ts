@@ -1,5 +1,5 @@
 //import * as MOUETTE from '../../bower_components/Mouettejs/dist/mouette';
-import * as TYPE6 from '../../bower_components/Type6js/dist/type6';
+import {Vector2} from 'type6js';
 import {CollisionDetection } from './collision';
 import {Physics} from './physics';
 
@@ -13,7 +13,7 @@ export class Scene {
   bodiesLength : number;
 
   //collision : BUMP.Collision.create();
-  gravity : TYPE6.Vector2;
+  gravity : Vector2;
   iterations : number;
 
   constructor() {
@@ -21,7 +21,7 @@ export class Scene {
     this.bodies = [];
     this.bodiesLength = 0;
     this.iterations = 1;
-    this.gravity = new TYPE6.Vector2( 0, 400 );
+    this.gravity = new Vector2( 0, 400 );
   }
 
   public addBody(body: Physics): boolean {

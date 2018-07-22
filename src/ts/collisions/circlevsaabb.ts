@@ -1,19 +1,19 @@
 
-import * as TYPE6 from '../../../bower_components/Type6js/dist/type6';
+import {Vector2} from 'type6js';
 
 type ProjectionAxis = 'x' | 'y' | 'diag';
 
 export class CircleVSAabb {
 
-  static ab             : TYPE6.Vector2 = new TYPE6.Vector2();
-  static penetration    : TYPE6.Vector2 = new TYPE6.Vector2();
-  static voronoi        : TYPE6.Vector2 = new TYPE6.Vector2();
-  static avertex        : TYPE6.Vector2 = new TYPE6.Vector2();
-  static vertex         : TYPE6.Vector2 = new TYPE6.Vector2();
+  static ab             : Vector2 = new Vector2();
+  static penetration    : Vector2 = new Vector2();
+  static voronoi        : Vector2 = new Vector2();
+  static avertex        : Vector2 = new Vector2();
+  static vertex         : Vector2 = new Vector2();
   //static radiusA        : number = 0.0;
   static projectionAxis : ProjectionAxis = 'x';
 
-  static detect( apos: TYPE6.Vector2, radiusA: number, bpos: TYPE6.Vector2, bhs: TYPE6.Vector2): TYPE6.Vector2 {
+  static detect( apos: Vector2, radiusA: number, bpos: Vector2, bhs: Vector2): Vector2 {
     this.ab.subtractVectors(apos,bpos);
     if(this.penetration.absoluteVector(this.ab)
                        .opposite()
@@ -27,7 +27,7 @@ export class CircleVSAabb {
     return this.penetration.origin();
   }
 
-  private static diagonalHit(apos: TYPE6.Vector2, radiusA: number, bpos: TYPE6.Vector2, bhs: TYPE6.Vector2 ): boolean {
+  private static diagonalHit(apos: Vector2, radiusA: number, bpos: Vector2, bhs: Vector2 ): boolean {
     this.setVoronoiRegion(bhs);
     if( this.voronoi.x === 0 ) {
       if( this.voronoi.y === 0 ) { //circle is in the aabb
@@ -52,7 +52,7 @@ export class CircleVSAabb {
     }
   }
 
-  private static setVoronoiRegion(bhs: TYPE6.Vector2): void {//determine grid/voronoi region of circle center
+  private static setVoronoiRegion(bhs: Vector2): void {//determine grid/voronoi region of circle center
 
     this.voronoi.origin();
     // x axis
@@ -69,7 +69,7 @@ export class CircleVSAabb {
     }
   }
 
-  private static getPenetration(radiusA: number): TYPE6.Vector2 {
+  private static getPenetration(radiusA: number): Vector2 {
 
     if (this.projectionAxis != 'diag'){ //aabbvsaabb like collision
 

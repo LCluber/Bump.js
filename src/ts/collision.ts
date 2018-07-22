@@ -1,5 +1,5 @@
 
-import * as TYPE6 from '../../bower_components/Type6js/dist/type6';
+import {Vector2,Circle,Rectangle} from 'type6js';
 import {Physics} from './physics';
 import {CircleVSCircle} from './collisions/circlevscircle';
 import {AabbVSAabb} from './collisions/aabbvsaabb';
@@ -9,12 +9,12 @@ enum Shape { circle = 'circle', aabb = 'aabb' };
 
 export class CollisionDetection {
 
-  //static ab                     : TYPE6.Vector2 = new TYPE6.Vector2();
-  static penetration            : TYPE6.Vector2 = new TYPE6.Vector2();
-  static contactNormal          : TYPE6.Vector2 = new TYPE6.Vector2();
-  static correction             : TYPE6.Vector2 = new TYPE6.Vector2();
-  static relativeVelocity       : TYPE6.Vector2 = new TYPE6.Vector2();
-  static impulsePerInverseMass  : TYPE6.Vector2 = new TYPE6.Vector2();
+  //static ab                     : Vector2 = new Vector2();
+  static penetration            : Vector2 = new Vector2();
+  static contactNormal          : Vector2 = new Vector2();
+  static correction             : Vector2 = new Vector2();
+  static relativeVelocity       : Vector2 = new Vector2();
+  static impulsePerInverseMass  : Vector2 = new Vector2();
 
   static totalInverseMass       : number = 0;
   static impulse                : number = 0;
@@ -40,11 +40,11 @@ export class CollisionDetection {
     //}
   }
 
-  // private setDelta( positionA: TYPE6.Vector2, positionB: TYPE6.Vector2 ): TYPE6.Vector2 {
+  // private setDelta( positionA: Vector2, positionB: Vector2 ): Vector2 {
   //   return positionA.subtract(positionB);//ab between a and b centers on each axis
   // }
 
-  private static detect( a: TYPE6.Circle|TYPE6.Rectangle, b: TYPE6.Circle|TYPE6.Rectangle ): void {
+  private static detect( a: Circle|Rectangle, b: Circle|Rectangle ): void {
     if( a.shape === Shape.circle ) {//circle
       if( b.shape === Shape.circle ) {
         this.penetration = CircleVSCircle.detect( a.position, a.radius, b.position, b.radius );

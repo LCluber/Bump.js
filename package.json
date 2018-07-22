@@ -1,27 +1,35 @@
 {
   "name": "Bumpjs",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "javascript library",
   "keywords": [
     "animation frame"
   ],
   "homepage": "http://bumpjs.lcluber.com",
+  "main": "dist/bump",
+  "types": "dist/bump",
   "bugs": {
     "url": "https://github.com/LCluber/Bump.js/issues"
   },
-  "license": {
-    "type": "MIT",
-    "url": "http://www.opensource.org/licenses/mit-license.php"
-  },
+  "license": "See license in LICENSE.md",
   "author": {
     "name": "Ludovic Cluber",
     "email": "http://www.lcluber.com/contact",
     "url": "http://www.lcluber.com/"
   },
-  "private": true,
+  "contributors": [
+    {
+      "name": "Estelle Picq",
+      "email": "",
+      "url": "http://www.estellepicq.com"
+    }
+  ],
   "scripts": {
     "start": "node ./bin/www"
   },
+  "files": [
+    "dist/"
+  ],
   "dependencies": {
     "body-parser": "1.16.1",
     "cookie-parser": "1.4.3",
@@ -32,16 +40,19 @@
     "serve-favicon": "2.4.0",
     "i18next": "4.0.0",
     "i18next-express-middleware": "1.0.2",
-    "i18next-node-fs-backend": "0.1.3"
+    "i18next-node-fs-backend": "0.1.3",
+    "type6js": "git://github.com/LCluber/Type6.js.git",
+    "frameratjs": "git://github.com/LCluber/Framerat.js.git"
   },
   "devDependencies": {
+    "babel-core": "6.26.3",
+    "babel-preset-es2015": "6.24.1",
     "bootstrap": "3.3.7",
     "font-awesome": "4.7.0",
     "jquery": "3.2.1",
     "jquery-easing": "0.0.1",
     "connect-livereload": "0.6.0",
     "grunt": "1.0.2",
-    "grunt-bower-concat": "1.0.0",
     "grunt-contrib-clean": "1.1.0",
     "grunt-contrib-uglify": "3.0.1",
     "grunt-contrib-cssmin": "2.2.0",
@@ -60,6 +71,8 @@
     "grunt-typedoc": "0.2.4",
     "grunt-tslint": "5.0.1",
     "grunt-rollup": "9.0.0",
+    "rollup-plugin-babel": "3.0.4",
+    "rollup-plugin-node-resolve": "3.3.0",
     "time-grunt": "1.4.0",
     "tslint": "5.9.1",
     "typedoc": "0.11.1",

@@ -2,9 +2,9 @@
 // var context2       = canvas2.getContext("2d");
 // var width2         = canvas2.width2 = window.innerWidth;
 // var height2        = canvas2.height2 = window.innerHeight;
-// var collisionScene3= new BUMP.Scene();
+// var collisionScene3= new Bump.Scene();
 //
-// var circle = new BUMP.Physics(  width2 * 0.5, height2 * 0.5,
+// var circle = new Bump.Physics(  width2 * 0.5, height2 * 0.5,
 //                                 0.0, 0.0,
 //                                 160, 160,
 //                                 0,
@@ -13,7 +13,7 @@
 //                                 'circle'
 //                               );
 //
-// var circle2 = new BUMP.Physics( 0.0, 0.0,
+// var circle2 = new Bump.Physics( 0.0, 0.0,
 //                                 0.0, 0.0,
 //                                 40, 40,
 //                                 1,

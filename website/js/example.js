@@ -5,12 +5,12 @@
   var height         = canvas.height = window.innerHeight;
   var particles      = [];
   //create collision scenes
-  var collisionScene1= new BUMP.Scene();
-  var collisionScene2= new BUMP.Scene();
+  var collisionScene1= new Bump.Scene();
+  var collisionScene2= new Bump.Scene();
   collisionScene1.setIteration(3);
   collisionScene2.setIteration(3);
   //create animation frame
-  var animation      = new FRAMERAT.Player(render);
+  var animation      = new Framerat.Player(render);
   var particleQty    = 300;
   var particleWeight = 1.0;
   var floor          = [];
@@ -19,7 +19,7 @@
     life : 1,
     create : function( positionX, positionY, velocityX, velocityY, size, weight, color ){
       var obj     = Object.create(this);
-      obj.physics = new BUMP.Physics( positionX, positionY,
+      obj.physics = new Bump.Physics( positionX, positionY,
                                       velocityX, velocityY,
                                       size, size,
                                       weight,
@@ -33,7 +33,7 @@
     },
 
     update: function(){
-      this.physics.updatePosition( TYPE6.Time.millisecondToSecond(animation.clock.delta)  );
+      this.physics.updatePosition( Type6.Time.millisecondToSecond(animation.clock.delta)  );
       if(this.physics.isActive() && this.physics.position.y > height + this.physics.body.radius){
         this.physics.toggleActive();
       }
@@ -64,7 +64,7 @@
   var rectangle = {
     create : function( positionX, positionY, sizeX, sizeY ){
       var obj     = Object.create(this);
-      obj.physics = new BUMP.Physics( positionX, positionY,
+      obj.physics = new Bump.Physics( positionX, positionY,
                                       0.0, 0.0,
                                       sizeX, sizeY,
                                       0.0,
@@ -100,14 +100,14 @@
 
   function initParticles(){
     for( var i = 0 ; i < particleQty; i++ ){
-      var radius   = TYPE6.Random.float( 0, 140 ); //120
-      var angle    = TYPE6.Random.float( 0, TYPE6.Trigonometry.twopi );
-      var particleRadius = TYPE6.Random.integer( 3, 6 );
+      var radius   = Type6.Random.float( 0, 140 ); //120
+      var angle    = Type6.Random.float( 0, Type6.Trigonometry.twopi );
+      var particleRadius = Type6.Random.integer( 3, 6 );
       particles[i] = particle.create(
                         width * 0.5,
                         height * 0.25,
-                        TYPE6.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
-                        TYPE6.Trigonometry.sineEquation( radius, angle, 0, 0 ),
+                        Type6.Trigonometry.cosineEquation( radius, angle, 0, 0 ),
+                        Type6.Trigonometry.sineEquation( radius, angle, 0, 0 ),
                         particleRadius,
                         particleRadius*4,
                         getRandomColor()
