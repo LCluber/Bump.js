@@ -1,3 +1,7 @@
+Version 0.5.3 (July 23th 2018)
+------------------------------
+ * lighter ES6 library.
+
 Version 0.5.2 (July 22th 2018)
 ------------------------------
  * Library exported as ES6 and IIFE modules instead of UMD.

@@ -181,9 +181,9 @@ module.exports = function(grunt){
             })
           ],
           external: [
-            'mouette.js',
-            'framerat.js',
-            'type6.js'
+            'mouettejs',
+            'frameratjs',
+            'type6js'
           ]
         },
         files: [ {
