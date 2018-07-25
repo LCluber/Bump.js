@@ -6,4 +6,3 @@ build/
 .sass-cache/
 .tscache/
 npm-debug.log
-package-lock.json
