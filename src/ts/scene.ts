@@ -1,4 +1,4 @@
-//import * as MOUETTE from '../../bower_components/Mouettejs/dist/mouette';
+
 import {Vector2} from 'type6js';
 import {CollisionDetection } from './collision';
 import {Physics} from './physics';
