@@ -23,7 +23,7 @@
 * http://bumpjs.lcluber.com
 */
 
-import { Circle, Rectangle, Vector2 } from 'type6js';
+import { Circle, Rectangle, Vector2 } from '@lcluber/type6js';
 
 class CircleVSCircle {
     static detect(apos, radiusA, bpos, radiusB) {

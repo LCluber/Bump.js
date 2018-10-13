@@ -1,5 +1,5 @@
 
-import {Vector2,Circle,Rectangle} from 'type6js';
+import {Vector2,Circle,Rectangle} from '@lcluber/type6js';
 
 
 export class Physics {

@@ -1,5 +1,5 @@
 
-import {Vector2} from 'type6js';
+import {Vector2} from '@lcluber/type6js';
 import {CollisionDetection } from './collision';
 import {Physics} from './physics';
 

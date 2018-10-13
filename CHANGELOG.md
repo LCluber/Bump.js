@@ -1,3 +1,8 @@
+Version 0.5.4 (October 14th 2018)
+-----------------------------
+ * Bump.js published on NPM at @lcluber/bumpjs.
+ * Updated README.md with NPM installation procedure.
+
 Version 0.5.3 (July 23th 2018)
 ------------------------------
  * lighter ES6 library.

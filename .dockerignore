@@ -1,0 +1,8 @@
+.git
+.sass-cache
+.ts-cache
+build
+node_modules
+web/sass
+web/js
+npm-debug.log

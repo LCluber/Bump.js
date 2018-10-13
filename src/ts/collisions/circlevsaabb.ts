@@ -1,5 +1,5 @@
 
-import {Vector2} from 'type6js';
+import {Vector2} from '@lcluber/type6js';
 
 type ProjectionAxis = 'x' | 'y' | 'diag';
 
