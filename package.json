@@ -1,5 +1,5 @@
 {
-  "name": "bumpjs",
+  "name": "@lcluber/bumpjs",
   "version": "0.5.4",
   "description": "2D physics engine written in TypeScript",
   "keywords": [
