@@ -61,25 +61,25 @@ var Bump = (function (exports) {
         }
 
         _createClass(Utils, null, [{
-            key: "round",
+            key: 'round',
             value: function round(x, decimals) {
                 decimals = Math.pow(10, decimals);
                 return Math.round(x * decimals) / decimals;
             }
         }, {
-            key: "floor",
+            key: 'floor',
             value: function floor(x, decimals) {
                 decimals = Math.pow(10, decimals);
                 return Math.floor(x * decimals) / decimals;
             }
         }, {
-            key: "ceil",
+            key: 'ceil',
             value: function ceil(x, decimals) {
                 decimals = Math.pow(10, decimals);
                 return Math.ceil(x * decimals) / decimals;
             }
         }, {
-            key: "trunc",
+            key: 'trunc',
             value: function trunc(x, decimals) {
                 decimals = Math.pow(10, decimals);
                 var v = +x * decimals;
@@ -89,72 +89,72 @@ var Bump = (function (exports) {
                 return (v - v % 1) / decimals || (v < 0 ? -0 : v === 0 ? v : 0);
             }
         }, {
-            key: "roundToNearest",
+            key: 'roundToNearest',
             value: function roundToNearest(x, nearest) {
                 return Math.round(x / nearest) * nearest;
             }
         }, {
-            key: "mix",
+            key: 'mix',
             value: function mix(x, y, ratio) {
                 return (1 - ratio) * x + ratio * y;
             }
         }, {
-            key: "sign",
+            key: 'sign',
             value: function sign(x) {
                 return x ? x < 0 ? -1 : 1 : 0;
             }
         }, {
-            key: "opposite",
+            key: 'opposite',
             value: function opposite(x) {
                 return -x;
             }
         }, {
-            key: "clamp",
+            key: 'clamp',
             value: function clamp(x, min, max) {
                 return Math.min(Math.max(x, min), max);
             }
         }, {
-            key: "normalize",
+            key: 'normalize',
             value: function normalize(x, min, max) {
                 return (x - min) / (max - min);
             }
         }, {
-            key: "lerp",
+            key: 'lerp',
             value: function lerp(normal, min, max) {
                 return (max - min) * normal + min;
             }
         }, {
-            key: "map",
+            key: 'map',
             value: function map(x, sourceMin, sourceMax, destMin, destMax) {
                 return this.lerp(this.normalize(x, sourceMin, sourceMax), destMin, destMax);
             }
         }, {
-            key: "isEven",
+            key: 'isEven',
             value: function isEven(x) {
                 return !(x & 1);
             }
         }, {
-            key: "isOdd",
+            key: 'isOdd',
             value: function isOdd(x) {
                 return x & 1;
             }
         }, {
-            key: "isOrigin",
+            key: 'isOrigin',
             value: function isOrigin(x) {
                 return x === 0 ? true : false;
             }
         }, {
-            key: "isPositive",
+            key: 'isPositive',
             value: function isPositive(x) {
                 return x >= 0 ? true : false;
             }
         }, {
-            key: "isNegative",
+            key: 'isNegative',
             value: function isNegative(x) {
                 return x < 0 ? true : false;
             }
         }, {
-            key: "validate",
+            key: 'validate',
             value: function validate(x) {
                 return isNaN(x) ? 0.0 : x;
             }
@@ -169,13 +169,13 @@ var Bump = (function (exports) {
         }
 
         _createClass(Trigonometry, null, [{
-            key: "init",
+            key: 'init',
             value: function init() {
                 Trigonometry.createRoundedPis();
                 Trigonometry.createFactorialArray();
             }
         }, {
-            key: "createRoundedPis",
+            key: 'createRoundedPis',
             value: function createRoundedPis() {
                 var decimals = 2;
                 this.pi = Utils.round(Math.PI, decimals);
@@ -183,7 +183,7 @@ var Bump = (function (exports) {
                 this.halfpi = Utils.round(Math.PI * 0.5, decimals);
             }
         }, {
-            key: "createFactorialArray",
+            key: 'createFactorialArray',
             value: function createFactorialArray() {
                 var maxSin = this.sineLoops[this.sineLoops.length - 1] * 3;
                 var maxCos = this.cosineLoops[this.cosineLoops.length - 1] * 2;
@@ -193,12 +193,12 @@ var Bump = (function (exports) {
                 }
             }
         }, {
-            key: "factorial",
+            key: 'factorial',
             value: function factorial(i) {
                 return i > 1 ? i - 1 : 1;
             }
         }, {
-            key: "setSinePrecision",
+            key: 'setSinePrecision',
             value: function setSinePrecision(value) {
                 if (value < this.sineLoops.length) {
                     this.sineDecimals = value;
@@ -208,7 +208,7 @@ var Bump = (function (exports) {
                 return 2;
             }
         }, {
-            key: "setCosinePrecision",
+            key: 'setCosinePrecision',
             value: function setCosinePrecision(value) {
                 if (value < Trigonometry.cosineLoops.length) {
                     this.cosineDecimals = value;
@@ -218,7 +218,7 @@ var Bump = (function (exports) {
                 return 2;
             }
         }, {
-            key: "setArctanPrecision",
+            key: 'setArctanPrecision',
             value: function setArctanPrecision(value) {
                 if (value < Trigonometry.arctanLoops.length) {
                     this.cosineDecimals = value;
@@ -228,17 +228,17 @@ var Bump = (function (exports) {
                 return 2;
             }
         }, {
-            key: "degreeToRadian",
+            key: 'degreeToRadian',
             value: function degreeToRadian(degree) {
                 return degree * this.pi / 180;
             }
         }, {
-            key: "radianToDegree",
+            key: 'radianToDegree',
             value: function radianToDegree(radian) {
                 return radian * 180 / this.pi;
             }
         }, {
-            key: "normalizeRadian",
+            key: 'normalizeRadian',
             value: function normalizeRadian(angle) {
                 if (angle > this.pi || angle < -this.pi) {
                     return angle - this.twopi * Math.floor((angle + this.pi) / this.twopi);
@@ -246,7 +246,7 @@ var Bump = (function (exports) {
                 return angle;
             }
         }, {
-            key: "sine",
+            key: 'sine',
             value: function sine(angle) {
                 angle = this.normalizeRadian(angle);
                 if (Trigonometry.sineDecimals <= 2 && angle < 0.28 && angle > -0.28) {
@@ -256,7 +256,7 @@ var Bump = (function (exports) {
                 }
             }
         }, {
-            key: "cosine",
+            key: 'cosine',
             value: function cosine(angle) {
                 angle = this.normalizeRadian(angle);
                 var squaredAngle = angle * angle;
@@ -267,7 +267,7 @@ var Bump = (function (exports) {
                 }
             }
         }, {
-            key: "arctan2",
+            key: 'arctan2',
             value: function arctan2(x, y) {
                 var angle = y / x;
                 if (x > 0) {
@@ -289,12 +289,12 @@ var Bump = (function (exports) {
                 }
             }
         }, {
-            key: "arctan2Vector2",
+            key: 'arctan2Vector2',
             value: function arctan2Vector2(vector2) {
                 return this.arctan2(vector2.x, vector2.y);
             }
         }, {
-            key: "arctan",
+            key: 'arctan',
             value: function arctan(angle) {
                 var loops = Trigonometry.arctanLoops[this.arctanDecimals];
                 if (angle < 1 && angle > -1) {
@@ -310,22 +310,22 @@ var Bump = (function (exports) {
                 }
             }
         }, {
-            key: "sineEquation",
+            key: 'sineEquation',
             value: function sineEquation(amplitude, period, shiftX, shiftY) {
                 return amplitude * this.sine(period + shiftX) + shiftY;
             }
         }, {
-            key: "cosineEquation",
+            key: 'cosineEquation',
             value: function cosineEquation(amplitude, period, shiftX, shiftY) {
                 return amplitude * this.cosine(period + shiftX) + shiftY;
             }
         }, {
-            key: "arctanEquation",
+            key: 'arctanEquation',
             value: function arctanEquation(amplitude, period, shiftX, shiftY) {
                 return amplitude * this.arctan(period + shiftX) + shiftY;
             }
         }, {
-            key: "taylorSerie",
+            key: 'taylorSerie',
             value: function taylorSerie(start, max, x, angle, needFactorial) {
                 var squaredAngle = angle * angle;
                 var result = x;
@@ -359,22 +359,22 @@ var Bump = (function (exports) {
         }
 
         _createClass(Time, null, [{
-            key: "millisecondToSecond",
+            key: 'millisecondToSecond',
             value: function millisecondToSecond(millisecond) {
                 return millisecond * 0.001;
             }
         }, {
-            key: "secondToMilliecond",
+            key: 'secondToMilliecond',
             value: function secondToMilliecond(second) {
                 return second * 1000;
             }
         }, {
-            key: "millisecondToFramePerSecond",
+            key: 'millisecondToFramePerSecond',
             value: function millisecondToFramePerSecond(millisecond) {
                 return Math.round(1000 / millisecond);
             }
         }, {
-            key: "framePerSecondToMillisecond",
+            key: 'framePerSecondToMillisecond',
             value: function framePerSecondToMillisecond(refreshRate) {
                 return Utils.round(1000 / refreshRate, 1);
             }
@@ -389,17 +389,17 @@ var Bump = (function (exports) {
         }
 
         _createClass(Random, null, [{
-            key: "float",
+            key: 'float',
             value: function float(min, max) {
                 return min + Math.random() * (max - min);
             }
         }, {
-            key: "integer",
+            key: 'integer',
             value: function integer(min, max) {
                 return Math.floor(min + Math.random() * (max - min + 1));
             }
         }, {
-            key: "distribution",
+            key: 'distribution',
             value: function distribution(min, max, iterations) {
                 var total = 0;
                 for (var i = 0; i < iterations; i++) {
@@ -408,7 +408,7 @@ var Bump = (function (exports) {
                 return total / iterations;
             }
         }, {
-            key: "pick",
+            key: 'pick',
             value: function pick(value1, value2) {
                 return Math.random() < 0.5 ? value1 : value2;
             }
@@ -423,13 +423,13 @@ var Bump = (function (exports) {
         }
 
         _createClass(Bezier, null, [{
-            key: "quadratic",
+            key: 'quadratic',
             value: function quadratic(p0, p1, p2, t) {
                 var oneMinusT = 1 - t;
                 return Math.pow(oneMinusT, 2) * p0 + oneMinusT * 2 * t * p1 + t * t * p2;
             }
         }, {
-            key: "cubic",
+            key: 'cubic',
             value: function cubic(p0, p1, p2, p3, t) {
                 var oneMinusT = 1 - t;
                 var tByT = t * t;
@@ -440,42 +440,38 @@ var Bump = (function (exports) {
         return Bezier;
     }();
 
-    var Axis;
-    (function (Axis) {
-        Axis["x"] = "x";
-        Axis["y"] = "y";
-    })(Axis || (Axis = {}));
-
     var Vector2 = function () {
         function Vector2(x, y) {
             _classCallCheck(this, Vector2);
 
-            this.x = x;
-            this.y = y;
+            this._x = 0.0;
+            this._y = 0.0;
+            this.x = x || 0.0;
+            this.y = y || 0.0;
         }
 
         _createClass(Vector2, [{
-            key: "isOrigin",
+            key: 'isOrigin',
             value: function isOrigin() {
                 return Utils.isOrigin(this.x) && Utils.isOrigin(this.y) ? true : false;
             }
         }, {
-            key: "isNotOrigin",
+            key: 'isNotOrigin',
             value: function isNotOrigin() {
                 return !Utils.isOrigin(this.x) || !Utils.isOrigin(this.y) ? true : false;
             }
         }, {
-            key: "isPositive",
+            key: 'isPositive',
             value: function isPositive() {
                 return Utils.isPositive(this.x) && Utils.isPositive(this.y) ? true : false;
             }
         }, {
-            key: "isNegative",
+            key: 'isNegative',
             value: function isNegative() {
                 return Utils.isNegative(this.x) && Utils.isNegative(this.y) ? true : false;
             }
         }, {
-            key: "fromArray",
+            key: 'fromArray',
             value: function fromArray(array, offset) {
                 if (offset === undefined) {
                     offset = 0;
@@ -485,43 +481,43 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "toArray",
+            key: 'toArray',
             value: function toArray() {
                 return [this.x, this.y];
             }
         }, {
-            key: "toString",
+            key: 'toString',
             value: function toString() {
-                return '(' + Axis.x + ' = ' + this.x + ';' + Axis.y + ' = ' + this.y + ')';
+                return '(x = ' + this.x + ';y = ' + this.y + ')';
             }
         }, {
-            key: "set",
+            key: 'set',
             value: function set(x, y) {
                 this.x = x;
                 this.y = y;
                 return this;
             }
         }, {
-            key: "clone",
+            key: 'clone',
             value: function clone() {
                 return new Vector2(this.x, this.y);
             }
         }, {
-            key: "copy",
+            key: 'copy',
             value: function copy(vector2) {
                 this.x = vector2.x;
                 this.y = vector2.y;
                 return this;
             }
         }, {
-            key: "origin",
+            key: 'origin',
             value: function origin() {
                 this.x = 0.0;
                 this.y = 0.0;
                 return this;
             }
         }, {
-            key: "setAngle",
+            key: 'setAngle',
             value: function setAngle(angle) {
                 if (Utils.validate(angle)) {
                     var length = this.getMagnitude();
@@ -531,22 +527,22 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "getAngle",
+            key: 'getAngle',
             value: function getAngle() {
                 return Math.atan2(this.y, this.x);
             }
         }, {
-            key: "getMagnitude",
+            key: 'getMagnitude',
             value: function getMagnitude() {
                 return Math.sqrt(this.getSquaredMagnitude());
             }
         }, {
-            key: "getSquaredMagnitude",
+            key: 'getSquaredMagnitude',
             value: function getSquaredMagnitude() {
                 return this.x * this.x + this.y * this.y;
             }
         }, {
-            key: "getDistance",
+            key: 'getDistance',
             value: function getDistance(vector2) {
                 this.subtract(vector2);
                 var magnitude = this.getMagnitude();
@@ -554,7 +550,7 @@ var Bump = (function (exports) {
                 return magnitude;
             }
         }, {
-            key: "getSquaredDistance",
+            key: 'getSquaredDistance',
             value: function getSquaredDistance(vector2) {
                 this.subtract(vector2);
                 var squaredMagnitude = this.getSquaredMagnitude();
@@ -562,186 +558,180 @@ var Bump = (function (exports) {
                 return squaredMagnitude;
             }
         }, {
-            key: "quadraticBezier",
+            key: 'quadraticBezier',
             value: function quadraticBezier(p0, p1, p2, t) {
                 this.x = Bezier.quadratic(p0.x, p1.x, p2.x, t);
                 this.y = Bezier.quadratic(p0.y, p1.y, p2.y, t);
                 return this;
             }
         }, {
-            key: "cubicBezier",
+            key: 'cubicBezier',
             value: function cubicBezier(p0, p1, p2, p3, t) {
                 this.x = Bezier.cubic(p0.x, p1.x, p2.x, p3.x, t);
                 this.y = Bezier.cubic(p0.y, p1.y, p2.y, p3.y, t);
                 return this;
             }
         }, {
-            key: "add",
+            key: 'add',
             value: function add(vector2) {
                 this.x += vector2.x;
                 this.y += vector2.y;
                 return this;
             }
         }, {
-            key: "addScalar",
+            key: 'addScalar',
             value: function addScalar(scalar) {
                 this.x += scalar;
                 this.y += scalar;
                 return this;
             }
         }, {
-            key: "addScaledVector",
+            key: 'addScaledVector',
             value: function addScaledVector(vector2, scalar) {
                 this.x += vector2.x * scalar;
                 this.y += vector2.y * scalar;
                 return this;
             }
         }, {
-            key: "addVectors",
+            key: 'addVectors',
             value: function addVectors(v1, v2) {
                 this.x = v1.x + v2.x;
                 this.y = v1.y + v2.y;
                 return this;
             }
         }, {
-            key: "subtract",
+            key: 'subtract',
             value: function subtract(vector2) {
                 this.x -= vector2.x;
                 this.y -= vector2.y;
                 return this;
             }
         }, {
-            key: "subtractScalar",
+            key: 'subtractScalar',
             value: function subtractScalar(scalar) {
                 this.x -= scalar;
                 this.y -= scalar;
                 return this;
             }
         }, {
-            key: "subtractScaledVector",
+            key: 'subtractScaledVector',
             value: function subtractScaledVector(vector2, scalar) {
                 this.x -= vector2.x * scalar;
                 this.y -= vector2.y * scalar;
                 return this;
             }
         }, {
-            key: "subtractVectors",
+            key: 'subtractVectors',
             value: function subtractVectors(v1, v2) {
                 this.x = v1.x - v2.x;
                 this.y = v1.y - v2.y;
                 return this;
             }
         }, {
-            key: "scale",
+            key: 'scale',
             value: function scale(value) {
                 this.x *= value;
                 this.y *= value;
                 return this;
             }
         }, {
-            key: "scaleVector",
+            key: 'scaleVector',
             value: function scaleVector(v1, value) {
                 this.x = v1.x * value;
                 this.y = v1.y * value;
                 return this;
             }
         }, {
-            key: "multiply",
+            key: 'multiply',
             value: function multiply(vector2) {
                 this.x *= vector2.x;
                 this.y *= vector2.y;
                 return this;
             }
         }, {
-            key: "multiplyScaledVector",
+            key: 'multiplyScaledVector',
             value: function multiplyScaledVector(vector2, scalar) {
                 this.x *= vector2.x * scalar;
                 this.y *= vector2.y * scalar;
                 return this;
             }
         }, {
-            key: "multiplyVectors",
+            key: 'multiplyVectors',
             value: function multiplyVectors(v1, v2) {
                 this.x = v1.x * v2.x;
                 this.y = v1.y * v2.y;
                 return this;
             }
         }, {
-            key: "divide",
+            key: 'divide',
             value: function divide(vector2) {
                 this.x /= vector2.x;
                 this.y /= vector2.y;
                 return this;
             }
         }, {
-            key: "divideScaledVector",
+            key: 'divideScaledVector',
             value: function divideScaledVector(vector2, scalar) {
                 this.x /= vector2.x * scalar;
                 this.y /= vector2.y * scalar;
                 return this;
             }
         }, {
-            key: "divideVectors",
+            key: 'divideVectors',
             value: function divideVectors(v1, v2) {
                 this.x = v1.x / v2.x;
                 this.y = v1.y / v2.y;
                 return this;
             }
         }, {
-            key: "halve",
+            key: 'halve',
             value: function halve() {
                 this.x *= 0.5;
                 this.y *= 0.5;
                 return this;
             }
         }, {
-            key: "max",
+            key: 'max',
             value: function max(vector2) {
                 this.x = Math.max(this.x, vector2.x);
                 this.y = Math.max(this.y, vector2.y);
                 return this;
             }
         }, {
-            key: "min",
+            key: 'min',
             value: function min(vector2) {
                 this.x = Math.min(this.x, vector2.x);
                 this.y = Math.min(this.y, vector2.y);
                 return this;
             }
         }, {
-            key: "maxScalar",
+            key: 'maxScalar',
             value: function maxScalar(scalar) {
                 this.x = Math.max(this.x, scalar);
                 this.y = Math.max(this.y, scalar);
                 return this;
             }
         }, {
-            key: "minScalar",
+            key: 'minScalar',
             value: function minScalar(scalar) {
                 this.x = Math.min(this.x, scalar);
                 this.y = Math.min(this.y, scalar);
                 return this;
             }
         }, {
-            key: "maxAxis",
+            key: 'maxAxis',
             value: function maxAxis() {
-                if (this.y > this.x) {
-                    return Axis.y;
-                }
-                return Axis.x;
+                return this.y > this.x ? 'y' : 'x';
             }
         }, {
-            key: "minAxis",
+            key: 'minAxis',
             value: function minAxis() {
-                if (this.y < this.x) {
-                    return Axis.y;
-                }
-                return Axis.x;
+                return this.y < this.x ? 'y' : 'x';
             }
         }, {
-            key: "setOppositeAxis",
+            key: 'setOppositeAxis',
             value: function setOppositeAxis(axis, value) {
-                if (axis === Axis.y) {
+                if (axis === 'y') {
                     this.x = value;
                 } else {
                     this.y = value;
@@ -749,7 +739,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "normalize",
+            key: 'normalize',
             value: function normalize() {
                 var length = this.getMagnitude();
                 if (length && length != 1) {
@@ -758,60 +748,60 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "normalizeVector",
+            key: 'normalizeVector',
             value: function normalizeVector(v) {
                 this.copy(v);
                 return this.normalize();
             }
         }, {
-            key: "absolute",
+            key: 'absolute',
             value: function absolute() {
                 this.x = Math.abs(this.x);
                 this.y = Math.abs(this.y);
                 return this;
             }
         }, {
-            key: "absoluteVector",
+            key: 'absoluteVector',
             value: function absoluteVector(v) {
                 this.x = Math.abs(v.x);
                 this.y = Math.abs(v.y);
                 return this;
             }
         }, {
-            key: "opposite",
+            key: 'opposite',
             value: function opposite() {
                 this.x = -this.x;
                 this.y = -this.y;
                 return this;
             }
         }, {
-            key: "oppositeVector",
+            key: 'oppositeVector',
             value: function oppositeVector(v) {
                 this.x = -v.x;
                 this.y = -v.y;
                 return this;
             }
         }, {
-            key: "clamp",
+            key: 'clamp',
             value: function clamp(rectangle) {
                 this.x = Utils.clamp(this.x, rectangle.topLeftCorner.x, rectangle.bottomRightCorner.x);
                 this.y = Utils.clamp(this.y, rectangle.topLeftCorner.y, rectangle.bottomRightCorner.y);
                 return this;
             }
         }, {
-            key: "lerp",
+            key: 'lerp',
             value: function lerp(normal, min, max) {
                 this.x = Utils.lerp(normal, min.x, max.x);
                 this.y = Utils.lerp(normal, min.y, max.y);
                 return this;
             }
         }, {
-            key: "dotProduct",
+            key: 'dotProduct',
             value: function dotProduct(vector2) {
                 return this.x * vector2.x + this.y * vector2.y;
             }
         }, {
-            key: "x",
+            key: 'x',
             set: function set(x) {
                 this._x = Utils.validate(x);
             },
@@ -819,7 +809,7 @@ var Bump = (function (exports) {
                 return this._x;
             }
         }, {
-            key: "y",
+            key: 'y',
             set: function set(y) {
                 this._y = Utils.validate(y);
             },
@@ -836,44 +826,46 @@ var Bump = (function (exports) {
             _classCallCheck(this, Circle);
 
             this.shape = 'circle';
+            this._radius = 0.0;
+            this._diameter = 0.0;
             this.position = new Vector2(positionX, positionY);
             this.radius = radius;
         }
 
         _createClass(Circle, [{
-            key: "clone",
+            key: 'clone',
             value: function clone() {
                 return new Circle(this.position.x, this.position.y, this.radius);
             }
         }, {
-            key: "copy",
+            key: 'copy',
             value: function copy(circle) {
                 this.position.copy(circle.position);
                 this.radius = circle.radius;
             }
         }, {
-            key: "set",
+            key: 'set',
             value: function set(positionX, positionY, radius) {
                 this.position.set(positionX, positionY);
                 this.radius = radius;
             }
         }, {
-            key: "setPositionXY",
+            key: 'setPositionXY',
             value: function setPositionXY(positionX, positionY) {
                 this.position.set(positionX, positionY);
             }
         }, {
-            key: "setPositionFromVector",
+            key: 'setPositionFromVector',
             value: function setPositionFromVector(position) {
                 this.position.copy(position);
             }
         }, {
-            key: "scale",
+            key: 'scale',
             value: function scale(scalar) {
                 this.radius *= scalar;
             }
         }, {
-            key: "draw",
+            key: 'draw',
             value: function draw(context, fillColor, strokeColor, strokeWidth) {
                 context.beginPath();
                 context.arc(this.position.x, this.position.y, this.radius, 0, Trigonometry.twopi, false);
@@ -888,7 +880,7 @@ var Bump = (function (exports) {
                 }
             }
         }, {
-            key: "radius",
+            key: 'radius',
             set: function set(radius) {
                 this._radius = radius;
                 this._diameter = this._radius * 2;
@@ -897,7 +889,7 @@ var Bump = (function (exports) {
                 return this._radius;
             }
         }, {
-            key: "diameter",
+            key: 'diameter',
             set: function set(diameter) {
                 this._diameter = diameter;
                 this._radius = this._diameter * 0.5;
@@ -924,63 +916,63 @@ var Bump = (function (exports) {
         }
 
         _createClass(Rectangle, [{
-            key: "clone",
+            key: 'clone',
             value: function clone() {
                 return new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
             }
         }, {
-            key: "copy",
+            key: 'copy',
             value: function copy(rectangle) {
                 this.setSizeFromVector(rectangle.size);
                 this.setPositionFromVector(rectangle.position);
             }
         }, {
-            key: "set",
+            key: 'set',
             value: function set(positionX, positionY, sizeX, sizeY) {
                 this.setSizeXY(sizeX, sizeY);
                 this.setPositionXY(positionX, positionY);
             }
         }, {
-            key: "setPositionX",
+            key: 'setPositionX',
             value: function setPositionX(x) {
                 this.setPosition('x', x);
             }
         }, {
-            key: "setPositionY",
+            key: 'setPositionY',
             value: function setPositionY(y) {
                 this.setPosition('y', y);
             }
         }, {
-            key: "setPosition",
+            key: 'setPosition',
             value: function setPosition(property, value) {
                 this.position[property] = value;
                 this.topLeftCorner[property] = value - this.halfSize[property];
                 this.bottomRightCorner[property] = value + this.halfSize[property];
             }
         }, {
-            key: "setPositionXY",
+            key: 'setPositionXY',
             value: function setPositionXY(positionX, positionY) {
                 this.position.set(positionX, positionY);
                 this.setCorners();
             }
         }, {
-            key: "setPositionFromVector",
+            key: 'setPositionFromVector',
             value: function setPositionFromVector(position) {
                 this.position.copy(position);
                 this.setCorners();
             }
         }, {
-            key: "setSizeX",
+            key: 'setSizeX',
             value: function setSizeX(width) {
                 this.setSize('x', width);
             }
         }, {
-            key: "setSizeY",
+            key: 'setSizeY',
             value: function setSizeY(height) {
                 this.setSize('y', height);
             }
         }, {
-            key: "setSize",
+            key: 'setSize',
             value: function setSize(property, value) {
                 this.size[property] = value;
                 this.setHalfSize();
@@ -988,33 +980,33 @@ var Bump = (function (exports) {
                 this.bottomRightCorner[property] = this.position[property] + this.halfSize[property];
             }
         }, {
-            key: "setSizeXY",
+            key: 'setSizeXY',
             value: function setSizeXY(width, height) {
                 this.size.set(width, height);
                 this.setHalfSize();
                 this.setCorners();
             }
         }, {
-            key: "setSizeFromVector",
+            key: 'setSizeFromVector',
             value: function setSizeFromVector(size) {
                 this.size.copy(size);
                 this.setHalfSize();
                 this.setCorners();
             }
         }, {
-            key: "setCorners",
+            key: 'setCorners',
             value: function setCorners() {
                 this.topLeftCorner.set(this.position.x - this.halfSize.x, this.position.y - this.halfSize.y);
                 this.bottomRightCorner.set(this.position.x + this.halfSize.x, this.position.y + this.halfSize.y);
             }
         }, {
-            key: "setHalfSize",
+            key: 'setHalfSize',
             value: function setHalfSize() {
                 this.halfSize.copy(this.size);
                 this.halfSize.halve();
             }
         }, {
-            key: "draw",
+            key: 'draw',
             value: function draw(context, fillColor, strokeColor, strokeWidth) {
                 context.beginPath();
                 context.rect(this.topLeftCorner.x, this.topLeftCorner.y, this.size.x, this.size.y);
@@ -1033,24 +1025,20 @@ var Bump = (function (exports) {
         return Rectangle;
     }();
 
-    var Axis$1;
-    (function (Axis) {
-        Axis["x"] = "x";
-        Axis["y"] = "y";
-        Axis["z"] = "z";
-    })(Axis$1 || (Axis$1 = {}));
-
     var Vector3 = function () {
         function Vector3(x, y, z) {
             _classCallCheck(this, Vector3);
 
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            this._x = 0.0;
+            this._y = 0.0;
+            this._z = 0.0;
+            this.x = x || 0.0;
+            this.y = y || 0.0;
+            this.z = z || 0.0;
         }
 
         _createClass(Vector3, [{
-            key: "fromArray",
+            key: 'fromArray',
             value: function fromArray(array, offset) {
                 if (offset === undefined) {
                     offset = 0;
@@ -1061,17 +1049,17 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "toArray",
+            key: 'toArray',
             value: function toArray() {
                 return [this.x, this.y, this.z];
             }
         }, {
-            key: "toString",
+            key: 'toString',
             value: function toString() {
-                return '(' + Axis$1.x + ' = ' + this.x + ';' + Axis$1.y + ' = ' + this.y + ';' + Axis$1.z + ' = ' + this.z + ')';
+                return '(x = ' + this.x + ';y = ' + this.y + ';z = ' + this.z + ')';
             }
         }, {
-            key: "set",
+            key: 'set',
             value: function set(x, y, z) {
                 this.x = x;
                 this.y = y;
@@ -1079,20 +1067,20 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "clone",
+            key: 'clone',
             value: function clone() {
                 return new Vector3(this.x, this.y, this.z);
             }
         }, {
-            key: "copy",
+            key: 'copy',
             value: function copy(vector3) {
                 this.x = vector3.x;
                 this.y = vector3.y;
-                this.y = vector3.z;
+                this.z = vector3.z;
                 return this;
             }
         }, {
-            key: "origin",
+            key: 'origin',
             value: function origin() {
                 this.x = 0.0;
                 this.y = 0.0;
@@ -1100,17 +1088,17 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "getMagnitude",
+            key: 'getMagnitude',
             value: function getMagnitude() {
                 return Math.sqrt(this.getSquaredMagnitude());
             }
         }, {
-            key: "getSquaredMagnitude",
+            key: 'getSquaredMagnitude',
             value: function getSquaredMagnitude() {
                 return this.x * this.x + this.y * this.y + this.z * this.z;
             }
         }, {
-            key: "getDistance",
+            key: 'getDistance',
             value: function getDistance(vector3) {
                 this.subtract(vector3);
                 var magnitude = this.getMagnitude();
@@ -1118,7 +1106,7 @@ var Bump = (function (exports) {
                 return magnitude;
             }
         }, {
-            key: "getSquaredDistance",
+            key: 'getSquaredDistance',
             value: function getSquaredDistance(vector3) {
                 this.subtract(vector3);
                 var squaredMagnitude = this.getSquaredMagnitude();
@@ -1126,7 +1114,7 @@ var Bump = (function (exports) {
                 return squaredMagnitude;
             }
         }, {
-            key: "add",
+            key: 'add',
             value: function add(vector3) {
                 this.x += vector3.x;
                 this.y += vector3.y;
@@ -1134,7 +1122,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "addScalar",
+            key: 'addScalar',
             value: function addScalar(scalar) {
                 this.x += scalar;
                 this.y += scalar;
@@ -1142,7 +1130,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "addScaledVector",
+            key: 'addScaledVector',
             value: function addScaledVector(vector3, scalar) {
                 this.x += vector3.x * scalar;
                 this.y += vector3.y * scalar;
@@ -1150,7 +1138,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "addVectors",
+            key: 'addVectors',
             value: function addVectors(v1, v2) {
                 this.x = v1.x + v2.x;
                 this.y = v1.y + v2.y;
@@ -1158,7 +1146,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "subtract",
+            key: 'subtract',
             value: function subtract(vector3) {
                 this.x -= vector3.x;
                 this.y -= vector3.y;
@@ -1166,7 +1154,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "subtractScalar",
+            key: 'subtractScalar',
             value: function subtractScalar(scalar) {
                 this.x -= scalar;
                 this.y -= scalar;
@@ -1174,7 +1162,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "subtractScaledVector",
+            key: 'subtractScaledVector',
             value: function subtractScaledVector(vector3, scalar) {
                 this.x -= vector3.x * scalar;
                 this.y -= vector3.y * scalar;
@@ -1182,7 +1170,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "subtractVectors",
+            key: 'subtractVectors',
             value: function subtractVectors(v1, v2) {
                 this.x = v1.x - v2.x;
                 this.y = v1.y - v2.y;
@@ -1190,7 +1178,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "scale",
+            key: 'scale',
             value: function scale(value) {
                 this.x *= value;
                 this.y *= value;
@@ -1198,7 +1186,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "multiply",
+            key: 'multiply',
             value: function multiply(vector3) {
                 this.x *= vector3.x;
                 this.y *= vector3.y;
@@ -1206,7 +1194,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "multiplyScaledVector",
+            key: 'multiplyScaledVector',
             value: function multiplyScaledVector(vector3, scalar) {
                 this.x *= vector3.x * scalar;
                 this.y *= vector3.y * scalar;
@@ -1214,7 +1202,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "multiplyVectors",
+            key: 'multiplyVectors',
             value: function multiplyVectors(v1, v2) {
                 this.x = v1.x * v2.x;
                 this.y = v1.y * v2.y;
@@ -1222,7 +1210,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "divide",
+            key: 'divide',
             value: function divide(vector3) {
                 this.x /= vector3.x;
                 this.y /= vector3.y;
@@ -1230,7 +1218,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "divideScaledVector",
+            key: 'divideScaledVector',
             value: function divideScaledVector(vector3, scalar) {
                 this.x /= vector3.x * scalar;
                 this.y /= vector3.y * scalar;
@@ -1238,7 +1226,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "divideVectors",
+            key: 'divideVectors',
             value: function divideVectors(v1, v2) {
                 this.x = v1.x / v2.x;
                 this.y = v1.y / v2.y;
@@ -1246,7 +1234,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "halve",
+            key: 'halve',
             value: function halve() {
                 this.x *= 0.5;
                 this.y *= 0.5;
@@ -1254,7 +1242,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "max",
+            key: 'max',
             value: function max(vector3) {
                 this.x = Math.max(this.x, vector3.x);
                 this.y = Math.max(this.y, vector3.y);
@@ -1262,7 +1250,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "min",
+            key: 'min',
             value: function min(vector3) {
                 this.x = Math.min(this.x, vector3.x);
                 this.y = Math.min(this.y, vector3.y);
@@ -1270,7 +1258,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "maxScalar",
+            key: 'maxScalar',
             value: function maxScalar(scalar) {
                 this.x = Math.max(this.x, scalar);
                 this.y = Math.max(this.y, scalar);
@@ -1278,7 +1266,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "minScalar",
+            key: 'minScalar',
             value: function minScalar(scalar) {
                 this.x = Math.min(this.x, scalar);
                 this.y = Math.min(this.y, scalar);
@@ -1286,7 +1274,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "normalize",
+            key: 'normalize',
             value: function normalize() {
                 var length = this.getMagnitude();
                 if (length && length != 1) {
@@ -1295,12 +1283,12 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "dotProduct",
+            key: 'dotProduct',
             value: function dotProduct(vector3) {
                 return this.x * vector3.x + this.y * vector3.y + this.z * vector3.z;
             }
         }, {
-            key: "cross",
+            key: 'cross',
             value: function cross(vector3) {
                 var x = this.x,
                     y = this.y,
@@ -1311,7 +1299,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "crossVectors",
+            key: 'crossVectors',
             value: function crossVectors(v1, v2) {
                 var v1x = v1.x,
                     v1y = v1.y,
@@ -1325,7 +1313,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "x",
+            key: 'x',
             set: function set(x) {
                 this._x = Utils.validate(x);
             },
@@ -1333,7 +1321,7 @@ var Bump = (function (exports) {
                 return this._x;
             }
         }, {
-            key: "y",
+            key: 'y',
             set: function set(y) {
                 this._y = Utils.validate(y);
             },
@@ -1341,7 +1329,7 @@ var Bump = (function (exports) {
                 return this._y;
             }
         }, {
-            key: "z",
+            key: 'z',
             set: function set(z) {
                 this._z = Utils.validate(z);
             },
@@ -1365,56 +1353,56 @@ var Bump = (function (exports) {
         }
 
         _createClass(Matrix4x3, [{
-            key: "make",
+            key: 'make',
             value: function make(x1, x2, x3, y1, y2, y3, z1, z2, z3, t1, t2, t3) {
-                this.m[0] = Utils.validate(x1);
-                this.m[1] = Utils.validate(x2);
-                this.m[2] = Utils.validate(x3);
+                this.m[0] = Utils.validate(x1 || 0.0);
+                this.m[1] = Utils.validate(x2 || 0.0);
+                this.m[2] = Utils.validate(x3 || 0.0);
                 this.m[3] = 0.0;
-                this.m[4] = Utils.validate(y1);
-                this.m[5] = Utils.validate(y2);
-                this.m[6] = Utils.validate(y3);
+                this.m[4] = Utils.validate(y1 || 0.0);
+                this.m[5] = Utils.validate(y2 || 0.0);
+                this.m[6] = Utils.validate(y3 || 0.0);
                 this.m[7] = 0.0;
-                this.m[8] = Utils.validate(z1);
-                this.m[9] = Utils.validate(z2);
-                this.m[10] = Utils.validate(z3);
+                this.m[8] = Utils.validate(z1 || 0.0);
+                this.m[9] = Utils.validate(z2 || 0.0);
+                this.m[10] = Utils.validate(z3 || 0.0);
                 this.m[11] = 0.0;
-                this.m[12] = Utils.validate(t1);
-                this.m[13] = Utils.validate(t2);
-                this.m[14] = Utils.validate(t3);
+                this.m[12] = Utils.validate(t1 || 0.0);
+                this.m[13] = Utils.validate(t2 || 0.0);
+                this.m[14] = Utils.validate(t3 || 0.0);
                 this.m[15] = 1.0;
             }
         }, {
-            key: "copy",
+            key: 'copy',
             value: function copy(matrix4x3) {
                 var m = matrix4x3.m;
                 this.make(m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10], m[12], m[13], m[14]);
                 return this;
             }
         }, {
-            key: "toArray",
+            key: 'toArray',
             value: function toArray() {
                 return this.m;
             }
         }, {
-            key: "toString",
+            key: 'toString',
             value: function toString() {
                 return '(' + this.m[0] + ',' + this.m[1] + ',' + this.m[2] + ',' + this.m[3] + ';' + this.m[4] + ',' + this.m[5] + ',' + this.m[6] + ',' + this.m[7] + ';' + this.m[8] + ',' + this.m[9] + ',' + this.m[10] + ',' + this.m[11] + ';' + this.m[12] + ',' + this.m[13] + ',' + this.m[14] + ',' + this.m[15] + ')';
             }
         }, {
-            key: "identity",
+            key: 'identity',
             value: function identity() {
                 this.make(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
                 return this;
             }
         }, {
-            key: "scale",
+            key: 'scale',
             value: function scale(vector3) {
                 this.make(vector3.x, 0.0, 0.0, 0.0, vector3.y, 0.0, 0.0, 0.0, vector3.z, 0.0, 0.0, 0.0);
                 return this;
             }
         }, {
-            key: "rotateX",
+            key: 'rotateX',
             value: function rotateX(angle) {
                 var cos = Trigonometry.cosine(angle);
                 var sin = Trigonometry.sine(angle);
@@ -1422,7 +1410,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "rotateY",
+            key: 'rotateY',
             value: function rotateY(angle) {
                 var cos = Trigonometry.cosine(angle);
                 var sin = Trigonometry.sine(angle);
@@ -1430,7 +1418,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "rotateZ",
+            key: 'rotateZ',
             value: function rotateZ(angle) {
                 var cos = Trigonometry.cosine(angle);
                 var sin = Trigonometry.sine(angle);
@@ -1438,13 +1426,13 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "translate",
+            key: 'translate',
             value: function translate(vector3) {
                 this.make(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, vector3.x, vector3.y, vector3.z);
                 return this;
             }
         }, {
-            key: "multiply",
+            key: 'multiply',
             value: function multiply(matrix4x3) {
                 var m1 = this.m;
                 var m2 = matrix4x3.m;
@@ -1452,7 +1440,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "lookAtRH",
+            key: 'lookAtRH',
             value: function lookAtRH(eye, target, up) {
                 this.zAxis.subtractVectors(eye, target).normalize();
                 this.xAxis.crossVectors(up, this.zAxis).normalize();
@@ -1470,63 +1458,60 @@ var Bump = (function (exports) {
             _classCallCheck(this, Matrix4x4);
 
             this.m = new Float32Array(16);
-            this.xAxis = new Vector3();
-            this.yAxis = new Vector3();
-            this.zAxis = new Vector3();
             this.make(x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4, t1, t2, t3, t4);
         }
 
         _createClass(Matrix4x4, [{
-            key: "make",
+            key: 'make',
             value: function make(x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4, t1, t2, t3, t4) {
-                this.m[0] = Utils.validate(x1);
-                this.m[1] = Utils.validate(x2);
-                this.m[2] = Utils.validate(x3);
-                this.m[3] = Utils.validate(x4);
-                this.m[4] = Utils.validate(y1);
-                this.m[5] = Utils.validate(y2);
-                this.m[6] = Utils.validate(y3);
-                this.m[7] = Utils.validate(y4);
-                this.m[8] = Utils.validate(z1);
-                this.m[9] = Utils.validate(z2);
-                this.m[10] = Utils.validate(z3);
-                this.m[11] = Utils.validate(z4);
-                this.m[12] = Utils.validate(t1);
-                this.m[13] = Utils.validate(t2);
-                this.m[14] = Utils.validate(t3);
-                this.m[15] = Utils.validate(t4);
+                this.m[0] = Utils.validate(x1 || 0.0);
+                this.m[1] = Utils.validate(x2 || 0.0);
+                this.m[2] = Utils.validate(x3 || 0.0);
+                this.m[3] = Utils.validate(x4 || 0.0);
+                this.m[4] = Utils.validate(y1 || 0.0);
+                this.m[5] = Utils.validate(y2 || 0.0);
+                this.m[6] = Utils.validate(y3 || 0.0);
+                this.m[7] = Utils.validate(y4 || 0.0);
+                this.m[8] = Utils.validate(z1 || 0.0);
+                this.m[9] = Utils.validate(z2 || 0.0);
+                this.m[10] = Utils.validate(z3 || 0.0);
+                this.m[11] = Utils.validate(z4 || 0.0);
+                this.m[12] = Utils.validate(t1 || 0.0);
+                this.m[13] = Utils.validate(t2 || 0.0);
+                this.m[14] = Utils.validate(t3 || 0.0);
+                this.m[15] = Utils.validate(t4 || 0.0);
             }
         }, {
-            key: "copy",
+            key: 'copy',
             value: function copy(matrix4x4) {
                 var m = matrix4x4.m;
                 this.make(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15]);
                 return this;
             }
         }, {
-            key: "toArray",
+            key: 'toArray',
             value: function toArray() {
                 return this.m;
             }
         }, {
-            key: "toString",
+            key: 'toString',
             value: function toString() {
                 return '(' + this.m[0] + ',' + this.m[1] + ',' + this.m[2] + ',' + this.m[3] + ';' + this.m[4] + ',' + this.m[5] + ',' + this.m[6] + ',' + this.m[7] + ';' + this.m[8] + ',' + this.m[9] + ',' + this.m[10] + ',' + this.m[11] + ';' + this.m[12] + ',' + this.m[13] + ',' + this.m[14] + ',' + this.m[15] + ')';
             }
         }, {
-            key: "identity",
+            key: 'identity',
             value: function identity() {
                 this.make(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
                 return this;
             }
         }, {
-            key: "scale",
+            key: 'scale',
             value: function scale(vector3) {
                 this.make(vector3.x, 0.0, 0.0, 0.0, 0.0, vector3.y, 0.0, 0.0, 0.0, 0.0, vector3.z, 0.0, 0.0, 0.0, 0.0, 1.0);
                 return this;
             }
         }, {
-            key: "rotateX",
+            key: 'rotateX',
             value: function rotateX(angle) {
                 var cos = Trigonometry.cosine(angle);
                 var sin = Trigonometry.sine(angle);
@@ -1534,7 +1519,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "rotateY",
+            key: 'rotateY',
             value: function rotateY(angle) {
                 var cos = Trigonometry.cosine(angle);
                 var sin = Trigonometry.sine(angle);
@@ -1542,7 +1527,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "rotateZ",
+            key: 'rotateZ',
             value: function rotateZ(angle) {
                 var cos = Trigonometry.cosine(angle);
                 var sin = Trigonometry.sine(angle);
@@ -1550,13 +1535,13 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "translate",
+            key: 'translate',
             value: function translate(vector3) {
                 this.make(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, vector3.x, vector3.y, vector3.z, 1.0);
                 return this;
             }
         }, {
-            key: "multiply",
+            key: 'multiply',
             value: function multiply(matrix4x4) {
                 var m1 = this.m;
                 var m2 = matrix4x4.m;
@@ -1564,7 +1549,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "perspective",
+            key: 'perspective',
             value: function perspective(fovy, aspect, znear, zfar) {
                 var f = Math.tan(Trigonometry.halfpi - 0.5 * fovy * Trigonometry.pi / 180);
                 var rangeInv = 1.0 / (znear - zfar);
@@ -1572,7 +1557,7 @@ var Bump = (function (exports) {
                 return this;
             }
         }, {
-            key: "orthographic",
+            key: 'orthographic',
             value: function orthographic(left, right, top, bottom, near, far) {
                 var w = right - left;
                 var h = top - bottom;

@@ -1,7 +1,7 @@
 
-import {Vector2} from '@lcluber/type6js';
-import {CollisionDetection } from './collision';
-import {Physics} from './physics';
+import { Vector2 } from '@lcluber/type6js';
+import { CollisionDetection } from './collision';
+import { Physics } from './physics';
 
 // export interface IBody {
 //   physics : Physics;
@@ -9,7 +9,7 @@ import {Physics} from './physics';
 
 export class Scene {
 
-  bodies : Array<Physics>;
+  bodies : Physics[];
   bodiesLength : number;
 
   //collision : BUMP.Collision.create();
@@ -47,7 +47,7 @@ export class Scene {
           for(let j = i + 1 ; j < this.bodiesLength ; j++) {
             let body2 = this.bodies[j];
             if (body2.isActive()) {
-              if (CollisionDetection.test(body1, body2)){
+              if (CollisionDetection.test(body1, body2)) {
                 //MOUETTE.Logger.debug('Collision detected');
               }
             }
@@ -73,7 +73,7 @@ export class Scene {
     }
   }
 
-  public setIteration(iterations: number) {
+  public setIteration(iterations: number): void {
     this.iterations = iterations;
   }
 
