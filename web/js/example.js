@@ -10,7 +10,7 @@
   collisionScene1.setIteration(3);
   collisionScene2.setIteration(3);
   //create animation frame
-  var animation      = new Framerat.Player(render);
+  var animation      = new FrameRat.Player(render);
   var particleQty    = 300;
   var particleWeight = 1.0;
   var floor          = [];
@@ -33,7 +33,7 @@
     },
 
     update: function(){
-      this.physics.updatePosition( Type6.Time.millisecondToSecond(animation.clock.delta)  );
+      this.physics.updatePosition( Type6.Time.millisecToSec(animation.clock.delta)  );
       if(this.physics.isActive() && this.physics.position.y > height + this.physics.body.radius){
         this.physics.toggleActive();
       }
@@ -161,7 +161,6 @@
     clearFrame();
     draw();
     //animation.drawConsole( context );
-    animation.newFrame();
   }
 
   function playAnimation(){

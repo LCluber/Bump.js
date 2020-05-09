@@ -1,3 +1,8 @@
+Version 0.5.5 (May 09th 2020)
+-----------------------------
+ * Update Type6js dependency to v2.0.0
+ * Fix Typescrypt declaration file
+
 Version 0.5.4 (October 13th 2018)
 -----------------------------
  * Bump.js published on NPM at @lcluber/bumpjs.

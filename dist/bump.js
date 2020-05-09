@@ -27,9 +27,9 @@ import { Circle, Rectangle, Vector2 } from '@lcluber/type6js';
 
 class CircleVSCircle {
     static detect(apos, radiusA, bpos, radiusB) {
-        this.ab.subtractVectors(apos, bpos);
+        this.ab.copy(apos).subtract(bpos);
         let rr = radiusA + radiusB;
-        if (rr * rr - this.ab.getSquaredMagnitude() > 0) {
+        if (rr * rr - this.ab.getMagnitude(true) > 0) {
             return this.getPenetration(rr);
         }
         return this.ab.origin();
@@ -43,8 +43,9 @@ CircleVSCircle.ab = new Vector2();
 
 class AabbVSAabb {
     static detect(apos, ahs, bpos, bhs) {
-        this.ab.subtractVectors(apos, bpos);
-        if (this.penetration.absoluteVector(this.ab)
+        this.ab.copy(apos).subtract(bpos);
+        if (this.penetration.copy(this.ab)
+            .absolute()
             .opposite()
             .add(ahs)
             .add(bhs)
@@ -54,9 +55,9 @@ class AabbVSAabb {
         return this.penetration.origin();
     }
     static getPenetration() {
-        let minAxis = this.penetration.minAxis();
+        let minAxis = this.penetration.getMinAxis();
         this.penetration.setOppositeAxis(minAxis, 0.0);
-        if (this.ab[minAxis] < 0) {
+        if (this.penetration[minAxis] && this.ab[minAxis] < 0) {
             this.penetration[minAxis] = -this.penetration[minAxis];
         }
         return this.penetration;
@@ -67,8 +68,9 @@ AabbVSAabb.penetration = new Vector2();
 
 class CircleVSAabb {
     static detect(apos, radiusA, bpos, bhs) {
-        this.ab.subtractVectors(apos, bpos);
-        if (this.penetration.absoluteVector(this.ab)
+        this.ab.copy(apos).subtract(bpos);
+        if (this.penetration.copy(this.ab)
+            .absolute()
             .opposite()
             .addScalar(radiusA)
             .add(bhs)
@@ -83,7 +85,7 @@ class CircleVSAabb {
         this.setVoronoiRegion(bhs);
         if (this.voronoi.x === 0) {
             if (this.voronoi.y === 0) {
-                this.projectionAxis = this.penetration.minAxis();
+                this.projectionAxis = this.penetration.getMinAxis();
             }
             else {
                 this.projectionAxis = 'y';
@@ -95,10 +97,11 @@ class CircleVSAabb {
             return true;
         }
         else {
-            this.avertex.multiplyVectors(this.voronoi, bhs)
+            this.avertex.copy(this.voronoi)
+                .multiply(bhs)
                 .add(bpos)
-                .subtractVectors(apos, this.avertex);
-            let len = this.avertex.getSquaredMagnitude();
+                .subtract(apos);
+            let len = this.avertex.getMagnitude(true);
             if (radiusA * radiusA - len > 0) {
                 this.projectionAxis = 'diag';
                 return true;
@@ -132,10 +135,10 @@ class CircleVSAabb {
             let len = this.avertex.getMagnitude();
             let pen = radiusA - len;
             if (len === 0) {
-                this.penetration.scaleVector(this.voronoi, pen / 1.41);
+                this.penetration.copy(this.voronoi).scale(pen / 1.41);
             }
             else {
-                this.penetration.scaleVector(this.avertex, pen / len);
+                this.penetration.copy(this.avertex).scale(pen / len);
             }
         }
         return this.penetration;
@@ -158,7 +161,7 @@ class CollisionDetection {
     static test(a, b) {
         this.invert = false;
         this.detect(a.body, b.body);
-        if (this.penetration.isNotOrigin()) {
+        if (!this.penetration.isOrigin()) {
             if (this.resolve(a, b)) {
                 this.computeImpulse(a, b);
             }
@@ -189,7 +192,7 @@ class CollisionDetection {
         this.totalInverseMass = a.inverseMass + b.inverseMass;
         this.correction.copy(this.penetration)
             .scale(this.percent / this.totalInverseMass);
-        if (this.correction.isNotOrigin()) {
+        if (!this.correction.isOrigin()) {
             if (this.invert) {
                 b.correctPosition(this.correction);
                 a.correctPosition(this.correction.opposite());
@@ -203,9 +206,9 @@ class CollisionDetection {
         return false;
     }
     static computeImpulse(a, b) {
-        this.contactNormal.normalizeVector(this.penetration);
-        let separatingVelocity = this.relativeVelocity.subtractVectors(a.velocity, b.velocity)
-            .dotProduct(this.contactNormal);
+        this.contactNormal.copy(this.penetration).normalize();
+        this.ab.copy(a.velocity).subtract(b.velocity);
+        let separatingVelocity = this.ab.dotProduct(this.contactNormal);
         if (separatingVelocity < 0) {
             let restitution = Math.max(a.restitution, b.restitution);
             separatingVelocity = separatingVelocity * restitution - separatingVelocity;
@@ -217,6 +220,7 @@ class CollisionDetection {
         }
     }
 }
+CollisionDetection.ab = new Vector2();
 CollisionDetection.penetration = new Vector2();
 CollisionDetection.contactNormal = new Vector2();
 CollisionDetection.correction = new Vector2();
@@ -333,22 +337,22 @@ class Physics {
     }
     applyForces(second) {
         this.resultingAcc.copy(this.gravity);
-        if (this.force.isNotOrigin()) {
+        if (!this.force.isOrigin()) {
             this.resultingAcc.addScaledVector(this.force, this.inverseMass);
             this.force.origin();
         }
-        if (this.resultingAcc.isNotOrigin()) {
+        if (!this.resultingAcc.isOrigin()) {
             this.velocity.addScaledVector(this.resultingAcc, second);
         }
     }
     applyImpulse() {
-        if (this.impulse.isNotOrigin()) {
+        if (!this.impulse.isOrigin()) {
             this.velocity.addScaledVector(this.impulse, this.inverseMass);
             this.impulse.origin();
         }
     }
     applyVelocity(second) {
-        if (this.velocity.isNotOrigin()) {
+        if (!this.velocity.isOrigin()) {
             if (this.damping < 1) {
                 this.velocity.scale(Math.pow(this.damping, second));
             }

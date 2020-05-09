@@ -8,9 +8,9 @@ export class CircleVSCircle {
   //static rr: number = 0.0;
 
   static detect( apos: Vector2, radiusA: number, bpos: Vector2, radiusB: number ): Vector2 {
-    this.ab.subtractVectors(apos,bpos);
+    this.ab.copy(apos).subtract(bpos);
     let rr = radiusA + radiusB;
-    if(rr * rr - this.ab.getSquaredMagnitude() > 0) {//collision detected
+    if(rr * rr - this.ab.getMagnitude(true) > 0) {//collision detected
       return this.getPenetration(rr);
     }
     return this.ab.origin();

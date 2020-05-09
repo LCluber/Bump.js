@@ -9,7 +9,7 @@ enum Shape { circle = 'circle', aabb = 'aabb' };
 
 export class CollisionDetection {
 
-  //static ab                     : Vector2 = new Vector2();
+  static ab                     : Vector2 = new Vector2();
   static penetration            : Vector2 = new Vector2();
   static contactNormal          : Vector2 = new Vector2();
   static correction             : Vector2 = new Vector2();
@@ -29,7 +29,7 @@ export class CollisionDetection {
       //if( this.cellTest( physicsA.cells, physicsB.cells ) ){
         this.invert = false;
         this.detect( a.body, b.body );
-        if( this.penetration.isNotOrigin()) {
+        if( !this.penetration.isOrigin()) {
           if ( this.resolve( a, b )) {
             this.computeImpulse( a, b );
           }
@@ -92,7 +92,7 @@ export class CollisionDetection {
     //   Math.max( Math.abs(this.penetration.getY()) - this.k_slop, 0 ) / this.totalInverseMass * this.percent * this.contactNormal.getY()
     // );
 
-    if(this.correction.isNotOrigin()) {
+    if(!this.correction.isOrigin()) {
       if(this.invert) {
         b.correctPosition( this.correction /*, imA / this.totalInverseMass*/ );
         a.correctPosition( this.correction.opposite());
@@ -109,9 +109,9 @@ export class CollisionDetection {
 
   private static computeImpulse( a: Physics, b: Physics ) {
 
-    this.contactNormal.normalizeVector(this.penetration);//is now surfaceNormal //unit length vector perpendicular to the surface between the two objects || contactnormal
-    let separatingVelocity = this.relativeVelocity.subtractVectors(a.velocity,b.velocity)
-                                                  .dotProduct(this.contactNormal);
+    this.contactNormal.copy(this.penetration).normalize();//is now surfaceNormal //unit length vector perpendicular to the surface between the two objects || contactnormal
+    this.ab.copy(a.velocity).subtract(b.velocity);
+    let separatingVelocity = this.ab.dotProduct(this.contactNormal);
     if( separatingVelocity < 0 ) {//apply collision response forces only if objects are travelling in each other
       //vel+=1/m*impulse
       //calculate separating velocity with restitution (between 0 and 1)

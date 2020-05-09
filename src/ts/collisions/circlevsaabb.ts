@@ -14,8 +14,9 @@ export class CircleVSAabb {
   static projectionAxis : ProjectionAxis = 'x';
 
   static detect( apos: Vector2, radiusA: number, bpos: Vector2, bhs: Vector2): Vector2 {
-    this.ab.subtractVectors(apos,bpos);
-    if(this.penetration.absoluteVector(this.ab)
+    this.ab.copy(apos).subtract(bpos);
+    if(this.penetration.copy(this.ab)
+                       .absolute()
                        .opposite()
                        .addScalar(radiusA)
                        .add(bhs)
@@ -31,7 +32,7 @@ export class CircleVSAabb {
     this.setVoronoiRegion(bhs);
     if( this.voronoi.x === 0 ) {
       if( this.voronoi.y === 0 ) { //circle is in the aabb
-        this.projectionAxis = this.penetration.minAxis() as ProjectionAxis;
+        this.projectionAxis = this.penetration.getMinAxis() as ProjectionAxis;
       } else { //project on y axis
         this.projectionAxis = 'y';
       }
@@ -40,10 +41,12 @@ export class CircleVSAabb {
       this.projectionAxis = 'x';
       return true;
     } else { //possible diagonal collision
-      this.avertex.multiplyVectors( this.voronoi, bhs )
+      this.avertex.copy( this.voronoi )
+                  .multiply( bhs )
                   .add( bpos )//get nearest vertex position
-                  .subtractVectors(apos, this.avertex);//calc vert->circle vector
-      let len = this.avertex.getSquaredMagnitude();
+                  .subtract( apos );
+                  //.opposite();//calc vert->circle vector
+      let len = this.avertex.getMagnitude(true);
       if( radiusA * radiusA - len > 0 ) { //vertex is in the circle; project outward
         this.projectionAxis = 'diag';
         return true; //collision detected
@@ -83,9 +86,9 @@ export class CircleVSAabb {
       let len = this.avertex.getMagnitude();
       let pen = radiusA - len;
       if( len === 0 ) {
-        this.penetration.scaleVector(this.voronoi, pen/1.41);//project out by 45deg (1/square root of 2)
+        this.penetration.copy(this.voronoi).scale(pen/1.41);//project out by 45deg (1/square root of 2)
       }else{
-        this.penetration.scaleVector(this.avertex, pen/len);
+        this.penetration.copy(this.avertex).scale(pen/len);
       }
     }
     return this.penetration;
