@@ -11,8 +11,9 @@ export class AabbVSAabb {
                  ahs : Vector2,
                  bpos: Vector2,
                  bhs : Vector2 ): Vector2 {
-    this.ab.subtractVectors(apos,bpos);
-    if (this.penetration.absoluteVector(this.ab)
+    this.ab.copy(apos).subtract(bpos);
+    if (this.penetration.copy(this.ab)
+                        .absolute()
                         .opposite()
                         .add(ahs)
                         .add(bhs)
@@ -24,12 +25,11 @@ export class AabbVSAabb {
 
   private static getPenetration(): Vector2 {
     //pick the projection axis
-    let minAxis = this.penetration.minAxis();
+    let minAxis = this.penetration.getMinAxis();
     this.penetration.setOppositeAxis(minAxis, 0.0);
-    if(this.ab[minAxis] < 0) {
+    if(this.penetration[minAxis] && this.ab[minAxis] < 0) {
       this.penetration[minAxis] = -this.penetration[minAxis];
     }
     return this.penetration;
   }
-
 }

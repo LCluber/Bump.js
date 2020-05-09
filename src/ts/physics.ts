@@ -170,25 +170,25 @@ export class Physics {
 
   public applyForces( second: number ): void {
     this.resultingAcc.copy( this.gravity );// initialize resulting acceleration for this frame
-    if(this.force.isNotOrigin()) {
+    if(!this.force.isOrigin()) {
       this.resultingAcc.addScaledVector( this.force, this.inverseMass );
       this.force.origin();
     }
-    if(this.resultingAcc.isNotOrigin()){
+    if(!this.resultingAcc.isOrigin()){
       this.velocity.addScaledVector( this.resultingAcc, second );
     }
   }
 
   private applyImpulse() : void {
     //apply impulse from collision directly to velocity
-    if(this.impulse.isNotOrigin()) {
+    if(!this.impulse.isOrigin()) {
       this.velocity.addScaledVector( this.impulse, this.inverseMass );//add impulse vector to velocity
       this.impulse.origin();
     }
   }
 
   private applyVelocity( second: number ): void {
-    if(this.velocity.isNotOrigin()) {
+    if(!this.velocity.isOrigin()) {
       if(this.damping < 1) {
         this.velocity.scale( Math.pow( this.damping, second ) );
       }

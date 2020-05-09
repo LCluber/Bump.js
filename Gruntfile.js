@@ -292,7 +292,7 @@ module.exports = function(grunt){
           stripBanners: false,
           banner: banner
         },
-        src: srcDir + '**/*.d.ts',
+        src: compiledES6Dir + '**/*.d.ts',
         dest: distDir + projectNameLC + '.d.ts'
       },
       webjs: {
@@ -328,7 +328,8 @@ module.exports = function(grunt){
       options: {
         //import { IBase64Service } from '../services/base64.service';
         // /// <reference path="../config/typings/index.d.ts" />
-        patterns: [ /import.*';/g,
+        patterns: [ /import { .* } from "\..*";/g,
+                    /import ".*";/g,
                     /export { .* } from '.*';/g,
                     /\/\/\/ <reference path=.*\/>/g
                   ]
