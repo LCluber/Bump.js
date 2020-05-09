@@ -1,10 +1,6 @@
 ## Synopsis
 
-Bump.js is a 2D physics engine.
-
-## Code Example
-
-[See a basic example on the dedicated website](http://bumpjs.lcluber.com/#source).
+[Bump.js](http://bumpjs.lcluber.com) is a 2D physics engine written in TypeScript.
 
 ## Motivation
 
@@ -12,11 +8,23 @@ The main purpose of this library is to provide a simple way to handle physics.
 
 ## Installation
 
-To use **Bump.js** download it **[here](http://bumpjs.lcluber.com/#download)** and learn how to use it **[there](http://bumpjs.lcluber.com/#example)**.
+```bash
+$ npm install @lcluber/bumpjs
+```
+Or download it **[here](http://bumpjs.lcluber.com/#download)**.
+
+## Demo
+
+See a basic example **[here](http://bumpjs.lcluber.com/#example)**.
+
+## Usage
+
+Learn how to use it **[here](http://bumpjs.lcluber.com/#source)**.
 
 ## API Reference
 
-[See the documentation on the dedicated website](http://bumpjs.lcluber.com/doc/).
+Read the documentation **[here](http://bumpjs.lcluber.com/doc/)**.
+
 
 ## Tests
 
@@ -25,7 +33,7 @@ No tests to run yet
 ## Contributors
 
 There is still a lot of work to do on this project and I would be glad to get all the help you can provide.
-To contribute you can clone the project on **[GitHub](https://github.com/LCluber/Bump.js)** and see  **INSTALL.md** for detailed installation walkthrough of the project.
+To contribute you can clone the project on **[GitHub](https://github.com/LCluber/Bump.js)** and see  **NOTICE.md** for detailed installation walkthrough of the project.
 
 ## License
 
