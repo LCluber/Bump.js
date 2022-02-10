@@ -71,7 +71,7 @@
     "grunt-typedoc": "0.2.4",
     "jquery": "3.2.1",
     "jquery-easing": "0.0.1",
-    "node-sass": "4.14.1",
+    "node-sass": "7.0.0",
     "rollup-plugin-babel": "3.0.4",
     "rollup-plugin-node-resolve": "3.3.0",
     "time-grunt": "1.4.0",
